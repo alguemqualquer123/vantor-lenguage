@@ -1,0 +1,1 @@
+cp -r vantor-dark-pro ~/.vscode/extensions/

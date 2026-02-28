@@ -1,0 +1,267 @@
+{
+  "name": "vantor-dark-pro",
+  "displayName": "Vantor Dark Pro",
+  "description": "A professional dark theme for VSCode with modern identity, optimal contrast for long coding sessions, and support for modern languages.",
+  "version": "1.0.0",
+  "publisher": "vantor",
+  "author": "Vantor Team",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "keywords": [
+    "dark",
+    "theme",
+    "vantor",
+    "programming",
+    "modern",
+    "minimalist"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "label": "Vantor Dark Pro",
+        "uiTheme": "vs-dark",
+        "path": "./themes/vantor-dark-pro-color-theme.json"
+      }
+    ],
+    "iconThemes": [
+      {
+        "id": "vantor-dark-pro-icons",
+        "label": "Vantor Dark Pro Icons",
+        "path": "./themes/vantor-dark-pro-icon-theme.json"
+      }
+    ],
+    "languages": [
+      {
+        "id": "vantor",
+        "aliases": ["Vantor", "VantorLang"],
+        "extensions": [".vnt"],
+        "icon": {
+          "light": "./icons/vantor-light.svg",
+          "dark": "./icons/vantor-dark.svg"
+        },
+        "grammars": [
+          {
+            "language": "vantor",
+            "scopeName": "source.vnt",
+            "path": "./syntaxes/vantor.tmLanguage.json"
+          }
+        ]
+      },
+      {
+        "id": "vantortoml",
+        "aliases": ["Vantor Config", "Vantor TOML"],
+        "extensions": [".vantor.toml", "vantor.toml"],
+        "icon": {
+          "light": "./icons/vantor-light.svg",
+          "dark": "./icons/vantor-dark.svg"
+        }
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "vantor",
+        "label": "Vantor Debugger",
+        "languages": ["vantor"],
+        "configurationAttributes": {
+          "launch": {
+            "required": ["program"],
+            "properties": {
+              "program": {
+                "type": "string",
+                "description": "Path to the Vantor source file to debug"
+              },
+              "args": {
+                "type": "array",
+                "description": "Command line arguments passed to the program",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "cwd": {
+                "type": "string",
+                "description": "Working directory for the debugger"
+              },
+              "env": {
+                "type": "object",
+                "description": "Environment variables",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "stopOnEntry": {
+                "type": "boolean",
+                "description": "Automatically stop on entry",
+                "default": true
+              },
+              "trace": {
+                "type": "boolean",
+                "description": "Enable tracing of debugger messages",
+                "default": false
+              },
+              "debugServer": {
+                "type": "number",
+                "description": "Port to attach the debug server (for external debug adapter)"
+              },
+              "runtime": {
+                "type": "string",
+                "description": "Path to Vantor CLI executable",
+                "default": "vantor"
+              },
+              "sourceMaps": {
+                "type": "boolean",
+                "description": "Enable source maps",
+                "default": true
+              },
+              "smartStep": {
+                "type": "boolean",
+                "description": "Automatically skip generated code",
+                "default": true
+              },
+              "evaluateForHovers": {
+                "type": "boolean",
+                "description": "Enable evaluation of expressions on hover",
+                "default": true
+              },
+              "breakpoints": {
+                "type": "array",
+                "description": "Initial breakpoints",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "line": {
+                      "type": "number"
+                    },
+                    "column": {
+                      "type": "number"
+                    },
+                    "condition": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "attach": {
+            "properties": {
+              "address": {
+                "type": "string",
+                "description": "TCP/IP address of debug server"
+              },
+              "port": {
+                "type": "number",
+                "description": "TCP/IP port of debug server",
+                "default": 4711
+              },
+              "restart": {
+                "type": "boolean",
+                "description": "Restart connection after termination",
+                "default": false
+              },
+              "trace": {
+                "type": "boolean",
+                "description": "Enable tracing",
+                "default": false
+              },
+              "localRoot": {
+                "type": "string",
+                "description": "Path to the local source root"
+              },
+              "remoteRoot": {
+                "type": "string",
+                "description": "Path to the remote source root"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Vantor Configuration",
+      "properties": {
+        "vantor.debug.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Vantor debugger support"
+        },
+        "vantor.debug.server": {
+          "type": "number",
+          "default": 4711,
+          "description": "Debug server port"
+        },
+        "vantor.debug.runtime": {
+          "type": "string",
+          "default": "vantor",
+          "description": "Path to Vantor CLI executable"
+        },
+        "vantor.debug.console": {
+          "type": "string",
+          "enum": ["internalConsole", "integratedTerminal", "externalTerminal"],
+          "default": "integratedTerminal",
+          "description": "Where to show debug output"
+        },
+        "vantor.debug.cwd": {
+          "type": "string",
+          "default": "${workspaceFolder}",
+          "description": "Working directory for debugged program"
+        },
+        "vantor.build.outputDir": {
+          "type": "string",
+          "default": "target/vantor",
+          "description": "Output directory for build artifacts"
+        },
+        "vantor.format.tabSize": {
+          "type": "number",
+          "default": 4,
+          "description": "Tab size for formatting"
+        },
+        "vantor.format.insertSpaces": {
+          "type": "boolean",
+          "default": true,
+          "description": "Insert spaces instead of tabs"
+        }
+      }
+    },
+    "taskDefinitions": [
+      {
+        "type": "vantor",
+        "required": ["task"],
+        "properties": {
+          "task": {
+            "type": "string",
+            "enum": ["build", "run", "test", "check", "fmt"],
+            "description": "The Vantor task to run"
+          },
+          "args": {
+            "type": "array",
+            "description": "Additional arguments",
+            "items": {
+              "type": "string"
+            }
+          },
+          "release": {
+            "type": "boolean",
+            "description": "Build in release mode",
+            "default": false
+          }
+        }
+      }
+    ],
+    "snippets": [
+      {
+        "language": "vantor",
+        "path": "./snippets/vantor.json"
+      }
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vantor/vantor-dark-pro"
+  }
+}

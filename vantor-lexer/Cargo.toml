@@ -1,0 +1,13 @@
+[package]
+name = "vantor-lexer"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+vantor-core = { path = "../vantor-core" }
+thiserror.workspace = true
+
+[lib]
+name = "vantor_lexer"

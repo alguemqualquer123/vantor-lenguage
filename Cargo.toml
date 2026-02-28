@@ -1,0 +1,24 @@
+[workspace]
+members = [
+    "vantor-cli",
+    "vantor-core",
+    "vantor-lexer",
+    "vantor-parser",
+    "vantor-analysis",
+    "vantor-codegen",
+    "vantor-utils",
+]
+resolver = "2"
+
+[workspace.package]
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+authors = ["VantorLang Team"]
+
+[workspace.dependencies]
+clap = { version = "4.5", features = ["derive"] }
+log = "0.4"
+env_logger = "0.11"
+thiserror = "1.0"
+anyhow = "1.0"

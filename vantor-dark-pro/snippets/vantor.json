@@ -1,0 +1,197 @@
+{
+  "Module Declaration": {
+    "prefix": "module",
+    "body": "module ${1:main};\n\n$0",
+    "description": "Declare a module"
+  },
+  "Import": {
+    "prefix": "import",
+    "body": "import ${1:module.path};",
+    "description": "Import a module"
+  },
+  "Function": {
+    "prefix": "fn",
+    "body": "pub fn ${1:functionName}(${2:params}) -> ${3:ReturnType} {\n    $0\n}",
+    "description": "Declare a public function"
+  },
+  "Function Private": {
+    "prefix": "fnp",
+    "body": "fn ${1:functionName}(${2:params}) -> ${3:ReturnType} {\n    $0\n}",
+    "description": "Declare a private function"
+  },
+  "Main Function": {
+    "prefix": "main",
+    "body": "pub fn main() -> void {\n    $0\n}",
+    "description": "Main entry point"
+  },
+  "Struct": {
+    "prefix": "struct",
+    "body": "struct ${1:StructName} {\n    ${2:field}: ${3:Type},\n}",
+    "description": "Declare a struct"
+  },
+  "Enum": {
+    "prefix": "enum",
+    "body": "enum ${1:EnumName} {\n    ${2:Variant1},\n    ${3:Variant2},\n}",
+    "description": "Declare an enum"
+  },
+  "Interface": {
+    "prefix": "interface",
+    "body": "interface ${1:InterfaceName} {\n    ${2:method}(${3:params}) -> ${4:ReturnType};\n}",
+    "description": "Declare an interface"
+  },
+  "Impl": {
+    "prefix": "impl",
+    "body": "impl ${1:TypeName} {\n    $0\n}",
+    "description": "Implement methods"
+  },
+  "If Statement": {
+    "prefix": "if",
+    "body": "if ${1:condition} {\n    $0\n}",
+    "description": "If statement"
+  },
+  "If-Else": {
+    "prefix": "ife",
+    "body": "if ${1:condition} {\n    ${2:true branch}\n} else {\n    ${3:false branch}\n}",
+    "description": "If-else statement"
+  },
+  "Match": {
+    "prefix": "match",
+    "body": "match ${1:expression} {\n    ${2:pattern} => ${3:result},\n    _ => ${4:default},\n}",
+    "description": "Match expression"
+  },
+  "For Loop": {
+    "prefix": "for",
+    "body": "for ${1:item} in ${2:collection} {\n    $0\n}",
+    "description": "For loop"
+  },
+  "While Loop": {
+    "prefix": "while",
+    "body": "while ${1:condition} {\n    $0\n}",
+    "description": "While loop"
+  },
+  "Loop": {
+    "prefix": "loop",
+    "body": "loop {\n    $0\n}",
+    "description": "Infinite loop"
+  },
+  "Return": {
+    "prefix": "ret",
+    "body": "return ${1:value};",
+    "description": "Return statement"
+  },
+  "Let Binding": {
+    "prefix": "let",
+    "body": "let ${1:name}: ${2:Type} = ${3:value};",
+    "description": "Let binding"
+  },
+  "Const": {
+    "prefix": "const",
+    "body": "const ${1:NAME}: ${2:Type} = ${3:value};",
+    "description": "Constant declaration"
+  },
+  "Class": {
+    "prefix": "class",
+    "body": "class ${1:ClassName} {\n    pub ${2:field}: ${3:Type},\n    \n    pub fn new(${4:params}) -> Self {\n        Self {\n            ${5:field}: ${6:value},\n        }\n    }\n}",
+    "description": "Declare a class"
+  },
+  "Test": {
+    "prefix": "test",
+    "body": "#[test]\nfn ${1:testName}() {\n    $0\n}",
+    "description": "Test function"
+  },
+  "Assert": {
+    "prefix": "assert",
+    "body": "assert(${1:condition}, \"${2:message}\");",
+    "description": "Assert statement"
+  },
+  "Print": {
+    "prefix": "print",
+    "body": "Console.write(\"${1:text}\");",
+    "description": "Print to console"
+  },
+  "Println": {
+    "prefix": "println",
+    "body": "Console.writeLine(\"${1:text}\");",
+    "description": "Print line to console"
+  },
+  "Debug": {
+    "prefix": "dbg",
+    "body": "Console.writeLine(Debug.stringify(${1:expr}));",
+    "description": "Debug expression"
+  },
+  "Todo Comment": {
+    "prefix": "todo",
+    "body": "// TODO: $0",
+    "description": "TODO comment"
+  },
+  "Fixme Comment": {
+    "prefix": "fixme",
+    "body": "// FIXME: $0",
+    "description": "FIXME comment"
+  },
+  "Note Comment": {
+    "prefix": "note",
+    "body": "// NOTE: $0",
+    "description": "NOTE comment"
+  },
+  "Async Function": {
+    "prefix": "afn",
+    "body": "pub async fn ${1:functionName}(${2:params}) -> ${3:ReturnType} {\n    $0\n}",
+    "description": "Async function"
+  },
+  "Await": {
+    "prefix": "await",
+    "body": "await ${1:future};",
+    "description": "Await expression"
+  },
+  "Result Type": {
+    "prefix": "res",
+    "body": "Result<${1:T}, ${2:Error}>",
+    "description": "Result type"
+  },
+  "Option Type": {
+    "prefix": "opt",
+    "body": "Option<${1:T}>",
+    "description": "Option type"
+  },
+  "Vector": {
+    "prefix": "vec",
+    "body": "Vector<${1:T}>",
+    "description": "Vector type"
+  },
+  "Map": {
+    "prefix": "map",
+    "body": "Map<${1:K}, ${2:V}>",
+    "description": "Map type"
+  },
+  "Iterator Each": {
+    "prefix": "each",
+    "body": "${1:collection}.each(|${2:item}| {\n    $0\n});",
+    "description": "Iterator each"
+  },
+  "Iterator Map": {
+    "prefix": "mapiter",
+    "body": "${1:collection}.map(|${2:item}| {\n    ${3:transform}\n});",
+    "description": "Iterator map"
+  },
+  "Iterator Filter": {
+    "prefix": "filter",
+    "body": "${1:collection}.filter(|${2:item}| {\n    ${3:condition}\n});",
+    "description": "Iterator filter"
+  },
+  "Error Handling": {
+    "prefix": "try",
+    "body": "try(${1:expression})?|${2:err}| {\n    ${3:handle error}\n}",
+    "description": "Error handling"
+  },
+  "Panic": {
+    "prefix": "panic",
+    "body": "panic(\"${1:message}\");",
+    "description": "Panic statement"
+  },
+  "Unreachable": {
+    "prefix": "unreachable",
+    "body": "unreachable!();",
+    "description": "Unreachable statement"
+  }
+}

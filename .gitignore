@@ -1,0 +1,96 @@
+### --- [Nome da Sua Linguagem] Custom Rules ---
+# Ignorar binários gerados pela própria linguagem
+*.nlbin
+*.exe
+*.out
+*.app
+# Ignorar logs de depuração do compilador
+compiler.log
+dump.ast
+dump.ir
+
+### --- Build & Output ---
+/bin/
+/obj/
+/dist/
+/build/
+/out/
+*.so
+*.dll
+*.dylib
+*.lib
+*.pdb
+
+### --- LLVM & Native Tooling ---
+# Se você usar LLVM, ignore os arquivos de Intermediate Representation
+*.ll
+*.bc
+*.s
+*.o
+
+### --- Gramática & Parsers (Gerados) ---
+# Se usar ANTLR, Bison ou Flex, você pode querer ignorar os arquivos gerados
+# Descomente se preferir não versionar o código gerado pelo parser
+# src/generated/
+
+### --- IDEs & Editores ---
+# JetBrains (IntelliJ, Rider, CLion)
+.idea/
+*.iws
+
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Visual Studio
+.vs/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+
+### --- Dependency Managers ---
+# Se o seu compilador for feito em:
+# Rust
+/target/
+Cargo.lock
+
+# C++ (CMake)
+CMakeCache.txt
+CMakeFiles/
+CMakeSettings.json
+cmake-build-*/
+
+# Java/Kotlin
+.gradle/
+build/
+*.class
+
+# C# / .NET
+[Bb]in/
+[Oo]bj/
+
+### --- OS Specific ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+### --- Logs & Crash Reports ---
+*.log
+*.err
+*.crash
+
+# Ignora node_modules em qualquer nível do projeto
+node_modules/
+
+# Ignora arquivos de log e lock do ecossistema Node
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-store/
+package-lock.json
+yarn.lock
