@@ -83,6 +83,7 @@ desktop.ini
 *.log
 *.err
 *.crash
+.env
 
 # Ignora node_modules em qualquer nível do projeto
 node_modules/

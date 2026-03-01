@@ -2,6 +2,8 @@ import core.io.Console;
 import core.json.Json;
 import core.env.Env;
 
+
+
 struct Config {
     port: i32;
     apiKey: String;
@@ -30,6 +32,6 @@ pub fn main() -> void {
         apiKey,
         debug: true
     };
-
-    Console::writeLine("\n✅ Objeto Config criado com sucesso!");
+    
+    Console::writeLine("\n✅ Objeto Config criado com sucesso!", inspect(config););
 }
