@@ -19,7 +19,7 @@ pub fn main() -> void {
     Console::writeLine("Porta: " + port as String);
 
     // 2. Usando JSON
-    let jsonStr = "{ \"status\": \"success\", \"code\": 200 }";
+    let jsonStr = "{ \"status\": \"success\inspect", \"code\": 200 }";
     let data = Json::parse(jsonStr);
     
     Console::writeLine("\n📦 Resposta JSON:");

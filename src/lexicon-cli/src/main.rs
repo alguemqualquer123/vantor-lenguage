@@ -1,9 +1,5 @@
 use anyhow::Result;
 use clap::Command;
-use dialoguer::{theme::ColorfulTheme, Select};
-use console::{Style, Term};
-use std::fs;
-use std::path::Path;
 
 mod compiler;
 mod repl;
@@ -31,6 +27,7 @@ Available Commands:
   build       Compile the project to an executable
   run         Compile and run the main program
   test        Run the test suite
+  bench       Run benchmark tests
   check       Run type checking without building
   fmt         Format the source code
   repl        Start the interactive REPL
@@ -46,6 +43,7 @@ Quick Start:
   lex new myproject           Create a new project
   cd myproject                Enter project directory
   lex run                     Build and run
+  lex bench                   Run benchmark
   lex visualize src/main.lex  See pipes in action"#,
             COLOR_CYAN, COLOR_RESET
         ))
@@ -103,6 +101,24 @@ Quick Start:
                         .long("coverage")
                         .action(clap::ArgAction::SetTrue)
                         .help("Run with coverage "),
+                ),
+        )
+        .subcommand(
+            Command::new("bench")
+                .about("Run benchmark tests ")
+                .arg(clap::Arg::new("file").help("The file to benchmark ").required(false))
+                .arg(
+                    clap::Arg::new("iterations")
+                        .short('n')
+                        .long("iterations")
+                        .help("Number of iterations (default: 1000) "),
+                )
+                .arg(
+                    clap::Arg::new("verbose")
+                        .short('v')
+                        .long("verbose")
+                        .action(clap::ArgAction::SetTrue)
+                        .help("Show detailed output "),
                 ),
         )
         .subcommand(
@@ -199,6 +215,15 @@ fn main() -> Result<()> {
             println!("Testing (verbose: {}, coverage: {})", verbose, coverage);
             compiler::test(verbose)?;
         }
+        Some(("bench", args)) => {
+            let file = args.get_one::<String>("file").cloned();
+            let iterations = args.get_one::<String>("iterations")
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(1000);
+            let verbose = args.get_flag("verbose");
+            println!("Running benchmark (iterations: {}, verbose: {})", iterations, verbose);
+            compiler::bench(file, iterations, verbose)?;
+        }
         Some(("fmt", args)) => {
             let check = args.get_flag("check");
             println!("Formatting (check: {})", check);
@@ -241,108 +266,11 @@ fn main() -> Result<()> {
             compiler::ffi(lib)?;
         }
         None => {
-            show_interactive_menu()?;
+            println!("{}🔮 Lexicon{} Compiler v0.1.0-alpha", COLOR_CYAN, COLOR_RESET);
+            println!("\nUsage: lex <command>");
+            println!("\nRun 'lex --help' for more information.");
         }
         _ => {}
-    }
-
-    Ok(())
-}
-
-fn has_project() -> bool {
-    Path::new("lexicon.toml").exists() || 
-    Path::new("src/main.lex").exists() ||
-    Path::new("src").exists()
-}
-
-fn show_interactive_menu() -> Result<()> {
-    println!("\n{}🔮 Lexicon Interactive CLI{} 🔮\n", COLOR_CYAN, COLOR_RESET);
-    
-    let has_proj = has_project();
-    
-    let mut options = Vec::new();
-    
-    if has_proj {
-        options.push("🚀 Run (lex run)");
-        options.push("🔨 Build (lex build)");
-        options.push("🧪 Test (lex test)");
-        options.push("🎨 Visualize Pipes (lex visualize)");
-        options.push("🔍 Check (lex check)");
-        options.push("🧹 Format (lex fmt)");
-    }
-    
-    options.push("🆕 New Project (lex new)");
-    
-    if has_proj {
-        options.push("☁️ Deploy to Cloud (lex deploy)");
-    }
-    
-    options.push("💾 Install Global (lex install)");
-    options.push("🗑️ Uninstall (lex uninstall)");
-    options.push("❌ Exit");
-
-    let selection = Select::with_theme(&ColorfulTheme {
-        active_item_style: Style::new().magenta().bold(),
-        ..ColorfulTheme::default()
-    })
-    .with_prompt("What would you like to do?")
-    .default(0)
-    .items(&options)
-    .interact_on_opt(&Term::stderr())?;
-
-    match selection {
-        _ if !has_proj && selection == Some(0) => {
-            println!("Creating new standard project...");
-            compiler::new_project("my_lexicon_project", None, false, None, false)?;
-        }
-        _ if !has_proj && selection == Some(1) => {
-            println!("Installing Lexicon globally...");
-            installer::manual_install()?;
-        }
-        _ if !has_proj && selection == Some(2) => {
-            println!("Uninstalling Lexicon...");
-            installer::uninstall()?;
-        }
-        _ if !has_proj && selection == Some(3) => {
-            println!("Exiting...");
-        }
-        Some(0) => {
-            println!("Running main project...");
-            compiler::run(None, vec![])?;
-        }
-        Some(1) => {
-            compiler::build(None, false)?;
-        }
-        Some(2) => {
-            compiler::test(false)?;
-        }
-        Some(3) => {
-            println!("Visualizing src/main.lex...");
-            compiler::visualize("src/main.lex")?;
-        }
-        Some(4) => {
-            compiler::check(None)?;
-        }
-        Some(5) => {
-            compiler::fmt(false)?;
-        }
-        Some(6) => {
-            println!("Creating new standard project...");
-            compiler::new_project("my_lexicon_project", None, false, None, false)?;
-        }
-        Some(7) => {
-            println!("Deploying to Lexicon Cloud (Environment: prod)...");
-            compiler::deploy("prod")?;
-        }
-        Some(8) => {
-            println!("Installing Lexicon globally...");
-            installer::manual_install()?;
-        }
-        Some(9) => {
-            println!("Uninstalling Lexicon...");
-            installer::uninstall()?;
-        }
-        _ => println!("Exiting..."),
     }
 
     Ok(())

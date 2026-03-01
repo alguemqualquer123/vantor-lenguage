@@ -15,6 +15,8 @@ lexicon-lexer = { path = "../lexicon-lexer" }
 lexicon-parser = { path = "../lexicon-parser" }
 lexicon-analysis = { path = "../lexicon-analysis" }
 lexicon-codegen = { path = "../lexicon-codegen" }
+lexicon-utils = { path = "../lexicon-utils" }
+lexicon-db = { path = "../lexicon-db" }
 clap.workspace = true
 log.workspace = true
 env_logger.workspace = true
@@ -29,3 +31,5 @@ serde.workspace = true
 serde_json.workspace = true
 tower.workspace = true
 reqwest = { version = "0.11", features = ["json", "blocking"] }
+regex = "1.10"
+sqlx = { version = "0.7", features = ["runtime-tokio", "sqlite", "postgres", "mysql"] }

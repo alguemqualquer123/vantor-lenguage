@@ -12,6 +12,7 @@ members = [
     "src/lexicon-cache",
     "src/lexicon-gui",
     "src/lexicon-wasm",
+    "src/lexicon-db",
 ]
 resolver = "2"
 
@@ -40,3 +41,13 @@ parking_lot = "0.12"
 wasm-bindgen = "0.2"
 dashmap = "5.5"
 lru = "0.12"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[profile.bench]
+inherits = "release"

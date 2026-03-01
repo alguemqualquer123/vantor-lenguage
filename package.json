@@ -1,4 +1,7 @@
 {
+  "bin": {
+    "opencode": "./bin/opencode.js"
+  },
   "dependencies": {
     "opencode-ai": "^1.2.15"
   }

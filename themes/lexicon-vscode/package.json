@@ -4,7 +4,7 @@
     "description": "Complete language support for Lexicon - Syntax highlighting, snippets, auto-completion, and more",
     "version": "0.2.0",
     "publisher": "lexicon-team",
-    "main": "./extension.js",
+    "main": "./out/extension.js",
     "activationEvents": [
         "onLanguage:lexicon",
         "onCommand:lexicon.run",
@@ -20,26 +20,39 @@
     ],
     "icon": "icons/lexicon-icon.png",
     "contributes": {
-        "languages": [{
-            "id": "lexicon",
-            "aliases": ["Lexicon", "lexicon"],
-            "extensions": [".lex"],
-            "filenamePatterns": ["main.lex"],
-            "configuration": "./language-configuration.json",
-            "icon": {
-                "light": "./icons/lexicon-icon.png",
-                "dark": "./icons/lexicon-icon.png"
+        "languages": [
+            {
+                "id": "lexicon",
+                "aliases": [
+                    "Lexicon",
+                    "lexicon"
+                ],
+                "extensions": [
+                    ".lex"
+                ],
+                "filenamePatterns": [
+                    "main.lex"
+                ],
+                "configuration": "./language-configuration.json",
+                "icon": {
+                    "light": "./icons/lexicon-icon.png",
+                    "dark": "./icons/lexicon-icon.png"
+                }
             }
-        }],
-        "grammars": [{
-            "language": "lexicon",
-            "scopeName": "source.lexicon",
-            "path": "./syntaxes/lexicon.tmLanguage.json"
-        }],
-        "snippets": [{
-            "language": "lexicon",
-            "path": "./snippets/lexicon.json"
-        }],
+        ],
+        "grammars": [
+            {
+                "language": "lexicon",
+                "scopeName": "source.lexicon",
+                "path": "./syntaxes/lexicon.tmLanguage.json"
+            }
+        ],
+        "snippets": [
+            {
+                "language": "lexicon",
+                "path": "./snippets/lexicon.json"
+            }
+        ],
         "themes": [
             {
                 "label": "Lexicon Dark Pro",
@@ -105,9 +118,17 @@
                 },
                 "runtime": {
                     "path": "lex",
-                    "args": ["run"]
+                    "args": [
+                        "run"
+                    ]
                 }
             }
         }
+    },
+    "devDependencies": {
+        "typescript": "^5.9.3"
+    },
+    "dependencies": {
+        "vscode": "^1.1.37"
     }
 }
