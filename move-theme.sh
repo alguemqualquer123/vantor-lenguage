@@ -1,1 +1,1 @@
-cp -r vantor-dark-pro ~/.vscode/extensions/
+cp -r lexicon-dark-pro ~/.vscode/extensions/

@@ -86,6 +86,7 @@ desktop.ini
 
 # Ignora node_modules em qualquer nível do projeto
 node_modules/
+/node_modules/**
 
 # Ignora arquivos de log e lock do ecossistema Node
 npm-debug.log*

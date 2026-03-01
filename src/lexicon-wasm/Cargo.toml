@@ -1,0 +1,17 @@
+[package]
+name = "lexicon-wasm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen.workspace = true
+serde.workspace = true
+
+[profile.release]
+opt-level = 3
+lto = true

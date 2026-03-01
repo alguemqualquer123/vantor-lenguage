@@ -1,0 +1,13 @@
+[package]
+name = "lexicon-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+thiserror.workspace = true
+anyhow.workspace = true
+
+[lib]
+name = "lexicon_core"

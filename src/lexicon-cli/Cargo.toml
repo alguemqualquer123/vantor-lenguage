@@ -1,0 +1,31 @@
+[package]
+name = "lexicon-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "lex"
+path = "src/main.rs"
+
+[dependencies]
+lexicon-core = { path = "../lexicon-core" }
+lexicon-lexer = { path = "../lexicon-lexer" }
+lexicon-parser = { path = "../lexicon-parser" }
+lexicon-analysis = { path = "../lexicon-analysis" }
+lexicon-codegen = { path = "../lexicon-codegen" }
+clap.workspace = true
+log.workspace = true
+env_logger.workspace = true
+anyhow.workspace = true
+indicatif.workspace = true
+dialoguer = "0.11"
+console = "0.15"
+notify = "6.1"
+tokio.workspace = true
+axum.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tower.workspace = true
+reqwest = { version = "0.11", features = ["json", "blocking"] }

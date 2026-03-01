@@ -1,0 +1,8 @@
+error: failed to load manifest for workspace member `C:\Users\Admin\Desktop\asax\vantor-lenguage\lexicon-cli`
+referenced by workspace at `C:\Users\Admin\Desktop\asax\vantor-lenguage\Cargo.toml`
+
+Caused by:
+  failed to read `C:\Users\Admin\Desktop\asax\vantor-lenguage\lexicon-cli\Cargo.toml`
+
+Caused by:
+  O sistema não pode encontrar o caminho especificado. (os error 3)

@@ -1,0 +1,1003 @@
+{
+	"Main Function": {
+		"prefix": "main",
+		"body": [
+			"pub fn main() {",
+			"\t$0",
+			"}"
+		],
+		"description": "Main entry point function"
+	},
+	"Main Async": {
+		"prefix": "maina",
+		"body": [
+			"pub async fn main() -> void {",
+			"\t$0",
+			"}"
+		],
+		"description": "Async main entry point function"
+	},
+	"Function": {
+		"prefix": "fn",
+		"body": [
+			"fn ${1:name}($2) -> ${3:void} {",
+			"\t$0",
+			"}"
+		],
+		"description": "Function declaration"
+	},
+	"Public Function": {
+		"prefix": "pfn",
+		"body": [
+			"pub fn ${1:name}($2) -> ${3:void} {",
+			"\t$0",
+			"}"
+		],
+		"description": "Public function declaration"
+	},
+	"Async Function": {
+		"prefix": "afn",
+		"body": [
+			"pub async fn ${1:name}($2) -> ${3:void} {",
+			"\t$0",
+			"}"
+		],
+		"description": "Async function declaration"
+	},
+	"Public Async Function": {
+		"prefix": "pafn",
+		"body": [
+			"pub async fn ${1:name}($2) -> ${3:void} {",
+			"\t$0",
+			"}"
+		],
+		"description": "Public async function declaration"
+	},
+	"Import": {
+		"prefix": "imp",
+		"body": [
+			"import ${1:module};"
+		],
+		"description": "Import a module"
+	},
+	"Import Core": {
+		"prefix": "impc",
+		"body": [
+			"import core.${1:module}.${2:Component};"
+		],
+		"description": "Import from core module"
+	},
+	"Struct": {
+		"prefix": "struct",
+		"body": [
+			"struct ${1:Name} {",
+			"\t${2:field}: ${3:Type},$0",
+			"}"
+		],
+		"description": "Struct definition"
+	},
+	"Public Struct": {
+		"prefix": "pstruct",
+		"body": [
+			"pub struct ${1:Name} {",
+			"\t${2:field}: ${3:Type},$0",
+			"}"
+		],
+		"description": "Public struct definition"
+	},
+	"Enum": {
+		"prefix": "enum",
+		"body": [
+			"enum ${1:Name} {",
+			"\t${2:Variant1},$0",
+			"\t${3:Variant2}(${4:Type}),",
+			"}"
+		],
+		"description": "Enum definition"
+	},
+	"Trait": {
+		"prefix": "trait",
+		"body": [
+			"trait ${1:Name} {",
+			"\tfn ${2:method}($3) -> ${4:ReturnType};$0",
+			"}"
+		],
+		"description": "Trait definition"
+	},
+	"Impl": {
+		"prefix": "impl",
+		"body": [
+			"impl ${1:Type} {",
+			"\tpub fn ${2:method}($3) -> ${4:void} {",
+			"\t\t$0",
+			"\t}",
+			"}"
+		],
+		"description": "Impl block"
+	},
+	"Impl Trait": {
+		"prefix": "implt",
+		"body": [
+			"impl ${1:Trait} for ${2:Type} {",
+			"\tfn ${3:method}($4) -> ${5:ReturnType} {",
+			"\t\t$0",
+			"\t}",
+			"}"
+		],
+		"description": "Impl trait for type"
+	},
+	"Constructor": {
+		"prefix": "new",
+		"body": [
+			"pub fn new($1) -> Self {",
+			"\t${2:Self} {",
+			"\t\t$0",
+			"\t}",
+			"}"
+		],
+		"description": "Constructor method"
+	},
+	"Constructor Full": {
+		"prefix": "con",
+		"body": [
+			"pub constructor($1) {",
+			"\t$0",
+			"}"
+		],
+		"description": "Class constructor"
+	},
+	"Variable (let)": {
+		"prefix": "let",
+		"body": [
+			"let ${1:name} = ${2:value};"
+		],
+		"description": "Let variable declaration"
+	},
+	"Variable (const)": {
+		"prefix": "const",
+		"body": [
+			"const ${1:NAME} = ${2:value};"
+		],
+		"description": "Constant declaration"
+	},
+	"Mutable Variable": {
+		"prefix": "mut",
+		"body": [
+			"let mut ${1:name} = ${2:value};"
+		],
+		"description": "Mutable variable declaration"
+	},
+	"If Statement": {
+		"prefix": "if",
+		"body": [
+			"if ${1:condition} {",
+			"\t$0",
+			"}"
+		],
+		"description": "If statement"
+	},
+	"If-Else": {
+		"prefix": "ife",
+		"body": [
+			"if ${1:condition} {",
+			"\t$2",
+			"} else {",
+			"\t$0",
+			"}"
+		],
+		"description": "If-else statement"
+	},
+	"Match": {
+		"prefix": "match",
+		"body": [
+			"match ${1:expr} {",
+			"\t${2:pattern} => ${3:result},$0",
+			"\t_ => ${4:default},",
+			"}"
+		],
+		"description": "Match expression"
+	},
+	"Match Full": {
+		"prefix": "matchf",
+		"body": [
+			"match ${1:expr} {",
+			"\t${2:Variant1} => {",
+			"\t\t$3",
+			"\t},",
+			"\t${4:Variant2}(${5:data}) => {",
+			"\t\t$6",
+			"\t},",
+			"\t_ => {",
+			"\t\t$0",
+			"\t}",
+			"}"
+		],
+		"description": "Full match expression with blocks"
+	},
+	"For Loop": {
+		"prefix": "for",
+		"body": [
+			"for ${1:item} in ${2:iterable} {",
+			"\t$0",
+			"}"
+		],
+		"description": "For loop"
+	},
+	"While Loop": {
+		"prefix": "while",
+		"body": [
+			"while ${1:condition} {",
+			"\t$0",
+			"}"
+		],
+		"description": "While loop"
+	},
+	"Infinite Loop": {
+		"prefix": "loop",
+		"body": [
+			"loop {",
+			"\t$0",
+			"}"
+		],
+		"description": "Infinite loop"
+	},
+	"Break": {
+		"prefix": "break",
+		"body": [
+			"break;"
+		],
+		"description": "Break statement"
+	},
+	"Continue": {
+		"prefix": "cont",
+		"body": [
+			"continue;"
+		],
+		"description": "Continue statement"
+	},
+	"Return": {
+		"prefix": "ret",
+		"body": [
+			"return ${1:value};"
+		],
+		"description": "Return statement"
+	},
+	"Return Void": {
+		"prefix": "retv",
+		"body": [
+			"return;"
+		],
+		"description": "Return void"
+	},
+	"HTTP Get Route": {
+		"prefix": "get",
+		"body": [
+			"@Get(\"${1:/path}\")",
+			"pub async fn ${2:handler}() -> ${3:String} {",
+			"\treturn ${4:\"response\"};$0",
+			"}"
+		],
+		"description": "HTTP GET route"
+	},
+	"HTTP Post Route": {
+		"prefix": "post",
+		"body": [
+			"@Post(\"${1:/path}\")",
+			"pub async fn ${2:handler}(${3:payload}: ${4:Type}) -> ${5:Type} {",
+			"\treturn ${6:payload};$0",
+			"}"
+		],
+		"description": "HTTP POST route"
+	},
+	"HTTP Put Route": {
+		"prefix": "put",
+		"body": [
+			"@Put(\"${1:/path}\")",
+			"pub async fn ${2:handler}(${3:payload}: ${4:Type}) -> ${5:Type} {",
+			"\treturn ${6:payload};$0",
+			"}"
+		],
+		"description": "HTTP PUT route"
+	},
+	"HTTP Delete Route": {
+		"prefix": "del",
+		"body": [
+			"@Delete(\"${1:/path}\")",
+			"pub async fn ${2:handler}() -> ${3:void} {",
+			"\t$0",
+			"}"
+		],
+		"description": "HTTP DELETE route"
+	},
+	"HTTP Serve": {
+		"prefix": "serve",
+		"body": [
+			"Http::serve(\"${1:0.0.0.0:3000}\");"
+		],
+		"description": "Start HTTP server"
+	},
+	"HTTP Get Request": {
+		"prefix": "httpg",
+		"body": [
+			"let ${1:response} = Http.get(\"${2:url}\");"
+		],
+		"description": "HTTP GET request"
+	},
+	"HTTP Post Request": {
+		"prefix": "httpp",
+		"body": [
+			"let ${1:response} = Http.post(\"${2:url}\", ${3:body});"
+		],
+		"description": "HTTP POST request"
+	},
+	"Console WriteLine": {
+		"prefix": "print",
+		"body": [
+			"Console::writeLine(\"${1:message}\");"
+		],
+		"description": "Print to console"
+	},
+	"Console Write": {
+		"prefix": "write",
+		"body": [
+			"Console::write(\"${1:message}\");"
+		],
+		"description": "Write to console without newline"
+	},
+	"Println Shortcut": {
+		"prefix": "println",
+		"body": [
+			"println(\"${1:message}\");"
+		],
+		"description": "Println shortcut"
+	},
+	"Print with Variable": {
+		"prefix": "printf",
+		"body": [
+			"Console::writeLine(\"${1:text}\" + ${2:variable});"
+		],
+		"description": "Print with variable concatenation"
+	},
+	"List Create": {
+		"prefix": "list",
+		"body": [
+			"let ${1:name} = List<${2:Type}>::new();"
+		],
+		"description": "Create a new List"
+	},
+	"List Add": {
+		"prefix": "add",
+		"body": [
+			"${1:list}.add(${2:item});"
+		],
+		description": "Add item to list"
+	},
+	"List Get": {
+		"prefix": "lget",
+		"body": [
+			"${1:list}.get(${2:index})"
+		],
+		"description": "Get item from list by index"
+	},
+	"Map Create": {
+		"prefix": "map",
+		"body": [
+			"let ${1:name} = Map<${2:Key}, ${3:Value}>::new();"
+		],
+		"description": "Create a new Map"
+	},
+	"Map Set": {
+		"prefix": "mset",
+		"body": [
+			"${1:map}.set(${2:key}, ${3:value});"
+		],
+		"description": "Set value in map"
+	},
+	"Map Get": {
+		"prefix": "mget",
+		"body": [
+			"${1:map}.get(${2:key})"
+		],
+		"description": "Get value from map"
+	},
+	"Option Some": {
+		"prefix": "some",
+		"body": [
+			"Some(${1:value})"
+		],
+		"description": "Option Some"
+	},
+	"Option None": {
+		"prefix": "none",
+		"body": [
+			"None"
+		],
+		"description": "Option None"
+	},
+	"Result Ok": {
+		"prefix": "ok",
+		"body": [
+			"Ok(${1:value})"
+		],
+		"description": "Result Ok"
+	},
+	"Result Err": {
+		"prefix": "err",
+		"body": [
+			"Err(${1:error})"
+		],
+		"description": "Result Err"
+	},
+	"Try-Catch": {
+		"prefix": "try",
+		"body": [
+			"try {",
+			"\t$0",
+			"} catch ${1:e} {",
+			"\tConsole::writeLine(${1:e}.to_string());",
+			"}"
+		],
+		"description": "Try-catch block"
+	},
+	"Throw": {
+		"prefix": "throw",
+		"body": [
+			"throw ${1:error};"
+		],
+		"description": "Throw error"
+	},
+	"String to String": {
+		"prefix": "str",
+		"body": [
+			"\"${1:text}\".to_string()"
+		],
+		"description": "Convert to String"
+	},
+	"String Format": {
+		"prefix": "fmt",
+		"body": [
+			"String::format(\"${1:{}}\", ${2:args})"
+		],
+		"description": "String format"
+	},
+	"Pipe Operator": {
+		"prefix": "pipe",
+		"body": [
+			"${1:value} |> ${2:function}($3)"
+		],
+		"description": "Pipe operator"
+	},
+	"Closure": {
+		"prefix": "clos",
+		"body": [
+			"|${1:args}| ${2:expression}"
+		],
+		"description": "Closure/lambda"
+	},
+	"Closure Block": {
+		"prefix": "closb",
+		"body": [
+			"|${1:args}| {",
+			"\t$0",
+			"}"
+		],
+		"description": "Closure with block"
+	},
+	"Test Function": {
+		"prefix": "test",
+		"body": [
+			"@Test",
+			"pub fn ${1:test_name}() {",
+			"\t$0",
+			"}"
+		],
+		"description": "Test function"
+	},
+	"Assert": {
+		"prefix": "assert",
+		"body": [
+			"assert(${1:condition});"
+		],
+		"description": "Assert statement"
+	},
+	"Assert Equal": {
+		"prefix": "asserteq",
+		"body": [
+			"assert(${1:actual} == ${2:expected});"
+		],
+		"description": "Assert equality"
+	},
+	"Middleware": {
+		"prefix": "mid",
+		"body": [
+			"@Middleware",
+			"pub fn ${1:name}(ctx: Context) -> Response {",
+			"\t$0",
+			"\treturn ctx.next();",
+			"}"
+		],
+		"description": "Middleware function"
+	},
+	"Context": {
+		"prefix": "ctx",
+		"body": [
+			"let ${1:value} = ctx.get(\"${2:key}\");"
+		],
+		"description": "Get value from context"
+	},
+	"JSON Parse": {
+		"prefix": "jsonp",
+		"body": [
+			"Json::parse<${1:Type}>(${2:json_string})"
+		],
+		"description": "Parse JSON string"
+	},
+	"JSON Stringify": {
+		"prefix": "jsons",
+		"body": [
+			"Json::stringify(${1:value})"
+		],
+		"description": "Convert value to JSON string"
+	},
+	"Env Get": {
+		"prefix": "envg",
+		"body": [
+			"Env::get(\"${1:VAR_NAME}\")"
+		],
+		"description": "Get environment variable"
+	},
+	"Class with Decorators": {
+		"prefix": "class",
+		"body": [
+			"@Getter",
+			"@Setter",
+			"class ${1:MyClass} {",
+			"\tpub constructor($2) {",
+			"\t\t$0",
+			"\t}",
+			"}"
+		],
+		"description": "Class with common decorators"
+	},
+	"Getter": {
+		"prefix": "get",
+		"body": [
+			"@Getter",
+			"class ${1:Name} {",
+			"\t${2:field}: ${3:Type},",
+			"}"
+		],
+		"description": "Class with Getter"
+	},
+	"Setter": {
+		"prefix": "set",
+		"body": [
+			"@Setter",
+			"class ${1:Name} {",
+			"\t${2:field}: ${3:Type},",
+			"}"
+		],
+		"description": "Class with Setter"
+	},
+	"Data Class": {
+		"prefix": "data",
+		"body": [
+			"@Getter",
+			"@Setter",
+			"@Builder",
+			"class ${1:Name} {",
+			"\t${2:field}: ${3:Type},$0",
+			"}"
+		],
+		"description": "Data class with common annotations"
+	},
+	"Builder Pattern": {
+		"prefix": "build",
+		"body": [
+			"${1:Type}::builder()",
+			"\t.${2:field1}(${3:value1})",
+			"\t.${4:field2}(${5:value2})",
+			"\t.build()"
+		],
+		"description": "Builder pattern"
+	},
+	"Async Await": {
+		"prefix": "await",
+		"body": [
+			"await ${1:future};"
+		],
+		"description": "Await async operation"
+	},
+	"Comment Line": {
+		"prefix": "//",
+		"body": [
+			"// ${1:comment}"
+		],
+		"description": "Line comment"
+	},
+	"Comment Block": {
+		"prefix": "/**",
+		"body": [
+			"/**",
+			" * ${1:description}",
+			" */"
+		],
+		"description": "Block comment"
+	},
+	"Doc Comment": {
+		"prefix": "///",
+		"body": [
+			"/// ${1:description}"
+		],
+		"description": "Documentation comment"
+	},
+	"Option Some": {
+		"prefix": "some",
+		"body": [
+			"Some(${1:value})"
+		],
+		"description": "Option Some wrapper"
+	},
+	"Option None": {
+		"prefix": "none",
+		"body": [
+			"None"
+		],
+		"description": "Option None"
+	},
+	"Result Ok": {
+		"prefix": "ok",
+		"body": [
+			"Ok(${1:value})"
+		],
+		"description": "Result Ok wrapper"
+	},
+	"Result Err": {
+		"prefix": "err",
+		"body": [
+			"Err(${1:error})"
+		],
+		"description": "Result Err wrapper"
+	},
+	"Unwrap": {
+		"prefix": "unwrap",
+		"body": [
+			"${1:expr}.unwrap()"
+		],
+		"description": "Unwrap Option or Result"
+	},
+	"Unwrap Or": {
+		"prefix": "unwrap_or",
+		"body": [
+			"${1:expr}.unwrap_or(${2:default})"
+		],
+		"description": "Unwrap with default value"
+	},
+	"Match Full": {
+		"prefix": "matchfull",
+		"body": [
+			"match ${1:expr} {",
+			"\tSome(${2:value}) => {",
+			"\t\t$3",
+			"\t},",
+			"\tNone => {",
+			"\t\t$4",
+			"\t}",
+			"}"
+		],
+		"description": "Match Option full"
+	},
+	"Match Result": {
+		"prefix": "matchres",
+		"body": [
+			"match ${1:expr} {",
+			"\tOk(${2:value}) => {",
+			"\t\t$3",
+			"\t},",
+			"\tErr(${4:error}) => {",
+			"\t\t$5",
+			"\t}",
+			"}"
+		],
+		"description": "Match Result full"
+	},
+	"Try Block": {
+		"prefix": "tryb",
+		"body": [
+			"try {",
+			"\t$1",
+			"} catch ${2:e} {",
+			"\t$3",
+			"}"
+		],
+		"description": "Try-catch block"
+	},
+	"Throw Error": {
+		"prefix": "throw",
+		"body": [
+			"throw ${1:Error}::new(\"${2:message}\");"
+		],
+		"description": "Throw error"
+	},
+	"Closure Pipe": {
+		"prefix": "cpipe",
+		"body": [
+			"|${1:arg}| ${2:expr} |> ${3:next}"
+		],
+		"description": "Closure with pipe"
+	},
+	"For In": {
+		"prefix": "forin",
+		"body": [
+			"for ${1:item} in ${2:collection} {",
+			"\t$0",
+			"}"
+		],
+		"description": "For in loop"
+	},
+	"For Range": {
+		"prefix": "forr",
+		"body": [
+			"for ${1:i} in ${2:0}..${3:10} {",
+			"\t$0",
+			"}"
+		],
+		"description": "For range loop"
+	},
+	"Loop Infinite": {
+		"prefix": "loopi",
+		"body": [
+			"loop {",
+			"\t$0",
+			"}"
+		],
+		"description": "Infinite loop"
+	},
+	"Break If": {
+		"prefix": "breakif",
+		"body": [
+			"if ${1:condition} {",
+			"\tbreak;",
+			"}"
+		],
+		"description": "Break if condition"
+	},
+	"Continue If": {
+		"prefix": "contif",
+		"body": [
+			"if ${1:condition} {",
+			"\tcontinue;",
+			"}"
+		],
+		"description": "Continue if condition"
+	},
+	"Return Early": {
+		"prefix": "retif",
+		"body": [
+			"if ${1:condition} {",
+			"\treturn ${2:value};",
+			"}"
+		],
+		"description": "Return early if condition"
+	},
+	"List New": {
+		"prefix": "listn",
+		"body": [
+			"let ${1:list} = List<${2:T}>::new();"
+		],
+		"description": "Create new List"
+	},
+	"List From": {
+		"prefix": "listf",
+		"body": [
+			"let ${1:list} = List::from([${2:items}]);"
+		],
+		"description": "Create List from array"
+	},
+	"Map New": {
+		"prefix": "mapn",
+		"body": [
+			"let ${1:map} = Map<${2:K}, ${3:V}>::new();"
+		],
+		"description": "Create new Map"
+	},
+	"Map Set": {
+		"prefix": "mapset",
+		"body": [
+			"${1:map}.set(${2:key}, ${3:value});"
+		],
+		"description": "Set value in Map"
+	},
+	"Vector New": {
+		"prefix": "vecn",
+		"body": [
+			"let ${1:vec} = Vec<${2:T}>::new();"
+		],
+		"description": "Create new Vector"
+	},
+	"Vector Push": {
+		"prefix": "vecp",
+		"body": [
+			"${1:vec}.push(${2:item});"
+		],
+		"description": "Push to Vector"
+	},
+	"Get Env": {
+		"prefix": "envg",
+		"body": [
+			"Env::get(\"${1:VAR_NAME}\")"
+		],
+		"description": "Get environment variable"
+	},
+	"Set Env": {
+		"prefix": "envs",
+		"body": [
+			"Env::set(\"${1:VAR_NAME}\", \"${2:value}\");"
+		],
+		"description": "Set environment variable"
+	},
+	"JSON Parse": {
+		"prefix": "jsonp",
+		"body": [
+			"Json::parse::<${1:Type}>(\"${2:json}\")"
+		],
+		"description": "Parse JSON string"
+	},
+	"JSON Stringify": {
+		"prefix": "jsons",
+		"body": [
+			"Json::stringify(${1:value})"
+		],
+		"description": "Convert to JSON string"
+	},
+	"Panic": {
+		"prefix": "panic",
+		"body": [
+			"panic!(\"${1:message}\");"
+		],
+		"description": "Panic with message"
+	},
+	"Assert Eq": {
+		"prefix": "asserteq",
+		"body": [
+			"assert_eq!(${1:expected}, ${2:actual});"
+		],
+		"description": "Assert equals"
+	},
+	"Assert Ne": {
+		"prefix": "assertne",
+		"body": [
+			"assert_ne!(${1:expected}, ${2:actual});"
+		],
+		"description": "Assert not equals"
+	},
+	"Debug Print": {
+		"prefix": "dbg",
+		"body": [
+			"dbg!(${1:expr});"
+		],
+		"description": "Debug print"
+	},
+	"Todo Comment": {
+		"prefix": "todo",
+		"body": [
+			"// TODO: ${1:description}"
+		],
+		"description": "TODO comment"
+	},
+	"Fixme Comment": {
+		"prefix": "fixme",
+		"body": [
+			"// FIXME: ${1:description}"
+		],
+		"description": "FIXME comment"
+	},
+	"Note Comment": {
+		"prefix": "note",
+		"body": [
+			"// NOTE: ${1:description}"
+		],
+		"description": "NOTE comment"
+	},
+	"Http Server": {
+		"prefix": "httpserv",
+		"body": [
+			"Http::serve(\"${1:0.0.0.0:3000}\", ${2:app});"
+		],
+		"description": "Start HTTP server"
+	},
+	"Context Get": {
+		"prefix": "ctxg",
+		"body": [
+			"let ${1:value} = ctx.get::<${2:T}>(\"${3:key}\");"
+		],
+		"description": "Get from context"
+	},
+	"Context Set": {
+		"prefix": "ctxs",
+		"body": [
+			"ctx.set(\"${1:key}\", ${2:value});"
+		],
+		"description": "Set in context"
+	},
+	"Middleware": {
+		"prefix": "middleware",
+		"body": [
+			"@Middleware",
+			"pub fn ${1:name}(ctx: Context, next: Next) -> Response {",
+			"\t$0",
+			"\treturn next(ctx);",
+			"}"
+		],
+		"description": "Middleware function"
+	},
+	"Guard": {
+		"prefix": "guard",
+		"body": [
+			"@Guard",
+			"pub fn ${1:name}(ctx: Context) -> bool {",
+			"\t$0",
+			"}"
+		],
+		"description": "Guard function"
+	},
+	"Service": {
+		"prefix": "service",
+		"body": [
+			"service ${1:Name} {",
+			"\trpc ${2:getUser}(${3:id}: ${4:i32}) -> ${5:User};$0",
+			"}"
+		],
+		"description": "Service definition"
+	},
+	"Pub Async Fn": {
+		"prefix": "pafn",
+		"body": [
+			"pub async fn ${1:name}($2) -> ${3:Result} {",
+			"\t$0",
+			"}"
+		],
+		"description": "Public async function"
+	},
+	"Pub Fn Return": {
+		"prefix": "pfnr",
+		"body": [
+			"pub fn ${1:name}($2) -> ${3:ReturnType} {",
+			"\t$0",
+			"}"
+		],
+		"description": "Public function with return type"
+	},
+	"Impl For": {
+		"prefix": "implfor",
+		"body": [
+			"impl ${1:Trait} for ${2:Type} {",
+			"\t$0",
+			"}"
+		],
+		"description": "Impl trait for type"
+	},
+	"Type Alias": {
+		"prefix": "typea",
+		"body": [
+			"type ${1:Alias} = ${2:Type};"
+		],
+		"description": "Type alias"
+	},
+	"Static": {
+		"prefix": "static",
+		"body": [
+			"static ${1:NAME}: ${2:Type} = ${3:value};"
+		],
+		"description": "Static variable"
+	},
+	"Lazy Static": {
+		"prefix": "lazys",
+		"body": [
+			"lazy_static! {",
+			"\tstatic ref ${1:NAME}: ${2:Type} = ${3:value};",
+			"}"
+		],
+		"description": "Lazy static"
+	}
+}

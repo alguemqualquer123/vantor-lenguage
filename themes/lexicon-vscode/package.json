@@ -1,0 +1,113 @@
+{
+    "name": "lexicon-lang",
+    "displayName": "Lexicon Language Support",
+    "description": "Complete language support for Lexicon - Syntax highlighting, snippets, auto-completion, and more",
+    "version": "0.2.0",
+    "publisher": "lexicon-team",
+    "main": "./extension.js",
+    "activationEvents": [
+        "onLanguage:lexicon",
+        "onCommand:lexicon.run",
+        "onCommand:lexicon.debug",
+        "onCommand:lexicon.newProject"
+    ],
+    "engines": {
+        "vscode": "^1.60.0"
+    },
+    "categories": [
+        "Programming Languages",
+        "Snippets"
+    ],
+    "icon": "icons/lexicon-icon.png",
+    "contributes": {
+        "languages": [{
+            "id": "lexicon",
+            "aliases": ["Lexicon", "lexicon"],
+            "extensions": [".lex"],
+            "filenamePatterns": ["main.lex"],
+            "configuration": "./language-configuration.json",
+            "icon": {
+                "light": "./icons/lexicon-icon.png",
+                "dark": "./icons/lexicon-icon.png"
+            }
+        }],
+        "grammars": [{
+            "language": "lexicon",
+            "scopeName": "source.lexicon",
+            "path": "./syntaxes/lexicon.tmLanguage.json"
+        }],
+        "snippets": [{
+            "language": "lexicon",
+            "path": "./snippets/lexicon.json"
+        }],
+        "themes": [
+            {
+                "label": "Lexicon Dark Pro",
+                "uiTheme": "vs-dark",
+                "path": "./themes/lexicon-dark-pro.json"
+            },
+            {
+                "label": "Lexicon Midnight",
+                "uiTheme": "vs-dark",
+                "path": "./themes/lexicon-midnight.json"
+            }
+        ],
+        "iconThemes": [
+            {
+                "id": "lexicon-icons",
+                "label": "Lexicon Icons",
+                "path": "./themes/lexicon-icon-theme.json"
+            }
+        ],
+        "commands": [
+            {
+                "command": "lexicon.run",
+                "title": "Lexicon: Run File",
+                "icon": "$(play)"
+            },
+            {
+                "command": "lexicon.runWithArgs",
+                "title": "Lexicon: Run with Arguments",
+                "icon": "$(terminal)"
+            },
+            {
+                "command": "lexicon.debug",
+                "title": "Lexicon: Debug File",
+                "icon": "$(debug-start)"
+            },
+            {
+                "command": "lexicon.newProject",
+                "title": "Lexicon: New Project"
+            },
+            {
+                "command": "lexicon.build",
+                "title": "Lexicon: Build Project",
+                "icon": "$(gear)"
+            }
+        ],
+        "keybindings": [
+            {
+                "command": "lexicon.run",
+                "key": "f5",
+                "when": "editorLangId == lexicon"
+            },
+            {
+                "command": "lexicon.run",
+                "mac": "cmd+shift+r",
+                "when": "editorLangId == lexicon"
+            }
+        ],
+        "configuration": {
+            "lexicon": {
+                "suggest": {
+                    "showKeywords": true,
+                    "showSnippets": true
+                },
+                "runtime": {
+                    "path": "lex",
+                    "args": ["run"]
+                }
+            }
+        }
+    }
+}

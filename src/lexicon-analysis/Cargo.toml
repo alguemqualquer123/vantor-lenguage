@@ -1,0 +1,17 @@
+[package]
+name = "lexicon-analysis"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+lexicon-core = { path = "../lexicon-core" }
+lexicon-parser = { path = "../lexicon-parser" }
+thiserror.workspace = true
+anyhow.workspace = true
+once_cell.workspace = true
+parking_lot.workspace = true
+
+[lib]
+name = "lexicon_analysis"

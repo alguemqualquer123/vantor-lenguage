@@ -1,12 +1,17 @@
 [workspace]
 members = [
-    "vantor-cli",
-    "vantor-core",
-    "vantor-lexer",
-    "vantor-parser",
-    "vantor-analysis",
-    "vantor-codegen",
-    "vantor-utils",
+    "src/lexicon-cli",
+    "src/lexicon-core",
+    "src/lexicon-lexer",
+    "src/lexicon-parser",
+    "src/lexicon-analysis",
+    "src/lexicon-codegen",
+    "src/lexicon-utils",
+    "src/lexicon-async",
+    "src/lexicon-http",
+    "src/lexicon-cache",
+    "src/lexicon-gui",
+    "src/lexicon-wasm",
 ]
 resolver = "2"
 
@@ -14,7 +19,7 @@ resolver = "2"
 version = "1.0.0"
 edition = "2021"
 license = "MIT"
-authors = ["VantorLang Team"]
+authors = ["lexiconLang Team"]
 
 [workspace.dependencies]
 clap = { version = "4.5", features = ["derive"] }
@@ -22,3 +27,16 @@ log = "0.4"
 env_logger = "0.11"
 thiserror = "1.0"
 anyhow = "1.0"
+tokio = { version = "1", features = ["full"] }
+indicatif = "0.17"
+axum = "0.7"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+tower = "0.4"
+once_cell = "1.19"
+parking_lot = "0.12"
+wasm-bindgen = "0.2"
+dashmap = "5.5"
+lru = "0.12"

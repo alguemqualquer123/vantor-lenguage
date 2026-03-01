@@ -1,0 +1,23 @@
+[package]
+name = "lexicon-http"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+tokio.workspace = true
+axum.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+anyhow.workspace = true
+log.workspace = true
+tower.workspace = true
+tower-http = { version = "0.5", features = ["cors", "trace", "add-extension"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+[features]
+default = []

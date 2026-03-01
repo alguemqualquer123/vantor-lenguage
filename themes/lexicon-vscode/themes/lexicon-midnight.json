@@ -1,0 +1,62 @@
+{
+    "name": "Lexicon Midnight",
+    "type": "dark",
+    "colors": {
+        "editor.background": "#020408",
+        "editor.foreground": "#C9D1D9",
+        "activityBar.background": "#000000",
+        "sideBar.background": "#000000",
+        "statusBar.background": "#000000",
+        "editorLineNumber.foreground": "#484F58",
+        "editorLineNumber.activeForeground": "#F0F6FC",
+        "editorIndentGuide.background": "#21262D",
+        "editor.selectionBackground": "#3392FF44"
+    },
+    "tokenColors": [
+        {
+            "name": "Keywords",
+            "scope": "keyword.control.lexicon",
+            "settings": { "foreground": "#FF7B72", "fontStyle": "bold" }
+        },
+        {
+            "name": "Functions",
+            "scope": "entity.name.function.lexicon",
+            "settings": { "foreground": "#D2A8FF" }
+        },
+        {
+            "name": "Strings",
+            "scope": "string.quoted.double.lexicon",
+            "settings": { "foreground": "#A5D6FF" }
+        },
+        {
+            "name": "Numbers",
+            "scope": "constant.numeric.lexicon",
+            "settings": { "foreground": "#79C0FF" }
+        },
+        {
+            "name": "Custom Types (PascalCase)",
+            "scope": "entity.name.type.lexicon",
+            "settings": { "foreground": "#4FC1FF", "fontStyle": "bold" }
+        },
+        {
+            "name": "Primitive Types",
+            "scope": "support.type.primitive.lexicon",
+            "settings": { "foreground": "#569CD6" }
+        },
+        {
+            "name": "Annotations/Decorators",
+            "scope": "entity.name.function.decorator.lexicon",
+            "settings": { "foreground": "#DCDCAA", "fontStyle": "bold italic" }
+        },
+        {
+            "name": "Operators",
+            "scope": "keyword.operator.lexicon",
+            "settings": { "foreground": "#FF7B72" }
+        },
+        {
+            "name": "Pipe Operator",
+            "scope": "keyword.operator.pipe.lexicon",
+            "settings": { "foreground": "#58A6FF", "fontStyle": "bold" }
+        }
+    ]
+}
