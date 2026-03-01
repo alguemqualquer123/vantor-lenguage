@@ -16,6 +16,7 @@ enum Result<T, E> {
     Loading
 }
 
+@test("test_adt_demo")
 pub fn main() -> void {
     let my_shape = Shape::Circle(15.5);
     

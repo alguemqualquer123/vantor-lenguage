@@ -1,9 +1,13 @@
 use anyhow::Result;
 use clap::Command;
+use env_logger::Env;
+use log::{debug, info};
 
 mod compiler;
 mod repl;
 mod installer;
+mod gui;
+mod webview;
 
 const COLOR_CYAN: &str = "\x1b[36m";
 const COLOR_RESET: &str = "\x1b[0m";
@@ -175,20 +179,35 @@ Quick Start:
                 .about("Native Interop: Generate C/Rust bindings ")
                 .arg(clap::Arg::new("lib").required(true).help("Library path ")),
         )
+        .subcommand(
+            Command::new("gui")
+                .about("Run a Lexicon GUI application (native)")
+                .arg(clap::Arg::new("file").help("The GUI file to run ").required(false)),
+        )
+        .subcommand(
+            Command::new("webview")
+                .about("Run a Lexicon WebView application")
+                .arg(clap::Arg::new("file").help("The WebView file to run ").required(false)),
+        )
 }
 
 fn main() -> Result<()> {
+    // Inicializa logger global (usa RUST_LOG ou padrão info)
+    env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
+    debug!("Logger inicializado");
+
     // Tenta instalar o binário no PATH do sistema automaticamente
     let _ = installer::auto_install();
 
     let cli = get_style().get_matches();
+    debug!("CLI args parseados");
 
     match cli.subcommand() {
         Some(("build", args)) => {
             let file = args.get_one::<String>("file").cloned();
             let release = args.get_flag("release");
             let target = args.get_one::<String>("target").cloned();
-            println!("Building (release: {}, target: {:?})", release, target);
+            info!("Building (release: {}, target: {:?})", release, target);
             compiler::build(file, release)?;
         }
         Some(("run", args)) => {
@@ -264,6 +283,14 @@ fn main() -> Result<()> {
         Some(("ffi", args)) => {
             let lib = args.get_one::<String>("lib").unwrap();
             compiler::ffi(lib)?;
+        }
+        Some(("gui", args)) => {
+            let file = args.get_one::<String>("file").cloned();
+            compiler::run_gui(file)?;
+        }
+        Some(("webview", args)) => {
+            let file = args.get_one::<String>("file").cloned();
+            compiler::run_webview(file)?;
         }
         None => {
             println!("{}🔮 Lexicon{} Compiler v0.1.0-alpha", COLOR_CYAN, COLOR_RESET);

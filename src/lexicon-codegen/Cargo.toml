@@ -8,6 +8,7 @@ authors.workspace = true
 [dependencies]
 lexicon-core = { path = "../lexicon-core" }
 lexicon-analysis = { path = "../lexicon-analysis" }
+lexicon-parser = { path = "../lexicon-parser" }
 thiserror.workspace = true
 anyhow.workspace = true
 

@@ -125,10 +125,9 @@
             }
         }
     },
-    "devDependencies": {
-        "typescript": "^5.9.3"
-    },
-    "dependencies": {
+"devDependencies": {
+        "typescript": "^5.9.3",
         "vscode": "^1.1.37"
-    }
+    },
+    "dependencies": {}
 }

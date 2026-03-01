@@ -19,7 +19,14 @@
 		{ "include": "#parameters" },
 		{ "include": "#types" },
 		{ "include": "#collections" },
-		{ "include": "#namespace" }
+		{ "include": "#namespace" },
+		{ "include": "#classes" },
+		{ "include": "#objects" },
+		{ "include": "#type_definitions" },
+		{ "include": "#imports" },
+		{ "include": "#functions" },
+		{ "include": "#generics" },
+		{ "include": "#attributes" }
 	],
 	"repository": {
 		"comments": {
@@ -33,36 +40,354 @@
 			"patterns": [
 				{
 					"name": "keyword.control.lexicon",
-					"match": "\\b(if|else|for|while|loop|break|continue|return)\\b"
+					"match": "\\b(if|else|for|while|loop|break|continue|return|match|where|yield)\\b"
 				},
 				{
 					"name": "keyword.module.lexicon",
-					"match": "\\b(module|import|pub)\\b"
+					"match": "\\b(module|import|pub|use|crate|mod|export|from|as)\\b"
 				},
 				{
 					"name": "keyword.class.lexicon",
-					"match": "\\b(class|struct|enum|trait|impl|type)\\b"
+					"match": "\\b(class|struct|enum|trait|impl|type|interface|extends|implements)\\b"
 				},
 				{
 					"name": "keyword.function.lexicon",
-					"match": "\\b(fn|pub|static)\\b"
+					"match": "\\b(fn|pub|static|async|await|virtual|override)\\b"
 				},
 				{
 					"name": "keyword.variable.lexicon",
-					"match": "\\b(let|var|mut|const)\\b"
+					"match": "\\b(let|var|mut|const|final|static|late)\\b"
 				},
 				{
 					"name": "keyword.modifier.lexicon",
-					"match": "\\b(private|protected|as|is|assert)\\b"
+					"match": "\\b(private|protected|public|internal|sealed|abstract|final|override)\\b"
 				},
 				{
 					"name": "keyword.match.lexicon",
-					"match": "\\b(match|where|yield)\\b"
+					"match": "\\b(match|where|yield|guard)\\b"
 				},
 				{
 					"name": "keyword.constructor.lexicon",
-					"match": "\\b(constructor|new|self|super)\\b"
+					"match": "\\b(constructor|new|self|super|this|init|get|set)\\b"
+				},
+				{
+					"name": "keyword.import.lexicon",
+					"match": "\\b(import|export|from|use|require|include)\\b"
+				},
+				{
+					"name": "keyword.exception.lexicon",
+					"match": "\\b(throw|throws|try|catch|finally|raise)\\b"
 				}
+			]
+		},
+		"async_await": {
+			"patterns": [
+				{
+					"name": "keyword.async.lexicon",
+					"match": "\\basync\\b"
+				},
+				{
+					"name": "keyword.await.lexicon",
+					"match": "\\bawait\\b"
+				}
+			]
+		},
+		"try_catch": {
+			"patterns": [
+				{
+					"name": "keyword.trycatch.lexicon",
+					"match": "\\b(try|catch|finally)\\b"
+				},
+				{
+					"name": "keyword.throw.lexicon",
+					"match": "\\b(throw|throws|raise)\\b"
+				}
+			]
+		},
+		"this_self": {
+			"patterns": [
+				{
+					"name": "variable.language.lexicon",
+					"match": "\\b(this|self|Self|SUPER)\\b"
+				},
+				{
+					"name": "variable.language.property.lexicon",
+					"match": "\\b(this|self)\\.[a-zA-Z_][a-zA-Z0-9_]*"
+				}
+			]
+		},
+		"closures": {
+			"patterns": [
+				{
+					"name": "closure.lexicon",
+					"match": "\\|[^|]*\\|"
+				},
+				{
+					"name": "closure.arrow.lexicon",
+					"match": "=>"
+				}
+			]
+		},
+		"annotations": {
+			"patterns": [{
+				"name": "entity.name.function.decorator.lexicon",
+				"match": "@[a-zA-Z_][a-zA-Z0-9_]*"
+			}]
+		},
+		"http_decorators": {
+			"patterns": [
+				{ "name": "keyword.http.get.lexicon", "match": "@Get\\([^)]*\\)" },
+				{ "name": "keyword.http.post.lexicon", "match": "@Post\\([^)]*\\)" },
+				{ "name": "keyword.http.put.lexicon", "match": "@Put\\([^)]*\\)" },
+				{ "name": "keyword.http.delete.lexicon", "match": "@Delete\\([^)]*\\)" },
+				{ "name": "keyword.http.patch.lexicon", "match": "@Patch\\([^)]*\\)" },
+				{ "name": "keyword.http.head.lexicon", "match": "@Head\\([^)]*\\)" },
+				{ "name": "keyword.http.options.lexicon", "match": "@Options\\([^)]*\\)" }
+			]
+		},
+		"strings": {
+			"patterns": [
+				{
+					"name": "string.quoted.double.lexicon",
+					"begin": "\"",
+					"end": "\"",
+					"patterns": [
+						{ "name": "constant.character.escape.lexicon", "match": "\\\\." },
+						{
+							"name": "variable.other.string-interpolation.lexicon",
+							"begin": "\\$\\{",
+							"end": "\\}"
+						},
+						{
+							"name": "variable.other.placeholder.lexicon",
+							"match": "\\$[a-zA-Z_][a-zA-Z0-9_]*"
+						}
+					]
+				},
+				{
+					"name": "string.quoted.single.lexicon",
+					"begin": "'",
+					"end": "'"
+				},
+				{
+					"name": "string.template.lexicon",
+					"begin": "`",
+					"end": "`"
+				},
+				{
+					"name": "string.raw.lexicon",
+					"begin": "r(#*)\"",
+					"end": "\"#*"
+				}
+			]
+		},
+		"constants": {
+			"patterns": [
+				{ "name": "constant.language.lexicon", "match": "\\b(true|false|yes|no|on|off)\\b" },
+				{ "name": "constant.language.null.lexicon", "match": "\\b(null|None|nil|undefined|void)\\b" },
+				{ "name": "entity.name.option.lexicon", "match": "\\b(Some|None)\\b" },
+				{ "name": "entity.name.result.lexicon", "match": "\\b(Ok|Err)\\b" },
+				{ "name": "constant.numeric.lexicon", "match": "\\b[0-9]+(\\.[0-9]+)?\\b" },
+				{ "name": "constant.numeric.hex.lexicon", "match": "\\b0x[0-9a-fA-F]+\\b" },
+				{ "name": "constant.numeric.binary.lexicon", "match": "\\b0b[01]+\\b" },
+				{ "name": "constant.numeric.octal.lexicon", "match": "\\b0o[0-7]+\\b" }
+			]
+		},
+		"operators": {
+			"patterns": [
+				{ "name": "keyword.operator.pipe.lexicon", "match": "(▷|\\|>)" },
+				{ "name": "keyword.operator.arrow.lexicon", "match": "(->|=>|->>)" },
+				{ "name": "keyword.operator.lexicon", "match": "(==|!=|<=|>=|&&|\\|\\||\\?|\\?\\?|::|\\+|-|\\*|/|%)" },
+				{ "name": "keyword.operator.spread.lexicon", "match": "\\.\\.\\." },
+				{ "name": "keyword.operator.nullable.lexicon", "match": "\\?" }
+			]
+		},
+		"namespace": {
+			"patterns": [
+				{
+					"name": "namespace.lexicon",
+					"match": "[a-zA-Z_][a-zA-Z0-9_]*::[a-zA-Z_][a-zA-Z0-9_]*"
+				},
+				{
+					"name": "namespace.lexicon",
+					"match": "[a-zA-Z_][a-zA-Z0-9_]*\\.[a-zA-Z_][a-zA-Z0-9_]*"
+				}
+			]
+		},
+		"function_calls": {
+			"patterns": [
+				{
+					"name": "entity.name.function.call.lexicon",
+					"match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\("
+				},
+				{
+					"name": "entity.name.function.method.lexicon",
+					"match": "\\.([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\("
+				},
+				{
+					"name": "support.function.builtin.lexicon",
+					"match": "\\b(println|print|panic|assert|unwrap|expect|map|filter|reduce|panic)\\b"
+				}
+			]
+		},
+		"parameters": {
+			"patterns": [
+				{
+					"name": "variable.parameter.lexicon",
+					"match": "(?<=^|\\(|,|\\s)([a-z_][a-zA-Z0-9_]*)(?=\\s*:|\\s*,|\\s*\\))"
+				}
+			]
+		},
+		"types": {
+			"patterns": [
+				{
+					"name": "storage.type.primitive.lexicon",
+					"match": "\\b(i8|i16|i32|i64|i128|u8|u16|u32|u64|u128|f32|f64|bool|char|void|usize|isize)\\b"
+				},
+				{
+					"name": "storage.type.string.lexicon",
+					"match": "\\b(string|String|str|&str|StringBuffer|StringBuilder)\\b"
+				},
+				{
+					"name": "storage.type.number.lexicon",
+					"match": "\\b(int|integer|number|float|double|long|short|byte)\\b"
+				},
+				{
+					"name": "storage.type.collection.lexicon",
+					"match": "\\b(Array|List|Map|Set|HashMap|HashSet|TreeMap|TreeSet|Vec|VecDeque)\\b"
+				},
+				{
+					"name": "storage.type.option.lexicon",
+					"match": "\\b(Option|Result|None|Some|Ok|Err)\\b"
+				},
+				{
+					"name": "storage.type.smartpointer.lexicon",
+					"match": "\\b(Box|Rc|Arc|Cell|RefCell|Weak|Mutex|RwLock)\\b"
+				},
+				{
+					"name": "entity.name.type.lexicon",
+					"match": "\\b([A-Z][a-zA-Z0-9_]*)\\b"
+				},
+				{
+					"name": "storage.type.generic.lexicon",
+					"match": "<[a-zA-Z_][a-zA-Z0-9_,* ]*>"
+				}
+			]
+		},
+		"collections": {
+			"patterns": [
+				{
+					"name": "support.class.collections.lexicon",
+					"match": "\\b(List|Map|Set|Vector|Array|HashMap|HashSet|TreeMap|TreeSet|VecDeque)\\b"
+				},
+				{
+					"name": "support.class.option.lexicon",
+					"match": "\\b(Option|Result)\\b"
+				}
+			]
+		},
+		"struct_shorthand": {
+			"patterns": [
+				{
+					"name": "variable.other.object.shorthand.lexicon",
+					"match": "([a-zA-Z_][a-zA-Z0-9_]*)\\s*(?=[,}])"
+				}
+			]
+		},
+		"classes": {
+			"patterns": [
+				{
+					"name": "entity.name.class.lexicon",
+					"match": "(?<=class\\s)[a-zA-Z_][a-zA-Z0-9_]*"
+				},
+				{
+					"name": "entity.name.class.inheritance.lexicon",
+					"match": "(?<=extends\\s)[a-zA-Z_][a-zA-Z0-9_]*"
+				},
+				{
+					"name": "entity.name.class.implements.lexicon",
+					"match": "(?<=implements\\s)[a-zA-Z_][a-zA-Z0-9_]*"
+				},
+				{
+					"name": "storage.type.class.field.lexicon",
+					"match": "(?<=^|\\s|\\t)([a-z_][a-zA-Z0-9_]*)(?=\\s*:\\s*\\w)"
+				}
+			]
+		},
+		"objects": {
+			"patterns": [
+				{
+					"name": "variable.object.property.lexicon",
+					"match": "\\.([a-z_][a-zA-Z0-9_]*)(?=\\s|,|;|\\)|\\}|\\]|\\.)"
+				},
+				{
+					"name": "variable.object.key.lexicon",
+					"match": "(?<=\\{|,\\s*)([a-z_][a-zA-Z0-9_]*)(?=\\s*:)"
+				}
+			]
+		},
+		"type_definitions": {
+			"patterns": [
+				{
+					"name": "entity.name.type.lexicon",
+					"match": "(?<=type\\s)[a-zA-Z_][a-zA-Z0-9_]*"
+				},
+				{
+					"name": "entity.name.type.alias.lexicon",
+					"match": "(?<=type\\s)[a-zA-Z_][a-zA-Z0-9_]*(?=\\s*=)"
+				}
+			]
+		},
+		"imports": {
+			"patterns": [
+				{
+					"name": "keyword.import.path.lexicon",
+					"match": "import\\s+([a-zA-Z_][a-zA-Z0-9_.]*)"
+				},
+				{
+					"name": "keyword.import.alias.lexicon",
+					"match": "as\\s+([a-zA-Z_][a-zA-Z0-9_]*)"
+				}
+			]
+		},
+		"functions": {
+			"patterns": [
+				{
+					"name": "entity.name.function.lexicon",
+					"match": "(?<=fn\\s)([a-zA-Z_][a-zA-Z0-9_]*)(?=\\s*\\(|\\s*<)"
+				},
+				{
+					"name": "entity.name.function.pub.lexicon",
+					"match": "(?<=pub\\s+fn\\s)([a-zA-Z_][a-zA-Z0-9_]*)(?=\\s*\\(|\\s*<)"
+				},
+				{
+					"name": "entity.name.function.async.lexicon",
+					"match": "(?<=async\\s+fn\\s)([a-zA-Z_][a-zA-Z0-9_]*)(?=\\s*\\(|\\s*<)"
+				}
+			]
+		},
+		"generics": {
+			"patterns": [
+				{
+					"name": "storage.type.generic.lexicon",
+					"match": "<[a-zA-Z_][a-zA-Z0-9_,\\s]*>"
+				},
+				{
+					"name": "storage.type.generic.bounds.lexicon",
+					"match": "(?<=<)[a-zA-Z_][a-zA-Z0-9_]*(?=:|\\s)"
+				}
+			]
+		},
+		"attributes": {
+			"patterns": [
+				{
+					"name": "entity.name.attribute.lexicon",
+					"match": "#\\[[^\\]]+\\]"
+				}
+			]
+		}
+	}
+}
 			]
 		},
 		"async_await": {
