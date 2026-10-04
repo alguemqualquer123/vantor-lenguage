@@ -378,12 +378,22 @@ impl<'a> Lexer<'a> {
 
         let mut has_dot = false;
         let mut has_exponent = false;
-        while let Some(&(_, ch)) = self.peek() {
+        while let Some(&(pos, ch)) = self.peek() {
             match ch {
                 '0'..='9' | '_' => { self.advance(); }
                 '.' if !has_dot && !has_exponent => {
-                    has_dot = true;
-                    self.advance();
+                    // A `.` only starts a fractional part when a digit
+                    // follows it — otherwise this is `1..5` / `1..=5`
+                    // (range), `1.foo` (field access) or a trailing-dot
+                    // float, and the dot belongs to the next token.
+                    let after_dot = self.source[pos + '.'.len_utf8()..].chars().next();
+                    match after_dot {
+                        Some(d) if d.is_ascii_digit() => {
+                            has_dot = true;
+                            self.advance();
+                        }
+                        _ => break,
+                    }
                 }
                 'e' | 'E' if !has_exponent => {
                     has_exponent = true;
@@ -495,6 +505,12 @@ impl<'a> Lexer<'a> {
                 message: msg.clone(),
             });
             return Token::Error(msg);
+        }
+        // `/=` compound division-assign (was missing: `/=` lexed as
+        // `/` + `=`, breaking `total /= 3;` with "found Eq").
+        if let Some(&(_, '=')) = self.peek() {
+            self.advance();
+            return Token::SlashEq;
         }
         Token::Slash
     }
@@ -624,20 +640,20 @@ impl<'a> Lexer<'a> {
     }
 
     fn scan_dot(&mut self) -> Token {
+        // `.` `..` `..=` `...` — longest match, in that priority order.
+        // (`..=` must win over `..` when `=` follows; `...` (spread) wins
+        // over `..` when a third `.` follows.)
         if let Some(&(_, '.')) = self.peek() {
-            self.advance();
+            self.advance(); // second `.`
+            if let Some(&(_, '=')) = self.peek() {
+                self.advance();
+                return Token::DotDotEq; // `..=`
+            }
             if let Some(&(_, '.')) = self.peek() {
                 self.advance();
-                if let Some(&(_, '.')) = self.peek() {
-                    self.advance();
-                    return Token::DotDotDot;
-                }
-                if let Some(&(_, '=')) = self.peek() {
-                    self.advance();
-                    return Token::DotDotEq;
-                }
-                return Token::DotDot;
+                return Token::DotDotDot; // `...`
             }
+            return Token::DotDot; // `..`
         }
         Token::Dot
     }
@@ -821,5 +837,32 @@ mod tests {
         let table = lexer.trivia_table();
         assert_eq!(table.len(), tokens.len());
         assert_eq!(table[let_idx], trivia);
+    }
+
+    #[test]
+    fn test_range_dots_lex_correctly() {
+        // `1..5` must be Int DotDot Int (not Float `1.` + Dot),
+        // `..=` one token, `...` one token.
+        let mut lexer = Lexer::new("1..5");
+        let toks: Vec<_> = lexer.tokenize().into_iter().map(|t| t.token).collect();
+        assert!(matches!(toks[0], Token::IntLit(_)), "got {:?}", toks[0]);
+        assert!(matches!(toks[1], Token::DotDot), "got {:?}", toks[1]);
+        assert!(matches!(toks[2], Token::IntLit(_)), "got {:?}", toks[2]);
+
+        let mut lexer = Lexer::new("a..=b");
+        let toks: Vec<_> = lexer.tokenize().into_iter().map(|t| t.token).collect();
+        assert!(matches!(toks[1], Token::DotDotEq), "got {:?}", toks[1]);
+
+        let mut lexer = Lexer::new("T...");
+        let toks: Vec<_> = lexer.tokenize().into_iter().map(|t| t.token).collect();
+        assert!(matches!(toks[1], Token::DotDotDot), "got {:?}", toks[1]);
+    }
+
+    #[test]
+    fn test_slash_eq_lexes_as_one_token() {
+        // `total /= 3` must be SlashEq, not Slash + Eq.
+        let mut lexer = Lexer::new("total /= 3");
+        let toks: Vec<_> = lexer.tokenize().into_iter().map(|t| t.token).collect();
+        assert!(matches!(toks[1], Token::SlashEq), "got {:?}", toks[1]);
     }
 }

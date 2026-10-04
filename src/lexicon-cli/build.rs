@@ -66,7 +66,7 @@ fn auto_bump_patch() {
 }
 
 /// `"version = \"0.3.1\""` → `"version = \"0.3.2\""` (patch +1, quotes and
-/// spacing preserved). Returns `None` when the line is not a plain
+/// indentation preserved). Returns `None` when the line is not a plain
 /// `version = "x.y.z"` assignment.
 fn bump_line(line: &str) -> Option<String> {
     let (head, tail) = line.split_once('=')?;
@@ -81,17 +81,15 @@ fn bump_line(line: &str) -> Option<String> {
     let patch: u64 = parts[2].parse().ok()?;
     Some(format!(
         "{}version = \"{}.{}.{}\"",
-        head_before_eq(line),
+        indent_of(line),
         parts[0],
         parts[1],
         patch + 1
     ))
 }
 
-/// Whitespace before `=` (keeps alignment of the rewritten line).
-fn head_before_eq(line: &str) -> String {
-    match line.find('=') {
-        Some(i) => line[..i].to_string(),
-        None => String::new(),
-    }
+/// Leading whitespace of `line` (the rewritten line keeps its indentation).
+fn indent_of(line: &str) -> String {
+    let spaces = line.len() - line.trim_start().len();
+    line[..spaces].to_string()
 }

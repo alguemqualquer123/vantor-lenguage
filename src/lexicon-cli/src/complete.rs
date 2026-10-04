@@ -737,7 +737,84 @@ const SYS_MEMBERS: &[Item] = &[
     Item { label: "lex_version", kind: Kind::Function, detail: "Sys::lex_version() -> String", doc: "Toolchain version baked at compile time (tracks release auto-bumps).", insert: "lex_version()" },
 ];
 
+// --- Motor gráfico nativo (eframe + wgpu: Vulkan/DirectX 12/OpenGL) ------
+
+pub const WINDOW_MEMBERS: &[Item] = &[
+    Item { label: "create", kind: Kind::Function, detail: "Window::create(cfg) -> Window", doc: "Abre uma janela real (backend wgpu da máquina: Vulkan/DirectX 12/OpenGL).", insert: "create(cfg)" },
+    Item { label: "shouldClose", kind: Kind::Function, detail: "Window::shouldClose(win) -> bool", doc: "O usuário pediu fechamento (ou o limite de CI foi atingido).", insert: "shouldClose(win)" },
+    Item { label: "present", kind: Kind::Function, detail: "Window::present(win) -> void", doc: "Espera a UI pintar o frame — pacing do loop de jogo.", insert: "present(win)" },
+    Item { label: "poll", kind: Kind::Function, detail: "Window::poll(win) -> void", doc: "Bombeia eventos (no-op: egui roda em thread própria).", insert: "poll(win)" },
+    Item { label: "close", kind: Kind::Function, detail: "Window::close(win) -> void", doc: "Fecha a janela.", insert: "close(win)" },
+    Item { label: "setTitle", kind: Kind::Function, detail: "Window::setTitle(win, title: String)", doc: "Altera o título da janela.", insert: "setTitle(win, \"\")" },
+    Item { label: "setSize", kind: Kind::Function, detail: "Window::setSize(win, width, height)", doc: "Redimensiona a janela.", insert: "setSize(win, 800, 600)" },
+    Item { label: "backend", kind: Kind::Function, detail: "Window::backend(win) -> String", doc: "Backend real: `Vulkan`, `DirectX 12`, `OpenGL`, `Metal`.", insert: "backend(win)" },
+    Item { label: "width", kind: Kind::Function, detail: "Window::width(win) -> int", doc: "Largura atual (px).", insert: "width(win)" },
+    Item { label: "height", kind: Kind::Function, detail: "Window::height(win) -> int", doc: "Altura atual (px).", insert: "height(win)" },
+    Item { label: "show", kind: Kind::Function, detail: "Window::show(win) -> void", doc: "Mostra/foca (no-op: a janela já nasce visível).", insert: "show(win)" },
+];
+
+pub const CANVAS_MEMBERS: &[Item] = &[
+    Item { label: "clear", kind: Kind::Function, detail: "Canvas::clear(win, r, g, b, a)", doc: "Limpa a janela (componentes 0.0–1.0).", insert: "clear(win, 0.0, 0.0, 0.0, 1.0)" },
+    Item { label: "fill_rect", kind: Kind::Function, detail: "Canvas::fill_rect(win, x, y, w, h, r, g, b, a)", doc: "Retângulo sólido (origem no topo-esquerdo).", insert: "fill_rect(win, 0.0, 0.0, 10.0, 10.0, 1.0, 1.0, 1.0, 1.0)" },
+    Item { label: "fill_circle", kind: Kind::Function, detail: "Canvas::fill_circle(win, x, y, radius, r, g, b, a)", doc: "Círculo sólido.", insert: "fill_circle(win, 0.0, 0.0, 5.0, 1.0, 1.0, 1.0, 1.0)" },
+    Item { label: "line", kind: Kind::Function, detail: "Canvas::line(win, x1, y1, x2, y2, stroke, r, g, b, a)", doc: "Linha com espessura.", insert: "line(win, 0.0, 0.0, 10.0, 10.0, 2.0, 1.0, 1.0, 1.0, 1.0)" },
+    Item { label: "text", kind: Kind::Function, detail: "Canvas::text(win, x, y, s, size, r, g, b, a)", doc: "Texto com fonte egui (tam em px).", insert: "text(win, 0.0, 0.0, \"\", 16.0, 1.0, 1.0, 1.0, 1.0)" },
+];
+
+pub const INPUT_MEMBERS: &[Item] = &[
+    Item { label: "keyDown", kind: Kind::Function, detail: "Input::keyDown(win, key: String) -> bool", doc: "Tecla pressionada neste frame (`up`, `space`, `w`, ...).", insert: "keyDown(win, \"up\")" },
+    Item { label: "mouseX", kind: Kind::Function, detail: "Input::mouseX(win) -> float", doc: "X do mouse no canvas.", insert: "mouseX(win)" },
+    Item { label: "mouseY", kind: Kind::Function, detail: "Input::mouseY(win) -> float", doc: "Y do mouse no canvas.", insert: "mouseY(win)" },
+    Item { label: "mouseDown", kind: Kind::Function, detail: "Input::mouseDown(win) -> bool", doc: "Botão principal pressionado?", insert: "mouseDown(win)" },
+    Item { label: "clicked", kind: Kind::Function, detail: "Input::clicked(widget) -> bool", doc: "O widget foi clicado? Consome o clique.", insert: "clicked(widget)" },
+    Item { label: "value", kind: Kind::Function, detail: "Input::value(widget) -> String", doc: "Texto atual de um TextField.", insert: "value(widget)" },
+    Item { label: "checked", kind: Kind::Function, detail: "Input::checked(widget) -> bool", doc: "Estado de um Checkbox.", insert: "checked(widget)" },
+];
+
+pub const GPU_MEMBERS: &[Item] = &[
+    Item { label: "backend", kind: Kind::Function, detail: "Gpu::backend(win) -> String", doc: "Backend gráfico real da máquina.", insert: "backend(win)" },
+];
+
+pub const LABEL_MEMBERS: &[Item] = &[
+    Item { label: "create", kind: Kind::Function, detail: "Label::create(text: String) -> Label", doc: "Cria um rótulo (use `window.add`).", insert: "create(\"\")" },
+];
+
+pub const BUTTON_MEMBERS: &[Item] = &[
+    Item { label: "create", kind: Kind::Function, detail: "Button::create(label: String) -> Button", doc: "Cria um botão (use `window.add` + `Input::clicked`).", insert: "create(\"OK\")" },
+];
+
+pub const TEXTFIELD_MEMBERS: &[Item] = &[
+    Item { label: "create", kind: Kind::Function, detail: "TextField::create(placeholder: String) -> TextField", doc: "Cria um campo de texto (leia com `Input::value`).", insert: "create(\"texto\")" },
+];
+
+pub const CHECKBOX_MEMBERS: &[Item] = &[
+    Item { label: "create", kind: Kind::Function, detail: "Checkbox::create(label: String) -> Checkbox", doc: "Cria uma caixa de seleção (leia com `Input::checked`).", insert: "create(\"opção\")" },
+];
+
+pub const MENUBAR_MEMBERS: &[Item] = &[
+    Item { label: "new", kind: Kind::Function, detail: "MenuBar::new() -> MenuBar", doc: "Barra de menus (use `window.setMenuBar`).", insert: "new()" },
+];
+
+pub const MENU_MEMBERS: &[Item] = &[
+    Item { label: "new", kind: Kind::Function, detail: "Menu::new(title: String) -> Menu", doc: "Menu da barra (use `bar.add`).", insert: "new(\"Arquivo\")" },
+];
+
+pub const MENUITEM_MEMBERS: &[Item] = &[
+    Item { label: "new", kind: Kind::Function, detail: "MenuItem::new(label: String, shortcut: String) -> MenuItem", doc: "Item clicável (use `menu.add` + `Input::clicked`).", insert: "new(\"Novo\", \"Ctrl+N\")" },
+];
+
 pub const MODULES: &[Module] = &[
+    Module { name: "Window", doc: "Motor gráfico wgpu — janelas reais (native, no import).", members: WINDOW_MEMBERS },
+    Module { name: "Canvas", doc: "Desenho 2D imediato na janela (native, no import).", members: CANVAS_MEMBERS },
+    Module { name: "Input", doc: "Teclado/mouse/widgets da janela (native, no import).", members: INPUT_MEMBERS },
+    Module { name: "Gpu", doc: "Fatos do backend gráfico (native, no import).", members: GPU_MEMBERS },
+    Module { name: "Label", doc: "Widget de texto estático (native, no import).", members: LABEL_MEMBERS },
+    Module { name: "Button", doc: "Widget de botão (native, no import).", members: BUTTON_MEMBERS },
+    Module { name: "TextField", doc: "Widget de entrada de texto (native, no import).", members: TEXTFIELD_MEMBERS },
+    Module { name: "Checkbox", doc: "Widget de caixa de seleção (native, no import).", members: CHECKBOX_MEMBERS },
+    Module { name: "MenuBar", doc: "Barra de menus (native, no import).", members: MENUBAR_MEMBERS },
+    Module { name: "Menu", doc: "Menu de uma barra (native, no import).", members: MENU_MEMBERS },
+    Module { name: "MenuItem", doc: "Item clicável de um menu (native, no import).", members: MENUITEM_MEMBERS },
     Module { name: "Console", doc: "Stdout printing (native, no import).", members: CONSOLE_MEMBERS },
     Module { name: "Json", doc: "Runtime JSON codec (native, no import).", members: JSON_MEMBERS },
     Module { name: "Env", doc: "Environment variables (native, no import).", members: ENV_MEMBERS },
@@ -858,6 +935,7 @@ pub const STD_PATHS: &[(&str, &str)] = &[
 pub const NATIVE_MODULES: &[&str] = &[
     "Console", "Json", "Env", "Http", "Time", "File", "Process", "Text",
     "Math", "List", "Hash", "Rand", "Atomic", "Sys",
+    "Window", "Canvas", "Input", "Gpu",
 ];
 
 /// Resolve a module key to SDK-relative path segments (without extension).
@@ -906,6 +984,7 @@ const SNIPPETS: &[Item] = &[
     Item { label: "import std", kind: Kind::Snippet, detail: "import std::<package>;", doc: "Stdlib import (key = last segment).", insert: "import std::${1:strings};" },
     Item { label: "lambda", kind: Kind::Snippet, detail: "|x| expr", doc: "First-class lambda (captures environment).", insert: "|${1:x}| ${2:x}" },
     Item { label: "assert", kind: Kind::Snippet, detail: "assert(cond, msg)", doc: "Runtime assertion (fails the run with msg).", insert: "assert(${1:cond}, \"${2:msg}\");" },
+    Item { label: "typeOf", kind: Kind::Snippet, detail: "typeOf(value) -> String", doc: "Runtime type name (`int`, `String`, `List`, struct names…). Aliases: `typeof`, `type`; method forms `x.type()`, `x.typeOf()`.", insert: "typeOf(${1:value})" },
     Item { label: "let", kind: Kind::Snippet, detail: "let name = value;", doc: "Immutable binding (also `var`, `const`).", insert: "let ${1:name} = ${2:value};" },
     Item { label: "for", kind: Kind::Snippet, detail: "for x in xs { … }", doc: "Iteration (also `while`, `loop`).", insert: "for ${1:x} in ${2:xs} {\n    $0\n}" },
 ];
@@ -975,6 +1054,17 @@ macro_rules! mi {
 }
 
 const MODULE_ITEMS: &[Item] = &[
+    mi!("Window", "module Window", "Motor gráfico wgpu — janelas reais (native, no import)."),
+    mi!("Canvas", "module Canvas", "Desenho 2D imediato na janela (native, no import)."),
+    mi!("Input", "module Input", "Teclado/mouse/widgets da janela (native, no import)."),
+    mi!("Gpu", "module Gpu", "Fatos do backend gráfico (native, no import)."),
+    mi!("Label", "module Label", "Widget de texto estático (native, no import)."),
+    mi!("Button", "module Button", "Widget de botão (native, no import)."),
+    mi!("TextField", "module TextField", "Widget de entrada de texto (native, no import)."),
+    mi!("Checkbox", "module Checkbox", "Widget de caixa de seleção (native, no import)."),
+    mi!("MenuBar", "module MenuBar", "Barra de menus (native, no import)."),
+    mi!("Menu", "module Menu", "Menu de uma barra (native, no import)."),
+    mi!("MenuItem", "module MenuItem", "Item clicável de um menu (native, no import)."),
     mi!("Console", "module Console", "Stdout printing (native, no import)."),
     mi!("Json", "module Json", "Runtime JSON codec (native, no import)."),
     mi!("Env", "module Env", "Environment variables (native, no import)."),

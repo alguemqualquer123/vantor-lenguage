@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 
 import { useLanguage } from '@/hooks/useLanguage';
-
+import { links } from '@/lib/releases';
 export default function DocsPage() {
   const { lang, setLang, t } = useLanguage();
   const [activeSection, setActiveSection] = useState('manual_usuario');
@@ -73,7 +73,7 @@ export default function DocsPage() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-8">
           <Link href="/" className="flex items-center space-x-3 shrink-0 group">
             <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center overflow-hidden group-hover:rotate-12 transition-transform">
-              <img src="/logo.png" alt="Lexicon Logo" className="w-6 h-6 object-contain" />
+              <img src="/mascote_lex_lang_64.png" alt="Lexicon" className="w-7 h-7 object-contain" />
             </div>
             <span className="font-black tracking-tighter code-font text-lg uppercase">{t.docs.title}</span>
           </Link>
@@ -106,7 +106,8 @@ export default function DocsPage() {
               </button>
             </div>
             <Link href="/" className="text-muted-foreground hover:text-white transition-colors">{t.docs.portal}</Link>
-            <a href={process.env.NEXT_PUBLIC_GITHUB_URL || 'https://github.com/lexicon-team/lexicon'} target="_blank" className="text-muted-foreground hover:text-white transition-colors">{t.docs.github}</a>
+            <a href={links.repo} target="_blank" className="text-muted-foreground hover:text-white transition-colors">{t.docs.github}</a>
+              <a href={links.sdkZip} className="text-muted-foreground hover:text-white transition-colors">{t.nav.download}</a>
           </div>
         </div>
       </nav>

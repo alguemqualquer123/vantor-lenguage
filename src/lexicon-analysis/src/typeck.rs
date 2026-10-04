@@ -808,6 +808,22 @@ impl TypeChecker {
                         }
                         return Type::Unknown;
                     }
+                    // `typeOf(x)` / `typeof(x)` / `type(x)`: runtime
+                    // reflection returning the type name as `String`.
+                    // Always `String` regardless of the argument type.
+                    if id.text == "typeOf" || id.text == "typeof" || id.text == "type" {
+                        for a in &call.args {
+                            self.check_expr(a);
+                        }
+                        if call.args.len() != 1 {
+                            self.errors.push(format!(
+                                "[E0301] `{}` takes exactly one argument, found {}",
+                                id.text,
+                                call.args.len()
+                            ));
+                        }
+                        return Type::String;
+                    }
                 }
                 // Spec §11 (E0303): generic instantiation context. When the
                 // callee names a generic function declared elsewhere, arity

@@ -1,4 +1,4 @@
-# Troubleshooting - Lexicon v0.2.0
+# Troubleshooting - Lexicon v0.3.5
 
 ## 1. Common issues (real)
 
@@ -31,18 +31,18 @@
 
 ### Commented-out code "does nothing" / route disappeared
 
-- **Cause**: none — that is correct in v0.2.0. Comments are stripped before
+- **Cause**: none — that is correct in v0.3.5. Comments are stripped before
   runner/lint/scan; commented `print` or `Http::serve` never runs nor registers.
 
 ### No IntelliSense/vet in VS Code
 
 - **Cause**: old extension or `lex` off PATH (`lexicon.path`).
-- **Fix**: update **Lexicon Super** to 1.1.x, run `lex install`, and check
+- **Fix**: update **Lexicon Super** to 1.2.0, run `lex install`, and check
   `lex vet <file>` in the terminal — vet-on-save mirrors that result.
 
 ### `lex deploy` "succeeded" but nothing published / `lex ffi` with no bindings
 
-- **Cause**: both are **simulated** in v0.2.0 (cosmetic output).
+- **Cause**: both are **simulated** in v0.3.5 (cosmetic output).
 - **Fix**: do not use them in production; follow the roadmap for real status.
 
 ## 2. Glossary

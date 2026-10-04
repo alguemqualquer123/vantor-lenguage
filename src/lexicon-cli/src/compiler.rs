@@ -455,15 +455,15 @@ fn watch_event_relevant(event: &notify::Event) -> bool {
     })
 }
 
-pub fn run(file: Option<String>, _args: Vec<String>) -> Result<()> {
-    run_with_ci(file, _args, false)
+pub fn run(file: Option<String>, args: Vec<String>) -> Result<()> {
+    run_with_ci(file, args, false)
 }
 
 /// CI-aware runner (Spec §23): identical to [`run`] but skips every
 /// interactive wait when [`is_ci_mode`] is true (via `--ci` flag or
 /// `CI=true` env). HTTP servers also return immediately in CI mode
 /// instead of blocking forever, so `lex run --ci` is safe in pipelines.
-pub fn run_with_ci(file: Option<String>, _args: Vec<String>, ci_flag: bool) -> Result<()> {
+pub fn run_with_ci(file: Option<String>, args: Vec<String>, ci_flag: bool) -> Result<()> {
     // Run speed: single wall-clock for `--ci` reporting (`Run time: Xms`).
     let run_start = std::time::Instant::now();
     let ci = is_ci_mode(ci_flag);
@@ -483,6 +483,14 @@ pub fn run_with_ci(file: Option<String>, _args: Vec<String>, ci_flag: bool) -> R
         println!("Try specifying a file: lex run <file.lex>");
         return Ok(());
     }
+
+    // Script arguments (`lex run prog.lex -- args…`) reach the program as
+    // Go-style `os.Args`: `[program, user args…]`.
+    crate::interp::set_script_args(
+        std::iter::once(src_path.to_string_lossy().into_owned())
+            .chain(args.into_iter())
+            .collect(),
+    );
 
     // Single disk read: `source` is reused for server detection, compile
     // and route/port extraction — never re-read from disk below.
@@ -511,6 +519,13 @@ pub fn run_with_ci(file: Option<String>, _args: Vec<String>, ci_flag: bool) -> R
     //         return Ok(());
     //     }
     // }
+
+    // Motor gráfico: em CI (`--ci`/`CI=true`) as janelas fecham sozinhas
+    // após ~1s (60 frames) — `lex run --ci` nunca bloqueia pipelines.
+    #[cfg(feature = "gui")]
+    if ci {
+        std::env::set_var("LEXICON_GUI_AUTOQUIT", "60");
+    }
 
     match compile_run(&code, &src_path.display().to_string()) {
         Ok(output) => {
@@ -559,6 +574,9 @@ pub fn run_with_ci(file: Option<String>, _args: Vec<String>, ci_flag: bool) -> R
             println!("{}Error: {}{}", COLOR_RED, e, RESET);
             if ci {
                 println!("Run time: {}ms", run_start.elapsed().as_millis());
+                // Erro de execução (assert, panic, runtime) tem que vazar no
+                // código de saída: é assim que `lex run --ci` marca FAIL.
+                std::process::exit(1);
             }
         }
     }
@@ -571,7 +589,8 @@ pub fn test(verbose: bool) -> Result<()> {
     println!("{}Running Stress Tests...{}", COLOR_CYAN, RESET);
     run_stress_tests(verbose)?;
 
-    // 2. Integrated Tests (@Test)
+    // 2. Integrated Tests (@Test) — REALLY executed (interp::run_tests),
+    // one PASS/FAIL line per function, like Jest reporters.
     println!(
         "\n{}Scanning for Integrated Tests (@Test)...{}",
         COLOR_CYAN, RESET
@@ -580,28 +599,43 @@ pub fn test(verbose: bool) -> Result<()> {
     let mut integrated_passed = 0;
 
     if let Ok(entries) = fs::read_dir("src") {
-        for entry in entries {
-            if let Ok(entry) = entry {
-                let path = entry.path();
-                if path.extension().map(|s| s == "lex").unwrap_or(false) {
-                    let content = fs::read_to_string(&path)?;
-                    if content.contains("@Test") {
-                        println!("  Found tests in {:?}", path.file_name().unwrap());
-                        // Simple mock for @Test functions
-                        for line in content.lines() {
-                            if line.contains("fn") && line.contains("test") {
-                                integrated_tests += 1;
-                                println!(
-                                    "    {}Testing {}...{} [PASS]",
-                                    COLOR_GREEN,
-                                    line.trim(),
-                                    RESET
-                                );
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if !path.extension().map_or(false, |ext| ext == "lex") {
+                continue;
+            }
+            let content = fs::read_to_string(&path)?;
+            if !content.contains("@Test") {
+                continue;
+            }
+            println!("  Found tests in {:?}", path.file_name().unwrap());
+            let label = path.display().to_string();
+            match parse_module_text(&content, &label) {
+                Err(msg) => {
+                    println!("    {}ERROR:{} {} — file skipped", COLOR_RED, RESET, msg);
+                }
+                Ok(module) => match crate::interp::run_tests(&module) {
+                    Err(e) => {
+                        println!("    {}ERROR:{} {} — file skipped", COLOR_RED, RESET, e);
+                    }
+                    Ok(outcomes) => {
+                        if outcomes.is_empty() {
+                            println!("    (no @Test functions discovered)");
+                        }
+                        for o in outcomes {
+                            integrated_tests += 1;
+                            if o.passed {
                                 integrated_passed += 1;
+                                println!("    {}PASS:{} {}", COLOR_GREEN, RESET, o.name);
+                            } else {
+                                println!(
+                                    "    {}FAIL:{} {} — {}",
+                                    COLOR_RED, RESET, o.name, o.detail
+                                );
                             }
                         }
                     }
-                }
+                },
             }
         }
     }
@@ -621,7 +655,48 @@ pub fn test(verbose: bool) -> Result<()> {
         COLOR_CYAN, RESET, fuzz_passed, fuzz_total, RESET
     );
 
+    // Jest parity: a failing suite fails the process (CI-friendly).
+    if integrated_tests > integrated_passed {
+        std::process::exit(1);
+    }
+
     Ok(())
+}
+
+/// Parse Lex source into a [`Module`] on the big-stack thread (hostile
+/// nesting fails as a message, never as a process abort). Shared by
+/// `lex test`, `lex bundle` and friends — one choke point.
+pub(crate) fn parse_module_text(
+    source: &str,
+    label: &str,
+) -> Result<lexicon_parser::Module, String> {
+    use lexicon_lexer::Lexer;
+    use lexicon_parser::Parser;
+    let owned_src = source.to_string();
+    let owned_label = label.to_string();
+    match crate::interp::run_big_stack(move || {
+        let mut lexer = Lexer::new(&owned_src);
+        let tokens = lexer.tokenize();
+        let mut parser = Parser::with_file(tokens, owned_label.clone());
+        match parser.parse() {
+            Ok(m) => {
+                let errs = parser.take_errors();
+                if errs.is_empty() {
+                    Ok::<_, String>(m)
+                } else {
+                    Err(errs
+                        .iter()
+                        .map(|e| format!("{}:{}:{}: {}", owned_label, e.line, e.column, e.message))
+                        .collect::<Vec<_>>()
+                        .join("\n"))
+                }
+            }
+            Err(e) => Err(format!("{}: {}", owned_label, e)),
+        }
+    }) {
+        Ok(Ok(m)) => Ok(m),
+        Ok(Err(msg)) | Err(msg) => Err(msg),
+    }
 }
 
 fn run_stress_tests(verbose: bool) -> Result<()> {
@@ -1555,6 +1630,9 @@ pub fn generate() -> Result<()> {
 
 /// Module manager (Spec §12 + §82 `mod`): validates `lexicon.toml`.
 pub fn mod_cmd(args: Vec<String>) -> Result<()> {
+    if args.first().map(|s| s.as_str()) == Some("verify") {
+        return mod_verify(args.get(1).cloned());
+    }
     let manifest = PathBuf::from("lexicon.toml");
     if !manifest.exists() {
         println!("{}No lexicon.toml found. Run `lex init` first.{}", COLOR_YELLOW, RESET);
@@ -1568,6 +1646,50 @@ pub fn mod_cmd(args: Vec<String>) -> Result<()> {
         std::process::exit(1);
     }
     println!("{}mod: manifest OK{}", COLOR_GREEN, RESET);
+    Ok(())
+}
+
+/// Verify every `import` of a file resolves through the module loader
+/// (`./lib`, SDK trees, `~/.lexicon/sdk`, `$LEX_PATH`) — the closest
+/// analogue of dependency verification until the registry lands.
+pub fn mod_verify(file: Option<String>) -> Result<()> {
+    let src_path = match file {
+        Some(f) => PathBuf::from(f),
+        None => PathBuf::from("src/main.lex"),
+    };
+    if !src_path.exists() {
+        println!("{}mod verify: {} not found{}", COLOR_RED, src_path.display(), RESET);
+        std::process::exit(2);
+    }
+    let source = fs::read_to_string(&src_path)?;
+    let label = src_path.display().to_string();
+    let module = match parse_module_text(&source, &label) {
+        Ok(m) => m,
+        Err(msg) => {
+            println!("{}mod verify: cannot parse: {}{}", COLOR_RED, msg, RESET);
+            std::process::exit(2);
+        }
+    };
+    let base_dir = src_path
+        .parent()
+        .map(|p| p.to_path_buf())
+        .unwrap_or_else(|| PathBuf::from("."));
+    let mut missing = 0;
+    for imp in &module.imports {
+        let segs: Vec<String> = imp.path.segments.iter().map(|s| s.text.clone()).collect();
+        match crate::interp::find_module_file(&segs, &base_dir) {
+            Some(p) => println!("{}ok:{} {} -> {}", COLOR_GREEN, RESET, imp.path.to_string(), p.display()),
+            None => {
+                println!("{}missing:{} {}", COLOR_RED, RESET, imp.path.to_string());
+                missing += 1;
+            }
+        }
+    }
+    if missing > 0 {
+        println!("{}mod verify: {} unresolvable import(s){}", COLOR_RED, missing, RESET);
+        std::process::exit(1);
+    }
+    println!("{}mod verify: all imports resolve{}", COLOR_GREEN, RESET);
     Ok(())
 }
 
@@ -1799,9 +1921,9 @@ pub fn new_project(
     // Validate the template BEFORE touching the filesystem so a typo
     // never leaves an empty directory behind.
     if let Some(t) = template.as_deref() {
-        if !["api", "plugin", "service"].contains(&t) {
+        if !["api", "plugin", "service", "gui"].contains(&t) {
             return Err(anyhow::anyhow!(
-                "Unknown template '{}'. Valid templates: api, plugin, service (plus --edge for api, --target wasm for plugin, --grpc for service).",
+                "Unknown template '{}'. Valid templates: api, plugin, service, gui (plus --edge for api, --target wasm for plugin, --grpc for service).",
                 t
             ));
         }
@@ -1948,12 +2070,64 @@ pub fn main() -> void {
 "#
             }
         }
+        // GUI: runnable native window on the wgpu renderer (feature `gui`).
+        Some("gui") => {
+            println!("Creating GUI Window project...");
+            r#"// Template gui: janela nativa no motor grafico do Lex (eframe + wgpu).
+// Rodar:  lex run src/main.lex
+// CI:     lex run --ci src/main.lex   (fecha sozinho depois de ~1s)
+// Backend real (Vulkan / DirectX 12 / OpenGL / Metal) aparece no cabecalho.
+
+pub fn main() -> void {
+    let win = Window::create(Title { title: "minha-janela", width: 640, height: 400 });
+    let x = 60.0;
+    let vx = 4.0;
+    let hits = 0;
+
+    while !Window::shouldClose(win) {
+        if Input::keyDown(win, "left") {
+            vx = 0.0 - Math::abs(vx);
+        }
+        if Input::keyDown(win, "right") {
+            vx = Math::abs(vx);
+        }
+        x = x + vx;
+        if x < 60.0 {
+            x = 60.0;
+            vx = 0.0 - vx;
+            hits = hits + 1;
+        }
+        if x > 580.0 {
+            x = 580.0;
+            vx = 0.0 - vx;
+            hits = hits + 1;
+        }
+        Canvas::clear(win, 0.07, 0.06, 0.13, 1.0);
+        Canvas::fillRect(win, 20.0, 300.0, 600.0, 8.0, 0.25, 0.27, 0.35, 1.0);
+        Canvas::fillCircle(win, x, 200.0, 28.0, 0.49, 0.83, 1.0, 1.0);
+        Canvas::text(
+            win,
+            20.0,
+            20.0,
+            Text { s: "setas <- -> mudam a direcao | quiques: " + hits, size: 18.0 },
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+        );
+        Window::present(win);
+    }
+
+    Window::close(win);
+}
+"#
+        }
         Some(other) => {
             // Unreachable: validated before directory creation above.
             // Kept as a safety net so a future refactor cannot silently
             // fall back to the default project.
             return Err(anyhow::anyhow!(
-                "Unknown template '{}'. Valid templates: api, plugin, service (plus --edge for api, --target wasm for plugin, --grpc for service).",
+                "Unknown template '{}'. Valid templates: api, plugin, service, gui (plus --edge for api, --target wasm for plugin, --grpc for service).",
                 other
             ));
         }
@@ -3956,6 +4130,68 @@ fn mock_display_len(value: &str) -> String {
     value.len().to_string()
 }
 
+/// Best-effort `typeOf(x)` for the string-based mock interpreter.
+///
+/// The mock stores every value as its display string, so the precise
+/// runtime type is gone by the time we see it. This heuristic recovers
+/// the common cases from the raw argument text plus the evaluated
+/// display value (`"hi"` -> `String`, `1` -> `int`, `1.5` -> `float`,
+/// `true` -> `bool`, `[..]` -> `List`, `(..)` -> `Tuple`, `null` ->
+/// `null`, `{..}`/structs -> `struct`). Good enough for `==` type
+/// comparisons and `writeLine(typeOf(x))` output; the real interpreter
+/// (`interp.rs`) carries exact types.
+fn mock_typeof(raw_arg: &str, evaled: &str) -> String {
+    let raw = raw_arg.trim();
+    if raw.len() >= 2 && raw.starts_with('"') && raw.ends_with('"') {
+        return "String".to_string();
+    }
+    if raw.len() >= 2 && raw.starts_with('`') && raw.ends_with('`') {
+        return "String".to_string();
+    }
+    if raw.len() >= 3 && raw.starts_with('\'') && raw.ends_with('\'') {
+        return "char".to_string();
+    }
+    if raw == "true" || raw == "false" {
+        return "bool".to_string();
+    }
+    if raw == "null" {
+        return "null".to_string();
+    }
+    if raw.starts_with('[') {
+        return "List".to_string();
+    }
+    if raw == "()" {
+        return "void".to_string();
+    }
+    if raw.starts_with('(') && raw.ends_with(')') {
+        return "Tuple".to_string();
+    }
+    let v = evaled.trim();
+    if v == "true" || v == "false" {
+        return "bool".to_string();
+    }
+    if v == "null" || v.is_empty() {
+        // Empty display is `void`/unit in the mock (`println` of unit).
+        if v.is_empty() {
+            return "void".to_string();
+        }
+        return "null".to_string();
+    }
+    if v.starts_with('[') {
+        return "List".to_string();
+    }
+    if v.starts_with('(') {
+        return "Tuple".to_string();
+    }
+    if v.parse::<i64>().is_ok() {
+        return "int".to_string();
+    }
+    if v.parse::<f64>().is_ok() {
+        return "float".to_string();
+    }
+    "String".to_string()
+}
+
 fn eval_method_call(expr: &str, vars: &std::collections::HashMap<String, String>) -> String {
     // Handle value.method() patterns
     if let Some(dot_pos) = expr.find('.') {
@@ -5782,6 +6018,17 @@ impl MockInterp {
         }
         let open = id_end + (t[id_end..].len() - rest.len());
         let (inner, _) = extract_mock_call_inner(t, open)?;
+        // `typeOf(x)` / `typeof(x)` / `type(x)`: runtime reflection.
+        // Must precede the user-function check so a user `fn typeOf`
+        // would shadow the builtin via `exec_fn` only when defined —
+        // actually builtins win here like `len`/`toString` above; user
+        // shadowing stays available in the real interpreter.
+        if name == "typeOf" || name == "typeof" || name == "type" {
+            let parts = split_mock_top_level(&inner);
+            let raw_arg = parts.first().map(|s| s.as_str()).unwrap_or("");
+            let evaled = self.eval(raw_arg);
+            return Some(mock_typeof(raw_arg, &evaled));
+        }
         // Trailing garbage after `)` (e.g. `.field`) is not a plain call.
         // (Field-of-call-result is out of scope for the mock.)
         let arg_vals: Vec<String> = split_mock_top_level(&inner).iter().map(|a| self.eval(a)).collect();
@@ -8505,6 +8752,17 @@ mod tests {
         for d in [&api, &plugin, &service, &plain] {
             let _ = std::fs::remove_dir_all(d.parent().unwrap());
         }
+    }
+
+    #[test]
+    fn gui_template_opens_a_window() {
+        let dir = gen_template_in_tmp("t_gui", Some("gui"), false, None, false);
+        let src = read_main(&dir);
+        assert!(src.contains("Window::create"), "gui template must open a window:\n{}", src);
+        assert!(src.contains("Window::present"), "gui loop must present frames");
+        assert!(src.contains("Input::keyDown"), "gui loop must read input");
+        assert_parses_clean(&src);
+        let _ = std::fs::remove_dir_all(dir.parent().unwrap());
     }
 
     #[test]

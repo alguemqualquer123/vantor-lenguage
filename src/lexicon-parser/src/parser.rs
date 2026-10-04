@@ -863,9 +863,13 @@ impl Parser {
             let ty = self.parse_type()?;
             // Variadic: `name: T...` (Spec §4). Must be last; enforced in typeck.
             let mut is_variadic = false;
-            if self.check(&Token::DotDot) {
+            // `...` lexes as a single `DotDotDot` (spread); legacy
+            // `..` + `.` shape kept for backward compatibility.
+            if self.check(&Token::DotDotDot) {
                 self.advance();
-                // `...` lexes as `..` + `.`
+                is_variadic = true;
+            } else if self.check(&Token::DotDot) {
+                self.advance();
                 if self.check(&Token::Dot) {
                     self.advance();
                 }
@@ -969,7 +973,10 @@ impl Parser {
             Token::While => Ok(Stmt::While(self.parse_while()?)),
             Token::Loop => Ok(Stmt::Loop(self.parse_loop()?)),
             Token::Match => Ok(Stmt::Match(self.parse_match()?)),
-            Token::Let | Token::Var => Ok(Stmt::Decl(self.parse_decl_stmt()?)),
+            // `const X = …;` is legal inside function bodies too
+            // (previously only `let`/`var` — `const` fell to expr-stmt
+            // and died with "Expected expression, found Const").
+            Token::Let | Token::Var | Token::Const => Ok(Stmt::Decl(self.parse_decl_stmt()?)),
             Token::Throw => {
                 // `throw expr;` desugars to `panic(expr);` — same runtime
                 // (`lex_panic`), JS/TS-familiar spelling. Zero downstream
@@ -993,16 +1000,22 @@ impl Parser {
         self.expect(Token::If)?;
         let condition = self.parse_expression()?;
         let then_branch = self.parse_block()?;
-        let else_body = if self.check(&Token::Else) {
+        // `else if …` chains (AST already has `else_branch: Option<Box<IfStmt>>`)
+        // plus plain `else { … }`.
+        let (else_branch, else_body) = if self.check(&Token::Else) {
             self.advance();
-            Some(self.parse_block()?)
+            if self.check(&Token::If) {
+                (Some(Box::new(self.parse_if()?)), None)
+            } else {
+                (None, Some(self.parse_block()?))
+            }
         } else {
-            None
+            (None, None)
         };
         Ok(IfStmt {
             condition,
             then_branch,
-            else_branch: None,
+            else_branch,
             else_body,
             span: start,
         })
@@ -1088,6 +1101,7 @@ impl Parser {
             });
         }
 
+        // Plain `=` (stored as `AddEq` placeholder — see `interp.rs`).
         if self.check(&Token::Eq) {
             self.advance();
             let value = self.parse_assignment()?;
@@ -1099,12 +1113,76 @@ impl Parser {
                 span: Span::default(),
             }));
         }
+        // Compound assignment: `+= -= *= /= %=`.
+        // `-= *= /= %=` map directly to `SubEq/MulEq/DivEq/ModEq`
+        // (already honoured by `interp.rs`, `typeck.rs`, C `infer.rs`).
+        // `+=` desugars to `x = x + rhs` (i.e. `AddEq(x, x + rhs)`)
+        // because `AddEq` is reserved as the `=` placeholder — this also
+        // reuses the string-append fast path in the interpreter.
+        if self.check(&Token::PlusEq)
+            || self.check(&Token::MinusEq)
+            || self.check(&Token::StarEq)
+            || self.check(&Token::SlashEq)
+            || self.check(&Token::PercentEq)
+        {
+            let tok = self.current().token.clone();
+            self.advance();
+            let rhs = self.parse_assignment()?;
+            match tok {
+                Token::PlusEq => {
+                    let add = Expr::Binary(BinaryExpr {
+                        op: BinOp::Add,
+                        lhs: Box::new(expr.clone()),
+                        rhs: Box::new(rhs),
+                        span: Span::default(),
+                    });
+                    return Ok(Expr::Binary(BinaryExpr {
+                        op: BinOp::AddEq,
+                        lhs: Box::new(expr),
+                        rhs: Box::new(add),
+                        span: Span::default(),
+                    }));
+                }
+                Token::MinusEq => {
+                    return Ok(Expr::Binary(BinaryExpr {
+                        op: BinOp::SubEq,
+                        lhs: Box::new(expr),
+                        rhs: Box::new(rhs),
+                        span: Span::default(),
+                    }));
+                }
+                Token::StarEq => {
+                    return Ok(Expr::Binary(BinaryExpr {
+                        op: BinOp::MulEq,
+                        lhs: Box::new(expr),
+                        rhs: Box::new(rhs),
+                        span: Span::default(),
+                    }));
+                }
+                Token::SlashEq => {
+                    return Ok(Expr::Binary(BinaryExpr {
+                        op: BinOp::DivEq,
+                        lhs: Box::new(expr),
+                        rhs: Box::new(rhs),
+                        span: Span::default(),
+                    }));
+                }
+                _ => {
+                    return Ok(Expr::Binary(BinaryExpr {
+                        op: BinOp::ModEq,
+                        lhs: Box::new(expr),
+                        rhs: Box::new(rhs),
+                        span: Span::default(),
+                    }));
+                }
+            }
+        }
 
         Ok(expr)
     }
 
     fn parse_ternary(&mut self) -> Result<Expr> {
-        let expr = self.parse_null_coalesce()?;
+        let expr = self.parse_pipe()?;
         if self.check(&Token::Question) {
             self.advance();
             let then_branch = self.parse_expression()?;
@@ -1130,12 +1208,16 @@ impl Parser {
         Ok(expr)
     }
 
+    /// `|>` pipeline (Spec §10): `value |> f` desugars at runtime via
+    /// `interp.rs` (`BinOp::Pipe`). Previously dead code — now wired
+    /// between ternary and null-coalescing so
+    /// `x |> f |> g` and `c ? a |> f : b` both parse.
     fn parse_pipe(&mut self) -> Result<Expr> {
-        let mut expr = self.parse_logical_or()?;
+        let mut expr = self.parse_null_coalesce()?;
         while self.check(&Token::PipeRArrow) {
             let op = BinOp::Pipe;
             self.advance();
-            let rhs = self.parse_logical_or()?;
+            let rhs = self.parse_null_coalesce()?;
             expr = Expr::Binary(BinaryExpr {
                 op,
                 lhs: Box::new(expr),
@@ -1198,8 +1280,67 @@ impl Parser {
         Ok(expr)
     }
 
+    /// Human-readable name of a parsed type, aligned with the runtime
+    /// `typeOf` strings (`int`, `float`, `bool`, `String`, `char`,
+    /// `void`, `List`, `Tuple`, struct names, ...).
+    fn type_name_of(ty: &Type) -> String {
+        match ty {
+            Type::Primitive(p) => match p {
+                PrimitiveType::Bool => "bool".to_string(),
+                PrimitiveType::Char => "char".to_string(),
+                PrimitiveType::Void => "void".to_string(),
+                PrimitiveType::String => "String".to_string(),
+                PrimitiveType::Dynamic => "dynamic".to_string(),
+                // All int widths share the runtime `int`; all floats `float`.
+                _ => {
+                    if ty.is_numeric() {
+                        let s = format!("{:?}", p);
+                        if s.starts_with('F') || s == "Decimal" {
+                            "float".to_string()
+                        } else {
+                            "int".to_string()
+                        }
+                    } else {
+                        format!("{:?}", p)
+                    }
+                }
+            },
+            Type::Path(p) => {
+                let last = p.segments.last().map(|s| s.text.as_str()).unwrap_or("dynamic");
+                match last {
+                    "i8" | "i16" | "i32" | "i64" | "i128" | "u8" | "u16" | "u32" | "u64"
+                    | "u128" | "int" | "uint" | "byte" => "int".to_string(),
+                    "f32" | "f64" | "float" | "float32" | "float64" | "decimal" => "float".to_string(),
+                    "bool" => "bool".to_string(),
+                    "char" | "rune" => "char".to_string(),
+                    "string" | "String" => "String".to_string(),
+                    "void" => "void".to_string(),
+                    _ => last.to_string(),
+                }
+            }
+            Type::Generic(p, _) => {
+                let last = p.segments.last().map(|s| s.text.as_str()).unwrap_or("dynamic");
+                match last {
+                    "Vec" | "List" | "Array" | "Slice" => "List".to_string(),
+                    "Map" | "HashMap" => "Map".to_string(),
+                    "Option" => "Option".to_string(),
+                    "Result" => "Result".to_string(),
+                    _ => last.to_string(),
+                }
+            }
+            Type::Slice(_) | Type::Array(_, _) => "List".to_string(),
+            Type::Tuple(_) => "Tuple".to_string(),
+            Type::Map(_, _) => "Map".to_string(),
+            Type::Function(_, _) => "func".to_string(),
+            Type::Nullable(inner)
+            | Type::Reference(_, inner)
+            | Type::Pointer(_, inner) => Self::type_name_of(inner),
+            Type::Dynamic => "dynamic".to_string(),
+        }
+    }
+
     fn parse_comparison(&mut self) -> Result<Expr> {
-        let mut expr = self.parse_bitor()?;
+        let mut expr = self.parse_range()?;
         while self.check(&Token::Lt)
             || self.check(&Token::LtEq)
             || self.check(&Token::Gt)
@@ -1217,13 +1358,55 @@ impl Parser {
                 }
             };
             self.advance();
-            let rhs = self.parse_bitor()?;
+            let rhs = self.parse_range()?;
             expr = Expr::Binary(BinaryExpr {
                 op,
                 lhs: Box::new(expr),
                 rhs: Box::new(rhs),
                 span: Span::default(),
             });
+        }
+        // `x is Type` — runtime type test, desugared to
+        // `typeOf(x) == "TypeName"` (zero new AST/runtime surface).
+        while self.check(&Token::Is) {
+            self.advance();
+            let ty = self.parse_type()?;
+            let name = Self::type_name_of(&ty);
+            let callee = Expr::Ident(Ident {
+                text: "typeOf".to_string(),
+                span: Span::default(),
+            });
+            let lhs = Expr::Call(CallExpr {
+                callee: Box::new(callee),
+                args: vec![expr],
+                span: Span::default(),
+            });
+            let rhs = Expr::Literal(Literal::String(name));
+            expr = Expr::Binary(BinaryExpr {
+                op: BinOp::EqEq,
+                lhs: Box::new(lhs),
+                rhs: Box::new(rhs),
+                span: Span::default(),
+            });
+        }
+        Ok(expr)
+    }
+
+    /// `start..end` (exclusive) / `start..=end` (inclusive) ranges
+    /// (Spec §10). Binds looser than bitwise ops, tighter than `<`/`>`.
+    fn parse_range(&mut self) -> Result<Expr> {
+        let mut expr = self.parse_bitor()?;
+        loop {
+            let inclusive = if self.check(&Token::DotDotEq) {
+                true
+            } else if self.check(&Token::DotDot) {
+                false
+            } else {
+                break;
+            };
+            self.advance();
+            let end = self.parse_bitor()?;
+            expr = Expr::Range(Box::new(expr), Box::new(end), inclusive);
         }
         Ok(expr)
     }
@@ -1341,16 +1524,56 @@ impl Parser {
     }
 
     fn parse_unary(&mut self) -> Result<Expr> {
+        // Prefix `++x` / `--x` desugar to `x = x + 1` / `x = x - 1`
+        // (statement- and expression-safe; yields the new value).
+        if self.check(&Token::PlusPlus) || self.check(&Token::MinusMinus) {
+            let is_inc = self.check(&Token::PlusPlus);
+            self.advance();
+            let target = self.parse_unary()?;
+            let one = Expr::Literal(Literal::Int(1, None));
+            if is_inc {
+                let add = Expr::Binary(BinaryExpr {
+                    op: BinOp::Add,
+                    lhs: Box::new(target.clone()),
+                    rhs: Box::new(one),
+                    span: Span::default(),
+                });
+                return Ok(Expr::Binary(BinaryExpr {
+                    op: BinOp::AddEq,
+                    lhs: Box::new(target),
+                    rhs: Box::new(add),
+                    span: Span::default(),
+                }));
+            } else {
+                return Ok(Expr::Binary(BinaryExpr {
+                    op: BinOp::SubEq,
+                    lhs: Box::new(target),
+                    rhs: Box::new(one),
+                    span: Span::default(),
+                }));
+            }
+        }
         if self.check(&Token::Bang)
             || self.check(&Token::Minus)
+            || self.check(&Token::Plus)
             || self.check(&Token::Await)
             || self.check(&Token::Star)
+            || self.check(&Token::Ampersand)
             || self.check(&Token::Tilde)
         {
             let op = match self.current().token.clone() {
                 Token::Bang => UnOp::Not,
                 Token::Minus => UnOp::Neg,
+                // Unary `+x` is a no-op (numeric identity).
+                Token::Plus => {
+                    self.advance();
+                    let operand = self.parse_unary()?;
+                    return Ok(operand);
+                }
                 Token::Star => UnOp::Deref,
+                // `&x` borrows (AST already has `Ref`; codegen/interp
+                // treat it as identity until borrowck lands).
+                Token::Ampersand => UnOp::Ref,
                 Token::Tilde => UnOp::BitNot,
                 Token::Await => {
                     self.advance();
@@ -1467,6 +1690,32 @@ impl Parser {
                     field: name,
                     span: Span::default(),
                 });
+            } else if self.check(&Token::PlusPlus) || self.check(&Token::MinusMinus) {
+                // Postfix `x++` / `x--` (same desugar as prefix; yields new value).
+                let is_inc = self.check(&Token::PlusPlus);
+                self.advance();
+                let one = Expr::Literal(Literal::Int(1, None));
+                if is_inc {
+                    let add = Expr::Binary(BinaryExpr {
+                        op: BinOp::Add,
+                        lhs: Box::new(expr.clone()),
+                        rhs: Box::new(one),
+                        span: Span::default(),
+                    });
+                    expr = Expr::Binary(BinaryExpr {
+                        op: BinOp::AddEq,
+                        lhs: Box::new(expr),
+                        rhs: Box::new(add),
+                        span: Span::default(),
+                    });
+                } else {
+                    expr = Expr::Binary(BinaryExpr {
+                        op: BinOp::SubEq,
+                        lhs: Box::new(expr),
+                        rhs: Box::new(one),
+                        span: Span::default(),
+                    });
+                }
             } else if self.check(&Token::Pipe) {
                 // Check for pipe closure: |v| "Aoba! {v}"
                 self.advance();
@@ -1568,6 +1817,23 @@ impl Parser {
                 self.advance();
                 Ok(Expr::Literal(Literal::Null))
             }
+            Token::CharLit(c) => {
+                self.advance();
+                Ok(Expr::Literal(Literal::Char(*c)))
+            }
+            // `Some(x)` / `None` option literals (AST already has
+            // `Expr::Option`; previously unparseable).
+            Token::Some => {
+                self.advance();
+                self.expect(Token::LParen)?;
+                let inner = self.parse_expression()?;
+                self.expect(Token::RParen)?;
+                Ok(Expr::Option(OptionLiteral::Some(Box::new(inner))))
+            }
+            Token::None => {
+                self.advance();
+                Ok(Expr::Option(OptionLiteral::None(Type::Dynamic)))
+            }
             Token::IntLit(n) => {
                 self.advance();
                 Ok(Expr::Literal(Literal::Int(n.parse().unwrap_or(0), None)))
@@ -1623,6 +1889,19 @@ impl Parser {
             Token::Recover => {
                 let ident = Ident {
                     text: "recover".to_string(),
+                    span: self.current().span,
+                };
+                self.advance();
+                Ok(Expr::Ident(ident))
+            }
+            Token::Type => {
+                // `type` lexes as a keyword (type-alias declarations) but
+                // stays callable as an ordinary callee identifier (`type(x)`
+                // aliases `typeOf(x)`). Declaration parsing matches
+                // `Token::Type` before reaching expression position, so this
+                // arm only fires for genuine expression uses.
+                let ident = Ident {
+                    text: "type".to_string(),
                     span: self.current().span,
                 };
                 self.advance();
@@ -1913,6 +2192,12 @@ impl Parser {
             Token::Unsafe => {
                 self.advance();
                 Ok(Ident { text: "unsafe".to_string(), span })
+            }
+            // `type` is a declaration keyword but must also work as a
+            // member/callee name (`x.type()`, `type(x)` alias of `typeOf`).
+            Token::Type => {
+                self.advance();
+                Ok(Ident { text: "type".to_string(), span })
             }
             _ => {
                 let message = format!("Expected identifier, found {:?}", token);
@@ -3101,6 +3386,76 @@ mod tests {
         } else {
             return Err("Expected global variable".to_string());
         }
+        Ok(())
+    }
+
+    fn parse_fn_body(source: &str) -> std::result::Result<Block, String> {
+        let mut lexer = Lexer::new(source);
+        let tokens = lexer.tokenize();
+        let mut parser = Parser::new(tokens);
+        let decl = parser.parse_declaration().map_err(|e| format!("{:?}", e))?;
+        if let Decl::Function(f) = decl {
+            f.body.ok_or_else(|| "expected fn body".to_string())
+        } else {
+            Err("Expected function declaration".to_string())
+        }
+    }
+
+    #[test]
+    fn test_compound_assignment_parses() -> std::result::Result<(), String> {
+        // `+= -= *= /= %=` must all parse without "found PlusEq" errors.
+        let body = parse_fn_body(
+            "fn f() { total += x; total -= x; total *= x; total /= x; total %= x; }",
+        )?;
+        assert_eq!(body.statements.len(), 5);
+        for s in &body.statements {
+            assert!(matches!(s, Stmt::Expr(_)), "expected expr stmt, got {:?}", s);
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn test_inc_dec_parses() -> std::result::Result<(), String> {
+        let body = parse_fn_body("fn f() { x++; x--; ++x; --x; }")?;
+        assert_eq!(body.statements.len(), 4);
+        Ok(())
+    }
+
+    #[test]
+    fn test_else_if_chain_parses() -> std::result::Result<(), String> {
+        let body = parse_fn_body("fn f() { if (a) { } else if (b) { } else { } }")?;
+        assert_eq!(body.statements.len(), 1);
+        if let Stmt::If(i) = &body.statements[0] {
+            assert!(i.else_branch.is_some(), "else-if must fill else_branch");
+            assert!(i.else_body.is_none());
+        } else {
+            return Err("Expected if statement".to_string());
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn test_const_decl_stmt_parses() -> std::result::Result<(), String> {
+        let body = parse_fn_body("fn f() { const pi = 3; }")?;
+        assert_eq!(body.statements.len(), 1);
+        assert!(matches!(body.statements[0], Stmt::Decl(_)));
+        Ok(())
+    }
+
+    #[test]
+    fn test_char_some_none_range_is_pipe_parses() -> std::result::Result<(), String> {
+        let body = parse_fn_body(
+            "fn f() { let c = 'z'; let a = Some(1); let b = None; let r = 1..5; let q = 1..=5; let t = x is int; let p = v |> f; }",
+        )?;
+        assert_eq!(body.statements.len(), 7);
+        Ok(())
+    }
+
+    #[test]
+    fn test_type_callable_parses() -> std::result::Result<(), String> {
+        // `type(x)` aliases `typeOf(x)` — must not report "found Type".
+        let body = parse_fn_body("fn f() { let t = type(x); }")?;
+        assert_eq!(body.statements.len(), 1);
         Ok(())
     }
 }

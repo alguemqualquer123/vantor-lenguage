@@ -4,6 +4,93 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use anyhow::{Result, anyhow, Context};
 
+/// Tool launchers shipped next to every `lex` binary: `lex-<sub>` behaves
+/// exactly like `lex <sub>` (busybox dispatch on the executable file stem
+/// in `main.rs`). Keep in sync with the real subcommands there.
+pub const LAUNCHERS: &[&str] = &[
+    "run", "build", "test", "bench", "benchmark", "check", "fmt", "lint",
+    "vet", "doc", "trace", "profile", "debug", "serve", "test-net",
+    "dns-check", "tls-check", "generate", "mod", "env", "version", "clean",
+    "publish", "repl", "new", "init", "install", "uninstall", "visualize",
+    "deploy", "ffi", "gui", "sdk", "complete", "lsp", "dap", "ide", "fix",
+];
+
+/// Primary launcher file name for `lex-<sub>` (`lex-run.cmd` on Windows).
+pub fn launcher_name(sub: &str) -> String {
+    if cfg!(windows) {
+        format!("lex-{sub}.cmd")
+    } else {
+        format!("lex-{sub}")
+    }
+}
+
+/// Every launcher file name written for `lex-<sub>`. Windows gets BOTH a
+/// `.cmd` shim (cmd.exe/PowerShell) and an extension-less `sh` shim
+/// (Git Bash / MSYS), so the same SDK works from either shell.
+pub fn shim_names(sub: &str) -> Vec<String> {
+    if cfg!(windows) {
+        vec![format!("lex-{sub}.cmd"), format!("lex-{sub}")]
+    } else {
+        vec![launcher_name(sub)]
+    }
+}
+
+/// Contents of a launcher shim: a few hundred bytes that hand the
+/// subcommand to the single `lex` binary sitting next to it. Windows
+/// resolves the target through `%~dp0` (the shim's own directory).
+/// `sh_form` picks the POSIX script used by the extension-less names
+/// (Git Bash / MSYS / Linux); the `.cmd` form is cmd.exe/PowerShell only.
+fn shim_body(sub: &str, exe_name: &str, sh_form: bool) -> String {
+    if sh_form {
+        format!("#!/bin/sh\nexec \"$(dirname \"$0\")/{exe_name}\" {sub} \"$@\"\n")
+    } else {
+        // `%*` forwards every argument verbatim.
+        format!("@echo off\r\n\"%~dp0{exe_name}\" {sub} %*\r\n")
+    }
+}
+
+/// Ensure every `lex-<sub>` launcher exists in `dir` as a thin shim over
+/// `target_exe`. Shims (not copies/hardlinks of the binary) keep an SDK
+/// tree at ONE binary size on disk and in a zip; `force` recreates them.
+/// Legacy `lex-<sub>.exe` busybox links from the old hardlink scheme are
+/// removed so a re-export never leaves 38 × binary-size behind.
+pub(crate) fn sync_launchers(dir: &Path, target_exe: &Path, force: bool) -> Result<()> {
+    fs::create_dir_all(dir)?;
+    let exe_name = target_exe
+        .file_name()
+        .map(|n| n.to_string_lossy().to_string())
+        .unwrap_or_else(|| "lex".to_string());
+
+    // Drop the old hardlink/copy launchers (`lex-run.exe`): left in place
+    // they multiply the tree to 38 × binary size on disk and in a zip.
+    if let Ok(entries) = fs::read_dir(dir) {
+        for entry in entries.filter_map(|e| e.ok()) {
+            let name = entry.file_name().to_string_lossy().to_string();
+            let is_legacy_launcher = name.ends_with(".exe")
+                && name.starts_with("lex-")
+                && LAUNCHERS.iter().any(|sub| name == format!("lex-{sub}.exe"));
+            if is_legacy_launcher {
+                let _ = fs::remove_file(entry.path());
+            }
+        }
+    }
+
+    for sub in LAUNCHERS {
+        for name in shim_names(sub) {
+            let dest = dir.join(&name);
+            if dest.exists() && !force {
+                continue;
+            }
+            let _ = fs::remove_file(&dest);
+            fs::write(&dest, shim_body(sub, &exe_name, !name.ends_with(".cmd")))
+                .with_context(|| format!("installing launcher {}", dest.display()))?;
+            #[cfg(unix)]
+            make_executable(&dest)?;
+        }
+    }
+    Ok(())
+}
+
 /// Auto-install run at every `lex` startup. Deliberately SILENT: it must
 /// never print and never duplicate PATH entries when everything is
 /// already in place. Verbose output belongs to `manual_install` only.
@@ -32,9 +119,13 @@ pub fn auto_install() -> Result<()> {
     }
 
     // Only copy if it's different or doesn't exist
+    let mut updated = false;
     if !target_exe.exists() || fs::metadata(&current_exe)?.len() != fs::metadata(&target_exe).map(|m| m.len()).unwrap_or(0) {
         copy_exe_overwrite(&current_exe, &target_exe)?;
+        updated = true;
     }
+    // Tool launchers ride along (cheap existence check when current).
+    sync_launchers(&bin_dir, &target_exe, updated)?;
 
     // 3. Add to PATH only if truly absent (checks the persistent store,
     // not just the possibly-stale process environment).
@@ -107,6 +198,7 @@ pub fn manual_install() -> Result<()> {
     // 3. Copy binary
     println!("📦 Copying binary from {:?} to {:?}", source_exe, target_exe);
     copy_exe_overwrite(&source_exe, &target_exe)?;
+    sync_launchers(&bin_dir, &target_exe, true)?;
 
     // 4. Update PATH
     if !is_in_path(&bin_dir) {
@@ -359,6 +451,19 @@ pub fn uninstall() -> Result<()> {
         println!("⚠️  Lexicon binary not found at {:?}", target_exe);
     }
 
+    // Tool launchers (thin shims over the binary in this directory).
+    for sub in LAUNCHERS {
+        for name in shim_names(sub) {
+            let launcher = bin_dir.join(name);
+            if launcher.exists() {
+                let _ = fs::remove_file(&launcher);
+            }
+        }
+        let legacy = bin_dir.join(format!("lex-{sub}.exe"));
+        if legacy.exists() {
+            let _ = fs::remove_file(&legacy);
+        }
+    }
     // Installed SDK tree (managed by first-run auto-install / install).
     let sdk_dir = lexicon_home.join("sdk");
     if sdk_dir.exists() {
@@ -454,5 +559,54 @@ mod installer_tests {
     fn empty_path_var_is_absent() {
         let dir = Path::new(r"C:\Users\Admin\.lexicon\bin");
         assert!(!path_contains_entry("", dir));
+    }
+
+    #[test]
+    fn launcher_names_follow_platform() {
+        let name = launcher_name("lsp");
+        if cfg!(windows) {
+            assert_eq!(name, "lex-lsp.cmd");
+            assert_eq!(shim_names("lsp"), vec!["lex-lsp.cmd", "lex-lsp"]);
+        } else {
+            assert_eq!(name, "lex-lsp");
+            assert_eq!(shim_names("lsp"), vec!["lex-lsp"]);
+        }
+        assert!(LAUNCHERS.contains(&"run"));
+        assert!(LAUNCHERS.contains(&"lsp"));
+        assert!(LAUNCHERS.contains(&"version"));
+    }
+
+    #[test]
+    fn shims_delegate_to_the_sibling_binary() {
+        let cmd = shim_body("run", "lex.exe", false);
+        assert!(cmd.contains("run"), "subcommand missing: {cmd}");
+        assert!(cmd.contains("lex.exe"), "target binary missing: {cmd}");
+        assert!(cmd.len() < 200, "shim should be a few hundred bytes: {}", cmd.len());
+        // The extension-less sibling is a POSIX script, not a batch file.
+        let sh = shim_body("run", "lex", true);
+        assert!(sh.starts_with("#!/bin/sh"), "sh shim lost its shebang: {sh}");
+        assert!(sh.contains("lex") && sh.contains("run"));
+        assert!(sh.len() < 200, "sh shim too big: {}", sh.len());
+    }
+
+    #[test]
+    fn sync_launchers_writes_shims_not_copies() {
+        let dir = std::env::temp_dir().join("lex-shim-sync-test");
+        let _ = fs::remove_dir_all(&dir);
+        fs::create_dir_all(&dir).unwrap();
+        let exe = dir.join(if cfg!(windows) { "lex.exe" } else { "lex" });
+        fs::write(&exe, b"not-a-real-binary").unwrap();
+        // Legacy hardlink launcher from the old scheme must be cleaned up.
+        fs::write(dir.join("lex-run.exe"), b"fake-binary").unwrap();
+
+        sync_launchers(&dir, &exe, true).unwrap();
+
+        assert!(!dir.join("lex-run.exe").exists(), "legacy .exe launcher left behind");
+        assert!(dir.join(launcher_name("run")).is_file());
+        assert!(
+            fs::metadata(dir.join(launcher_name("run"))).unwrap().len() < 200,
+            "launcher is a copy of the binary, not a shim"
+        );
+        let _ = fs::remove_dir_all(&dir);
     }
 }

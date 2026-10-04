@@ -1,4 +1,4 @@
-# Architecture and APIs - Lexicon v0.2.0
+# Architecture and APIs - Lexicon v0.3.5
 
 ## 1. System architecture
 
@@ -74,10 +74,38 @@ W0001/W0002 warnings, with the same findings in save diagnostics.
 via `lexicon-db`/SQLite), `routes.lex` (`@Get/@Post` handlers), `.env.dev` /
 `.env.prod`, `run-dev.ps1` / `run-prod.ps1`, `seed.py` + real `dev.db`.
 
-## 5. Honest v0.2.0 limits
+## 5. One binary, one SDK
+
+The published `lex` is **one** executable (~9.4 MB in the `dist` profile,
+`opt-level="z"` + fat LTO). The 38 launchers (`lex-run`, `lex-check`, `lex-mod`,
+…) are ~40-byte shims that forward the subcommand to their neighbour — they are
+not 38 copies of the binary.
+
+- The stdlib, templates and examples are **embedded** in the binary
+  (`include_str!`): `lex sdk export` writes the kit to `build/sdk` (or wherever
+  you point it) and the auto-install replicates it into `~/.lexicon/sdk`.
+- `lex sdk verify` checks the 116 required files and the size budget
+  (mini ≤ 6 MB, full ≤ 16 MB) — a new dependency that blows the budget fails it.
+- `lex sdk info` prints flavour, path and size of the binary in use.
+
+### 5.1 GUI engine (`lexicon-gui`, `gui` feature)
+
+`Window` / `Canvas` / `Input` / `Gpu` are interpreter natives
+(`src/lexicon-cli/src/gfx.rs`) on top of **eframe + wgpu**: the backend is
+chosen by your GPU (Vulkan, DX12, Metal, OpenGL, WebGPU). `Canvas::clear/
+fillRect/fillCircle/line/text`, `Input::keyDown(win, "left")` (canonical key
+names) and `Window::backend(win)`. Under `lex run --ci` the window closes
+itself after ~1 s (`LEXICON_GUI_AUTOQUIT=<frames>`).
+
+## 6. Honest v0.3.5 limits
 
 - `lex deploy` and `lex ffi` are **simulated** (fake progress, no real effect).
 - `lex run` executes **one file**; the module graph is validated, not linked.
 - No native WebView in the binary (`webview` crate removed — no MinGW-GNU
   link); `compiler.rs`/`webview.rs` remain unlinked stubs.
-- WASM AOT/JIT, full LSP and package registry remain on the roadmap (items 66–100).
+- WASM AOT/JIT and a public package registry remain on the roadmap; `lex mod`
+  already resolves `github:`/`gitlab:`/`https:`/`path:` and writes `lexicon.lock`.
+- `lex build` still emits only an LLVM IR stub (`define i32 @main() { ret i32 0 }`)
+  and does **not** produce a native executable: `lex run` is a tree-walking
+  interpreter, and whatever it cannot evaluate fails as a runtime error — only
+  `lex check`/`lex vet` act as the pre-run gate.

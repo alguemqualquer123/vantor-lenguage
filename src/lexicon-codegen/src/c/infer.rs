@@ -356,6 +356,7 @@ impl Emitter {
                         "print" | "println" | "assert" => Ty::Unit,
                         "panic" => Ty::Panic,
                         "inspect" => Ty::Str,
+                        "typeOf" | "typeof" | "type" => Ty::Str,
                         other => self.ret_tys.get(other).cloned().unwrap_or(Ty::Unknown),
                     },
                     Expr::FieldAccess(fa) => self.peek_module_call(fa),

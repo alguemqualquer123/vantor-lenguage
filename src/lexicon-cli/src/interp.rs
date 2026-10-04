@@ -225,6 +225,17 @@ impl Val {
         }
     }
 
+    /// User-facing runtime type name for `typeOf(x)` (JS-style
+    /// introspection): precise primitive names, and the DECLARED name for
+    /// user structs (`User`, `Error`, … — Go `%T`-like) instead of the
+    /// generic `struct`.
+    fn type_of(&self) -> String {
+        match self {
+            Val::Struct { name, .. } => name.clone(),
+            other => other.type_name().to_string(),
+        }
+    }
+
     fn equals(&self, other: &Val) -> bool {
         match (self, other) {
             (Val::Int(a), Val::Int(b)) => a == b,
@@ -282,9 +293,11 @@ fn json_to_val(v: &serde_json::Value) -> Val {
 
 /// A Lex module loaded from a `.lex` file on disk (`import std::strings;`).
 /// Functions/structs/globals are also flattened into the interpreter tables
-/// (first-loaded wins on unqualified-name collisions) so module-internal
-/// unqualified calls keep working; qualified `mod::name` calls always resolve
-/// exactly through this record.
+/// so code in the entry file can call imported names unqualified; qualified
+/// `mod::name` calls always resolve exactly through this record. While a
+/// module's own function runs, unqualified lookups are resolved against this
+/// record *first* (`Cx::cur_mod`), so two packages that both define `Sum`
+/// or `words` cannot shadow each other from inside their own bodies.
 #[derive(Debug, Default)]
 struct LoadedMod {
     funcs: HashMap<String, std::rc::Rc<Function>>,
@@ -303,6 +316,8 @@ struct Cx {
     steps: u64,
     depth: usize,
     mods: HashMap<String, LoadedMod>,
+    /// Module whose function is currently executing (None = entry file).
+    cur_mod: Option<String>,
 }
 
 impl Cx {
@@ -329,7 +344,35 @@ impl Cx {
                 return Some(v.clone());
             }
         }
+        if let Some(m) = &self.cur_mod {
+            if let Some(v) = self.mods.get(m).and_then(|m| m.globals.get(name)) {
+                return Some(v.clone());
+            }
+        }
         self.globals.get(name).cloned()
+    }
+
+    /// Unqualified function lookup: the executing module's own definition
+    /// wins, then the flattened table. Returns the function and the module
+    /// it came from (None = entry file), which becomes the callee's module
+    /// context.
+    fn user_fn(&self, name: &str) -> Option<(std::rc::Rc<Function>, Option<String>)> {
+        if let Some(m) = &self.cur_mod {
+            if let Some(f) = self.mods.get(m).and_then(|m| m.funcs.get(name)) {
+                return Some((f.clone(), Some(m.clone())));
+            }
+        }
+        self.funcs.get(name).cloned().map(|f| (f, None))
+    }
+
+    /// Unqualified struct lookup: same module-first rule as [`Cx::user_fn`].
+    fn user_struct(&self, name: &str) -> Option<std::rc::Rc<Struct>> {
+        if let Some(m) = &self.cur_mod {
+            if let Some(s) = self.mods.get(m).and_then(|m| m.structs.get(name)) {
+                return Some(s.clone());
+            }
+        }
+        self.structs.get(name).cloned()
     }
 
     /// Assign to an existing binding (innermost first), else create locally.
@@ -392,6 +435,31 @@ pub fn run_module(module: &Module) -> Result<String, InterpError> {
 }
 
 fn run_module_inner(module: &Module) -> Result<String, InterpError> {
+    let mut cx = setup_cx(module)?;
+    let main = cx
+        .funcs
+        .get("main")
+        .cloned()
+        .ok_or_else(|| InterpError::Unsupported("no `main` function".to_string()))?;
+    if !main.params.is_empty() {
+        return unsupported("`main` with parameters");
+    }
+    if main.body.is_none() {
+        return unsupported("`main` without a body");
+    }
+    call_user(&mut cx, &main, Vec::new())?;
+    // Janelas gráficas abertas: mantém o processo vivo até o usuário fechar
+    // (apps orientados a eventos). CI/testes usam LEXICON_GUI_AUTOQUIT.
+    #[cfg(feature = "gui")]
+    crate::gfx::wait_windows();
+    Ok(cx.output)
+}
+
+/// Shared setup: fresh scope tables + resolved imports + registered
+/// declarations + evaluated globals. Used by [`run_module`] and
+/// [`run_tests`] alike so tests execute in the exact same environment
+/// as `lex run`.
+fn setup_cx(module: &Module) -> Result<Cx, InterpError> {
     let mut cx = Cx {
         funcs: HashMap::new(),
         structs: HashMap::new(),
@@ -401,6 +469,7 @@ fn run_module_inner(module: &Module) -> Result<String, InterpError> {
         steps: 0,
         depth: 0,
         mods: HashMap::new(),
+        cur_mod: None,
     };
     // Phase 0 (Go-parity plan §Fase 0): resolve `import a::b` to `a/b.lex`
     // under the SDK roots, parse, and register the module's declarations.
@@ -429,19 +498,70 @@ fn run_module_inner(module: &Module) -> Result<String, InterpError> {
             _ => {}
         }
     }
-    let main = cx
-        .funcs
-        .get("main")
-        .cloned()
-        .ok_or_else(|| InterpError::Unsupported("no `main` function".to_string()))?;
-    if !main.params.is_empty() {
-        return unsupported("`main` with parameters");
+    Ok(cx)
+}
+
+/// One executed `@Test` case.
+#[derive(Debug, Clone)]
+pub struct TestOutcome {
+    pub name: String,
+    pub passed: bool,
+    pub detail: String,
+}
+
+/// Entry point: discover every `pub fn` carrying `@Test` and execute it
+/// with no arguments — the real Jest-like run (not a mock count).
+/// Convention: a test PASSES when it returns truthy or `void`/`Unit`;
+/// `false` or a runtime abort FAILs with the message. Tests needing
+/// arguments receive `null`s (documented: write zero-arg tests).
+pub fn run_tests(module: &Module) -> Result<Vec<TestOutcome>, InterpError> {
+    let owned = module.clone();
+    match run_big_stack(move || run_tests_inner(&owned)) {
+        Ok(r) => r,
+        Err(msg) => Err(InterpError::Runtime(msg)),
     }
-    if main.body.is_none() {
-        return unsupported("`main` without a body");
+}
+
+fn run_tests_inner(module: &Module) -> Result<Vec<TestOutcome>, InterpError> {
+    let mut cx = setup_cx(module)?;
+    // Declaration order (stable, readable output).
+    let mut names: Vec<String> = Vec::new();
+    for decl in &module.declarations {
+        if let Decl::Function(f) = decl {
+            if f.attrs.iter().any(|a| a.name.text == "Test") {
+                names.push(f.name.text.clone());
+            }
+        }
     }
-    call_user(&mut cx, &main, Vec::new())?;
-    Ok(cx.output)
+    let mut out = Vec::with_capacity(names.len());
+    for name in names {
+        let func = cx.funcs.get(&name).cloned().ok_or_else(|| {
+            InterpError::Runtime(format!("test `{}` disappeared", name))
+        })?;
+        match call_user(&mut cx, &func, Vec::new()) {
+            Ok(Val::Bool(false)) => out.push(TestOutcome {
+                name,
+                passed: false,
+                detail: "returned false".to_string(),
+            }),
+            Ok(_) => out.push(TestOutcome {
+                name,
+                passed: true,
+                detail: String::new(),
+            }),
+            Err(InterpError::Runtime(msg)) => out.push(TestOutcome {
+                name,
+                passed: false,
+                detail: msg,
+            }),
+            Err(InterpError::Unsupported(msg)) => out.push(TestOutcome {
+                name,
+                passed: false,
+                detail: format!("unsupported construct: {}", msg),
+            }),
+        }
+    }
+    Ok(out)
 }
 
 /// Builtin modules provided by the interpreter itself (`Console`, `Json`,
@@ -455,6 +575,9 @@ fn is_builtin_module(name: &str) -> bool {
             | "file" | "db" | "window" | "menu"
             | "process" | "atomic" | "math" | "text" | "rand" | "hash"
             | "time" | "sys"
+            // Motor gráfico nativo (`gfx.rs`): imports decorativos não quebram.
+            | "canvas" | "input" | "gpu" | "label" | "button"
+            | "textfield" | "checkbox" | "menubar" | "menuitem"
     )
 }
 
@@ -506,6 +629,22 @@ pub(crate) fn find_module_file(segs: &[String], base_dir: &Path) -> Option<PathB
     let local = base_dir.join(&rel);
     if local.is_file() {
         return Some(local);
+    }
+    // Pacotes instalados pelo gerenciador (`lex mod add`/`install`):
+    // `lex_packages/` na raiz do projeto (walk-up a partir do importador).
+    // Prioridade sobre a SDK — dependências do projeto sombreiam a stdlib.
+    let mut dir = base_dir.to_path_buf();
+    for _ in 0..8 {
+        let pkgs = dir.join("lex_packages");
+        if pkgs.is_dir() {
+            let cand = pkgs.join(&rel);
+            if cand.is_file() {
+                return Some(cand);
+            }
+        }
+        if !dir.pop() {
+            break;
+        }
     }
     for root in module_search_roots() {
         let cand = root.join(&rel);
@@ -638,6 +777,21 @@ fn load_imports(
         visited.insert(canon);
     }
     Ok(())
+}
+
+/// Calls `func` with `home` installed as the module context, restoring the
+/// caller's context afterwards. Use this for every user-function dispatch so
+/// unqualified lookups inside the callee see the module that defines it.
+fn call_user_home(
+    cx: &mut Cx,
+    func: &Function,
+    args: Vec<Val>,
+    home: Option<String>,
+) -> IResult<Val> {
+    let outer = std::mem::replace(&mut cx.cur_mod, home);
+    let r = call_user(cx, func, args);
+    cx.cur_mod = outer;
+    r
 }
 
 fn call_user(cx: &mut Cx, func: &Function, args: Vec<Val>) -> IResult<Val> {
@@ -1169,7 +1323,15 @@ impl Cx {
                         Val::Int(n) => Ok(Val::Int(!n)),
                         other => runtime(format!("cannot apply `~` to {}", other.type_name())),
                     },
-                    _ => unsupported("reference/deref/`?` operator"),
+                    // `&x` / `&mut x` borrow — identity until borrowck
+                    // lands (no move semantics in the tree interpreter).
+                    // `*x` deref — identity for the same reason.
+                    // `x?` unwrap — `null` propagates, else identity.
+                    UnOp::Ref | UnOp::RefMut | UnOp::Deref => Ok(v),
+                    UnOp::Question => match v {
+                        Val::Null => Ok(Val::Null),
+                        other => Ok(other),
+                    },
                 }
             }
             Expr::Binary(b) => self.eval_binary(b),
@@ -1257,7 +1419,7 @@ impl Cx {
                 if type_name.is_empty() {
                     return unsupported("struct literal with complex type");
                 }
-                if let Some(decl) = self.structs.get(&type_name).cloned() {
+                if let Some(decl) = self.user_struct(&type_name) {
                     let mut fields = Vec::new();
                     for (i, field) in decl.fields.iter().enumerate() {
                         let v = args.get(i).cloned().unwrap_or(Val::Null);
@@ -1357,7 +1519,12 @@ impl Cx {
             }
             Expr::Spawn(_) => unsupported("`spawn`"),
             Expr::Select(_) => unsupported("`select`"),
-            Expr::Option(_) => unsupported("option literal"),
+            // `Some(v)` carries the value; `None` is `null`
+            // (the tree interpreter has no tagged-Option runtime).
+            Expr::Option(opt) => match opt {
+                lexicon_parser::OptionLiteral::Some(e) => self.eval(e),
+                lexicon_parser::OptionLiteral::None(_) => Ok(Val::Null),
+            },
             Expr::Destructuring(_) => unsupported("destructuring expression"),
             Expr::MacroCall(_) => unsupported("macro call"),
             Expr::Attribute(_) => unsupported("attribute expression"),
@@ -1438,11 +1605,18 @@ impl Cx {
                 let lhs = self.eval(&b.lhs)?;
                 match &*b.rhs {
                     Expr::Ident(id) => {
-                        let func = self.funcs.get(&id.text).cloned().ok_or_else(|| {
-                            InterpError::Unsupported(format!("pipe into `{}`", id.text))
-                        })?;
-                        return call_user(self, &func, vec![lhs]);
+                        if let Some((func, home)) = self.user_fn(&id.text) {
+                            return call_user_home(self, &func, vec![lhs], home);
+                        }
+                        return self.call_named(&id.text, vec![lhs]);
                     }
+                    // `value |> mod::Fn` — the qualified form of the above.
+                    Expr::FieldAccess(f) => match &*f.object {
+                        Expr::Ident(module) => {
+                            return self.call_module(&module.text, &f.field.text, vec![lhs]);
+                        }
+                        _ => return unsupported("pipe into complex receiver"),
+                    },
                     Expr::Call(c) => {
                         let mut vals = vec![lhs];
                         for a in &c.args {
@@ -1681,12 +1855,409 @@ impl Cx {
                 let s = args.first().map(|v| v.inspect()).unwrap_or_default();
                 Ok(Val::Str(s))
             }
+            "typeOf" | "typeof" | "type" => {
+                // Runtime reflection: name of the value's type as a string
+                // (`typeOf(1)` -> `"int"`, `typeOf("s")` -> `"String"`,
+                // structs report their declared name). Arity mirrors other
+                // single-arg builtins: exactly one argument.
+                if args.len() != 1 {
+                    return runtime(format!(
+                        "`{}` takes exactly one argument, found {}",
+                        name,
+                        args.len()
+                    ));
+                }
+                let v = &args[0];
+                Ok(Val::Str(v.type_of()))
+            }
             _ => {
-                let func = self.funcs.get(name).cloned().ok_or_else(|| {
+                let (func, home) = self.user_fn(name).ok_or_else(|| {
                     InterpError::Runtime(format!("undefined function `{}`", name))
                 })?;
-                call_user(self, &func, args)
+                call_user_home(self, &func, args, home)
             }
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Motor gráfico nativo (`Window`/`Canvas`/`Input`/`Gpu` + widgets).
+    // feature `gui`: janelas reais desenhadas pelo renderer wgpu do eframe
+    // (Vulkan / DirectX 12 / OpenGL). Fora da feature, as chamadas caem no
+    // caminho antigo de mock (`Unsupported`).
+    // ------------------------------------------------------------------
+    #[cfg(feature = "gui")]
+    fn gfx_module(&mut self, module: &str, member: &str, args: &[Val]) -> Option<IResult<Val>> {
+        use crate::gfx::Widget;
+
+        let disp = |v: &Val| v.display();
+        let num = |v: &Val| match v {
+            Val::Int(n) => *n as f64,
+            Val::Float(x) => *x,
+            _ => 0.0,
+        };
+        let wid = |v: &Val| -> Option<i64> {
+            if let Val::Struct { fields, .. } = v {
+                if let Some((_, Val::Int(n))) = fields.iter().find(|(k, _)| k == "id") {
+                    return Some(*n);
+                }
+            }
+            None
+        };
+        let handle_val = |name: &str, id: i64| Val::Struct {
+            name: name.to_string(),
+            fields: vec![("id".to_string(), Val::Int(id))],
+        };
+        fn col(args: &[Val], i: usize) -> [f32; 4] {
+            let f = |j: usize| -> f32 {
+                match args.get(i + j) {
+                    Some(Val::Int(n)) => *n as f32,
+                    Some(Val::Float(x)) => *x as f32,
+                    _ => 0.0,
+                }
+            };
+            [f(0), f(1), f(2), if args.len() > i + 3 { f(3) } else { 1.0 }]
+        }
+        let no_window = || runtime("espera um handle de janela (Window::create)");
+
+        match (module, member) {
+            ("Window", "create") => {
+                let (mut title, mut w, mut h) = ("Janela".to_string(), 800.0f64, 600.0f64);
+                if let Some(Val::Struct { fields, .. }) = args.first() {
+                    for (k, v) in fields {
+                        match (k.as_str(), v) {
+                            ("title", Val::Str(s)) => title = s.clone(),
+                            ("width", _) => w = num(v),
+                            ("height", _) => h = num(v),
+                            _ => {}
+                        }
+                    }
+                }
+                if w <= 0.0 || w > 16_384.0 || h <= 0.0 || h > 16_384.0 {
+                    return Some(runtime(format!(
+                        "Window::create: tamanho inválido ({}x{})",
+                        w, h
+                    )));
+                }
+                let id = crate::gfx::window_create(title, w as f32, h as f32);
+                Some(Ok(handle_val("Window", id)))
+            }
+            ("Window", "should_close") | ("Window", "shouldClose") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(no_window());
+                };
+                Some(Ok(Val::Bool(crate::gfx::window_should_close(id))))
+            }
+            ("Window", "present") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(no_window());
+                };
+                crate::gfx::window_present(id);
+                Some(Ok(Val::Unit))
+            }
+            ("Window", "poll") | ("Window", "show") => Some(Ok(Val::Unit)),
+            ("Window", "close") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(no_window());
+                };
+                crate::gfx::window_close(id);
+                Some(Ok(Val::Unit))
+            }
+            ("Window", "set_title") | ("Window", "setTitle") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(no_window());
+                };
+                crate::gfx::window_set_title(id, args.get(1).map(disp).unwrap_or_default());
+                Some(Ok(Val::Unit))
+            }
+            ("Window", "set_size") | ("Window", "setSize") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(no_window());
+                };
+                crate::gfx::window_set_size(
+                    id,
+                    args.get(1).map(|v| num(v) as f32).unwrap_or(800.0),
+                    args.get(2).map(|v| num(v) as f32).unwrap_or(600.0),
+                );
+                Some(Ok(Val::Unit))
+            }
+            ("Window", "width") | ("Window", "w") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(no_window());
+                };
+                Some(Ok(Val::Int(crate::gfx::window_width(id) as i64)))
+            }
+            ("Window", "height") | ("Window", "h") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(no_window());
+                };
+                Some(Ok(Val::Int(crate::gfx::window_height(id) as i64)))
+            }
+            ("Window", "backend") | ("Gpu", "backend") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(no_window());
+                };
+                Some(Ok(Val::Str(crate::gfx::window_backend(id))))
+            }
+            ("Canvas", "clear") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(no_window());
+                };
+                crate::gfx::canvas_clear(id, col(args, 1));
+                Some(Ok(Val::Unit))
+            }
+            ("Canvas", "fill_rect") | ("Canvas", "fillRect") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(no_window());
+                };
+                crate::gfx::canvas_fill_rect(
+                    id,
+                    args.get(1).map(|v| num(v) as f32).unwrap_or(0.0),
+                    args.get(2).map(|v| num(v) as f32).unwrap_or(0.0),
+                    args.get(3).map(|v| num(v) as f32).unwrap_or(0.0),
+                    args.get(4).map(|v| num(v) as f32).unwrap_or(0.0),
+                    col(args, 5),
+                );
+                Some(Ok(Val::Unit))
+            }
+            ("Canvas", "fill_circle") | ("Canvas", "fillCircle") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(no_window());
+                };
+                crate::gfx::canvas_fill_circle(
+                    id,
+                    args.get(1).map(|v| num(v) as f32).unwrap_or(0.0),
+                    args.get(2).map(|v| num(v) as f32).unwrap_or(0.0),
+                    args.get(3).map(|v| num(v) as f32).unwrap_or(0.0),
+                    col(args, 4),
+                );
+                Some(Ok(Val::Unit))
+            }
+            ("Canvas", "line") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(no_window());
+                };
+                crate::gfx::canvas_line(
+                    id,
+                    args.get(1).map(|v| num(v) as f32).unwrap_or(0.0),
+                    args.get(2).map(|v| num(v) as f32).unwrap_or(0.0),
+                    args.get(3).map(|v| num(v) as f32).unwrap_or(0.0),
+                    args.get(4).map(|v| num(v) as f32).unwrap_or(0.0),
+                    args.get(5).map(|v| num(v) as f32).unwrap_or(2.0),
+                    col(args, 6),
+                );
+                Some(Ok(Val::Unit))
+            }
+            ("Canvas", "text") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(no_window());
+                };
+                crate::gfx::canvas_text(
+                    id,
+                    args.get(1).map(|v| num(v) as f32).unwrap_or(0.0),
+                    args.get(2).map(|v| num(v) as f32).unwrap_or(0.0),
+                    args.get(3).map(disp).unwrap_or_default(),
+                    args.get(4).map(|v| num(v) as f32).unwrap_or(16.0),
+                    col(args, 5),
+                );
+                Some(Ok(Val::Unit))
+            }
+            ("Input", "key_down") | ("Input", "keyDown") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(no_window());
+                };
+                Some(Ok(Val::Bool(crate::gfx::input_key_down(
+                    id,
+                    &args.get(1).map(disp).unwrap_or_default(),
+                ))))
+            }
+            ("Input", "mouse_x") | ("Input", "mouseX") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(no_window());
+                };
+                Some(Ok(Val::Float(crate::gfx::input_mouse_x(id) as f64)))
+            }
+            ("Input", "mouse_y") | ("Input", "mouseY") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(no_window());
+                };
+                Some(Ok(Val::Float(crate::gfx::input_mouse_y(id) as f64)))
+            }
+            ("Input", "mouse_down") | ("Input", "mouseDown") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(no_window());
+                };
+                Some(Ok(Val::Bool(crate::gfx::input_mouse_down(id))))
+            }
+            ("Input", "clicked") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(runtime("Input::clicked(widget) espera um handle de widget"));
+                };
+                Some(Ok(Val::Bool(crate::gfx::input_clicked(id))))
+            }
+            ("Input", "value") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(runtime("Input::value(widget) espera um handle de widget"));
+                };
+                Some(Ok(Val::Str(crate::gfx::input_value(id))))
+            }
+            ("Input", "checked") => {
+                let Some(id) = args.first().and_then(wid) else {
+                    return Some(runtime("Input::checked(widget) espera um handle de widget"));
+                };
+                Some(Ok(Val::Bool(crate::gfx::input_checked(id))))
+            }
+            ("Label", "create") => {
+                let id = crate::gfx::widget_new(Widget::Label {
+                    text: args.first().map(disp).unwrap_or_default(),
+                });
+                Some(Ok(handle_val("Label", id)))
+            }
+            ("Button", "create") => {
+                let id = crate::gfx::widget_new(Widget::Button {
+                    label: args.first().map(disp).unwrap_or_default(),
+                });
+                Some(Ok(handle_val("Button", id)))
+            }
+            ("TextField", "create") => {
+                let id = crate::gfx::widget_new(Widget::TextField {
+                    placeholder: args.first().map(disp).unwrap_or_default(),
+                });
+                Some(Ok(handle_val("TextField", id)))
+            }
+            ("Checkbox", "create") => {
+                let id = crate::gfx::widget_new(Widget::Checkbox {
+                    label: args.first().map(disp).unwrap_or_default(),
+                });
+                Some(Ok(handle_val("Checkbox", id)))
+            }
+            ("MenuBar", "new") => {
+                let id = crate::gfx::widget_new(Widget::MenuBar);
+                Some(Ok(handle_val("MenuBar", id)))
+            }
+            ("Menu", "new") => {
+                let id = crate::gfx::widget_new(Widget::Menu {
+                    title: args.first().map(disp).unwrap_or_default(),
+                });
+                Some(Ok(handle_val("Menu", id)))
+            }
+            ("MenuItem", "new") => {
+                let id = crate::gfx::widget_new(Widget::MenuItem {
+                    label: args.first().map(disp).unwrap_or_default(),
+                    shortcut: args.get(1).map(disp).unwrap_or_default(),
+                });
+                Some(Ok(handle_val("MenuItem", id)))
+            }
+            _ => None,
+        }
+    }
+
+    /// Métodos sobre handles gráficos (`window.setSize(...)`, `bar.add(...)`) —
+    /// roteados pelo `eval_method` quando o receptor é um `Struct` cujo nome
+    /// é um tipo gráfico conhecido.
+    #[cfg(feature = "gui")]
+    fn gfx_method(&mut self, kind: &str, id: i64, method: &str, args: &[Val]) -> IResult<Val> {
+        use crate::gfx as g;
+        let wid = |v: &Val| -> Option<i64> {
+            if let Val::Struct { fields, .. } = v {
+                if let Some((_, Val::Int(n))) = fields.iter().find(|(k, _)| k == "id") {
+                    return Some(*n);
+                }
+            }
+            None
+        };
+        match (kind, method) {
+            ("Window", "add") => {
+                let Some(w) = args.first().and_then(wid) else {
+                    return runtime("window.add(widget) espera um handle de widget");
+                };
+                g::widget_add(id, w);
+                Ok(Val::Unit)
+            }
+            ("Window", "setMenuBar") | ("Window", "set_menu_bar") => {
+                let Some(bar) = args.first().and_then(wid) else {
+                    return runtime("window.setMenuBar(bar) espera um handle de MenuBar");
+                };
+                g::window_set_menubar(id, bar);
+                Ok(Val::Unit)
+            }
+            ("Window", "setSize") | ("Window", "set_size") => {
+                g::window_set_size(
+                    id,
+                    args.first().map(|v| match v {
+                        Val::Int(n) => *n as f32,
+                        Val::Float(x) => *x as f32,
+                        _ => 800.0,
+                    })
+                    .unwrap_or(800.0),
+                    args.get(1).map(|v| match v {
+                        Val::Int(n) => *n as f32,
+                        Val::Float(x) => *x as f32,
+                        _ => 600.0,
+                    })
+                    .unwrap_or(600.0),
+                );
+                Ok(Val::Unit)
+            }
+            ("Window", "setTitle") | ("Window", "set_title") => {
+                g::window_set_title(
+                    id,
+                    args.first().map(|v| v.display()).unwrap_or_default(),
+                );
+                Ok(Val::Unit)
+            }
+            ("Window", "show") | ("Window", "poll") => Ok(Val::Unit),
+            ("Window", "present") => {
+                g::window_present(id);
+                Ok(Val::Unit)
+            }
+            ("Window", "shouldClose") | ("Window", "should_close") => {
+                Ok(Val::Bool(g::window_should_close(id)))
+            }
+            ("Window", "close") => {
+                g::window_close(id);
+                Ok(Val::Unit)
+            }
+            ("Window", "backend") => Ok(Val::Str(g::window_backend(id))),
+            ("Window", "width") => Ok(Val::Int(g::window_width(id) as i64)),
+            ("Window", "height") => Ok(Val::Int(g::window_height(id) as i64)),
+            // --- Widgets: setText/setPlaceholder/setChecked/getText/... ---
+            ("Label", "setText") | ("Label", "set_text")
+            | ("Button", "setText") | ("Button", "set_text")
+            | ("TextField", "setText") | ("TextField", "set_text") => {
+                let s = args.first().map(|v| v.display()).unwrap_or_default();
+                if !g::widget_set_text(id, &s) {
+                    return runtime(format!("widget #{} não aceita setText", id));
+                }
+                Ok(Val::Unit)
+            }
+            ("TextField", "setPlaceholder") | ("TextField", "set_placeholder") => {
+                let s = args.first().map(|v| v.display()).unwrap_or_default();
+                if !g::widget_set_placeholder(id, &s) {
+                    return runtime(format!("widget #{} não é um TextField", id));
+                }
+                Ok(Val::Unit)
+            }
+            ("Checkbox", "setChecked") | ("Checkbox", "set_checked") => {
+                let c = matches!(args.first(), Some(Val::Bool(true)) | Some(Val::Int(1)));
+                if !g::widget_set_checked(id, c) {
+                    return runtime(format!("widget #{} não é um Checkbox", id));
+                }
+                Ok(Val::Unit)
+            }
+            ("TextField", "getText") | ("TextField", "get_text") => {
+                Ok(Val::Str(g::widget_text(id).unwrap_or_default()))
+            }
+            ("Checkbox", "isChecked") | ("Checkbox", "is_checked") => {
+                Ok(Val::Bool(g::widget_checked(id).unwrap_or(false)))
+            }
+            ("MenuBar", "add") | ("Menu", "add") => {
+                let Some(child) = args.first().and_then(wid) else {
+                    return runtime("bar.add(...) espera um handle de widget");
+                };
+                g::menu_add(id, child);
+                Ok(Val::Unit)
+            }
+            _ => runtime(format!("`{}` não é um método de {} (motor gráfico)", method, kind)),
         }
     }
 
@@ -1701,7 +2272,12 @@ impl Cx {
             let f = m.funcs.get(member).cloned().ok_or_else(|| {
                 InterpError::Runtime(format!("module `{}` has no function `{}`", module, member))
             })?;
-            return call_user(self, &f, args);
+            return call_user_home(self, &f, args, Some(module.to_string()));
+        }
+        // Motor gráfico nativo: janela/canvas/input/widgets reais (feature gui).
+        #[cfg(feature = "gui")]
+        if let Some(r) = self.gfx_module(module, member, &args) {
+            return r;
         }
         let disp = |v: &Val| v.display();
         match (module, member) {
@@ -1837,9 +2413,10 @@ impl Cx {
                     .unwrap_or_default(),
             )),
             // Process (backs `os` args/exit/hostname).
-            ("Process", "args") => Ok(Val::List(
-                std::env::args().map(Val::Str).collect(),
-            )),
+            ("Process", "args") => match script_args() {
+                Some(argv) => Ok(Val::List(argv.into_iter().map(Val::Str).collect())),
+                None => Ok(Val::List(std::env::args().map(Val::Str).collect())),
+            },
             ("Process", "exit") => {
                 let code = args.first().map(|v| v.display().parse::<i32>().unwrap_or(0)).unwrap_or(0);
                 std::process::exit(code);
@@ -2262,6 +2839,32 @@ impl Cx {
                 return self.call_module(&id.text, method, vals);
             }
         }
+        // Handles do motor gráfico (`window.setSize(...)`, `bar.add(...)`,
+        // `nome.setPlaceholder(...)`, ...): structs com campo `id` de tipos
+        // gráficos conhecidos.
+        #[cfg(feature = "gui")]
+        if let Expr::Ident(id) = object {
+            if let Some(Val::Struct { name, fields }) = self.lookup(&id.text) {
+                if matches!(
+                    name.as_str(),
+                    "Window" | "MenuBar"
+                        | "Menu"
+                        | "Label"
+                        | "Button"
+                        | "TextField"
+                        | "Checkbox"
+                        | "MenuItem"
+                ) {
+                    if let Some((_, Val::Int(h))) = fields.iter().find(|(k, _)| k == "id") {
+                        let mut vals = Vec::with_capacity(args.len());
+                        for a in args {
+                            vals.push(self.eval(a)?);
+                        }
+                        return self.gfx_method(&name, *h, method, &vals);
+                    }
+                }
+            }
+        }
         // `value.method(args)` where the struct holds a function field
         // under that name (same case as `Call(FieldAccess)` above, but in
         // method-call syntax: `h.less(a, b)`).
@@ -2362,6 +2965,14 @@ impl Cx {
                     return runtime(format!("`{}` takes no arguments", method));
                 }
                 Ok(Val::Str(self.eval(object)?.display()))
+            }
+            // Runtime reflection in method position (`x.type()`, promised
+            // next to the `type(x)` callee alias — same `type_of` answer).
+            "type" | "typeof" | "typeOf" => {
+                if !args.is_empty() {
+                    return runtime(format!("`{}` takes no arguments", method));
+                }
+                Ok(Val::Str(self.eval(object)?.type_of()))
             }
             // String primitives used by the Lex stdlib (`lib/std/strings.lex`).
             "char_at" | "charAt" => {
@@ -2912,6 +3523,27 @@ fn sha256_hex(data: &[u8]) -> String {
     out
 }
 static ATOMIC_NEXT: std::sync::atomic::AtomicI64 = std::sync::atomic::AtomicI64::new(1);
+
+/// Script arguments for the running program (`lex run prog.lex -- args…`).
+/// Mirrors Go's `os.Args`: `[program, user args…]`. Set once per `run`;
+/// when unset, `Process::args` falls back to the toolchain's own argv.
+static SCRIPT_ARGS: std::sync::OnceLock<std::sync::Mutex<Vec<String>>> =
+    std::sync::OnceLock::new();
+
+pub(crate) fn set_script_args(args: Vec<String>) {
+    let slot = SCRIPT_ARGS.get_or_init(|| std::sync::Mutex::new(Vec::new()));
+    if let Ok(mut guard) = slot.lock() {
+        *guard = args;
+    }
+}
+
+fn script_args() -> Option<Vec<String>> {
+    SCRIPT_ARGS
+        .get()
+        .and_then(|slot| slot.lock().ok())
+        .map(|guard| guard.clone())
+        .filter(|v| !v.is_empty())
+}
 
 fn atomic_cells() -> &'static std::sync::Mutex<std::collections::HashMap<i64, std::sync::Arc<std::sync::atomic::AtomicI64>>> {
     static CELLS: std::sync::OnceLock<

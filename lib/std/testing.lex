@@ -91,3 +91,34 @@ pub fn Benchmark(n: i64, f: Dynamic) -> BenchResult {
     }
     return BenchResult { n: n, ms: ms, nsop: nsop };
 }
+
+/// Prints a group header (Jest's `describe`, output form).
+pub fn Describe(name: String) -> void {
+    Console::log(name);
+}
+
+/// Runs one named case: logs the name, then calls `f(t)` with a fresh
+/// context and returns it (Jest's `it`). A failing assert aborts the
+/// run with the message — like Jest's thrown matchers.
+pub fn It(t: T, name: String, f: Dynamic) -> T {
+    Console::log("  " + name);
+    return f(t);
+}
+
+/// Expects equality (Jest's `expect(a).toBe(b)`).
+pub fn ExpectEq(t: T, a: Dynamic, b: Dynamic) -> T {
+    return AssertEq(t, a, b, "expected equal");
+}
+
+/// Expects truth (Jest's `expect(x).toBeTruthy()`).
+pub fn ExpectTrue(t: T, cond: bool) -> T {
+    return Assert(t, cond, "expected truthy");
+}
+
+/// Expects falsity.
+pub fn ExpectFalse(t: T, cond: bool) -> T {
+    if cond {
+        return Error(t, "expected falsy");
+    }
+    return t;
+}

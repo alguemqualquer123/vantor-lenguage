@@ -23,6 +23,10 @@ pub fn ReadMIMEHeader(s: String) -> HeaderResult {
             ln = Text::slice(ln, 0, ln.len() - 1);
         }
         if ln == "" {
+            if cur != "" {
+                header = add_field(header, cur);
+                cur = "";
+            }
             let body = [];
             let j = i + 1;
             while j < lines.len() {

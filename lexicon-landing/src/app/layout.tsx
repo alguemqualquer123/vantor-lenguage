@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { VERSION } from "@/lib/releases";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,14 +13,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const title = `Lexicon v${VERSION} | Um binário com hot reload, GUI wgpu e 89 pacotes std`;
+const description = `Lexicon v${VERSION}: toolchain completo num binário de 9,4 MB — lex run --watch, lex check/vet, lex mod, motor gráfico wgpu e 89 pacotes de stdlib escritos em Lex. Baixe o SDK completo ou só a linguagem.`;
+
 export const metadata: Metadata = {
-  title: "Lexicon SDK v0.2.0 | Hot Reload, Super Extension & Pre-Run Diagnostics",
-  description: "Lexicon v0.2.0: hot-reload supervisor (lex run --watch), VS Code super extension 1.1.x, lex check + lex vet with E-code diagnostics, and a real axum HTTP + SQLite demo API.",
-  keywords: ["Lexicon", "Programação", "SDK", "v0.2.0", "Hot Reload", "VS Code", "WASM", "WebAssembly", "Rust", "Performance", "SQLite"],
+  metadataBase: new URL("https://lexicon.dev"),
+  title,
+  description,
+  keywords: ["Lexicon", "Lex", "Linguagem de programação", "SDK", "Rust", "wGPU", "Hot Reload", "VS Code", "SQLite", "std"],
   authors: [{ name: "Lexicon Team" }],
   openGraph: {
-    title: "Lexicon SDK v0.2.0 | Hot Reload, Super Extension & Pre-Run Diagnostics",
-    description: "Save → auto-restart. Syntax gate with line:col errors. Real HTTP + SQLite demo.",
+    title,
+    description,
     url: "https://lexicon.dev",
     siteName: "Lexicon",
     images: [
@@ -27,6 +32,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
+        alt: "Lexicon — axolote roxo mascote",
       },
     ],
     locale: "pt_BR",
@@ -34,13 +40,16 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Lexicon SDK v0.2.0 | Hot Reload, Super Extension & Pre-Run Diagnostics",
-    description: "Save → auto-restart. Syntax gate with line:col errors. Real HTTP + SQLite demo.",
+    title,
+    description,
     images: ["/og-image.png"],
   },
   icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
+    icon: [
+      { url: "/favicon.ico", sizes: "16x16", type: "image/x-icon" },
+      { url: "/mascote_lex_lang_32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: "/mascote_lex_lang_180.png",
   },
 };
 

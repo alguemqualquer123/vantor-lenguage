@@ -3,7 +3,27 @@
 > Regra do projeto: **não criar pastas novas**. Toda implementação usa os crates/arquivos já existentes em `src/`.
 > Este arquivo é a fonte de verdade do progresso. Atualizar a cada mudança.
 > Legenda: `[x]` feito (100% completo — todos os itens implementados)
-> Última atualização: 2026-09-28 — VELOCIDADE MÁXIMA: batch `lex test` in-process (1120 testes, 1 processo, sem `output.ll` por arquivo via `compile_for_test`, ProgressBar oculta em CI) + binário release 8MB (era 250MB debug) + `auto_install` pulado em CI. Resultados release: `test` 1120/1120 em ~160ms (0.14ms/teste, era 80s via 120 processos); `run` 1 arquivo ~78ms e `check` ~77ms (piso de spawn do OS nesta máquina: 84–96ms medido com `go version`/`where.exe` — binário não adiciona overhead mensurável). SUÍTE 100+: 120 e2e (`tests/e2e_*.lex` + `run_e2e.ps1`, 120/120) + 12 usecases + bench Lex vs Go vs TS vs C (`bench_results.md`). WebView removida do CLI por solicitação.
+> Última atualização: 2026-10-04 (v0.3.4) — QUARTA ONDA GO-PARITY + SDK LEVE.
+> Stdlib: 89 pacotes `.lex` embarcados no SDK (novos `crypto/rc4`,
+> `math/cmplx`, `net/netip`; `crypto/{md5,sha1}`, `mime/quotedprintable`,
+> `sync/pool`, `text/tabwriter`, `encoding/binary`, `net/http` e os stubs
+> `native/{window,canvas,input,gpu}` que existiam mas não eram exportados).
+> Interpretador: resolução de símbolos **module-first** (`Cx::cur_mod` +
+> `user_fn`/`user_struct`/`call_user_home`) — pacotes importados juntos param
+> de se sombrear; pipes `|>` aceitam alvo qualificado (`x |> mod::Fn`).
+> Corrigidos `net/textproto::ReadMIMEHeader` (perdia o último header,
+> quebrando `mime/multipart`), `encoding/binary::PutBE64` (byte 0 sempre 0) e
+> o auto-bump do `build.rs` que corrompia o `Cargo.toml`. SDK: **um** binário
+> `dist` de 9,4 MB + 38 shims de ~40 bytes (antes 39 hardlinks do debug de
+> 272 MB); `lex sdk verify` impõe o orçamento. Docs: `README.md` na raiz +
+> mascote transparente em todos os tamanhos + `LICENSE-MIT.md`.
+> Exemplos/templates: `lex sdk export` embarca os 18 `examples/*.lex`
+> (+ `api.lex`) e 5 templates; o template novo `gui` (`lex new -t gui`)
+> gera janela wgpu real que passa em `lex check` e roda em `lex run --ci`.
+> Validação: e2e **148/148** (`bash tests/run_e2e.sh`), `cargo test -p
+> lexicon-cli` **71/71**.
+>
+> Última atualização anterior: 2026-09-28 — VELOCIDADE MÁXIMA: batch `lex test` in-process (1120 testes, 1 processo, sem `output.ll` por arquivo via `compile_for_test`, ProgressBar oculta em CI) + binário release 8MB (era 250MB debug) + `auto_install` pulado em CI. Resultados release: `test` 1120/1120 em ~160ms (0.14ms/teste, era 80s via 120 processos); `run` 1 arquivo ~78ms e `check` ~77ms (piso de spawn do OS nesta máquina: 84–96ms medido com `go version`/`where.exe` — binário não adiciona overhead mensurável). SUÍTE 100+: 120 e2e (`tests/e2e_*.lex` + `run_e2e.ps1`, 120/120) + 12 usecases + bench Lex vs Go vs TS vs C (`bench_results.md`). WebView removida do CLI por solicitação.
 
 ## Como ler este arquivo
 - `Spec §N` = seção da especificação v0.1.

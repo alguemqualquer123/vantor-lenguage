@@ -14,13 +14,15 @@ mod lsp;
 mod dap;
 mod ide;
 #[cfg(feature = "gui")]
+mod gfx;
+#[cfg(feature = "gui")]
 mod gui;
+mod pkg;
 
 const COLOR_CYAN: &str = "\x1b[36m";
 const COLOR_RESET: &str = "\x1b[0m";
 
-fn get_style() -> Command {
-    Command::new("lex")
+fn get_style() -> Command {    Command::new("lex")
         .color(clap::ColorChoice::Always)
         .version(env!("CARGO_PKG_VERSION"))
         .subcommand_required(false)
@@ -284,7 +286,7 @@ Quick Start:
                     clap::Arg::new("template")
                         .long("template")
                         .short('t')
-                        .help("Project template: api (REST on :3000), plugin (WASM-ready transform), service (gRPC IDL + health gateway). Unknown names are rejected. ")
+                        .help("Project template: api (REST on :3000), plugin (WASM-ready transform), service (gRPC IDL + health gateway), gui (native wgpu window). Unknown names are rejected. ")
                 )
                 .arg(
                     clap::Arg::new("edge")
@@ -334,6 +336,11 @@ Quick Start:
                     clap::Arg::new("out")
                         .long("out")
                         .help("Export/verify directory (default: build/sdk) "),
+                )
+                .arg(
+                    clap::Arg::new("bin")
+                        .long("bin")
+                        .help("Toolchain binary to ship (default: newest dist/release build) "),
                 ),
         )
         .subcommand(
@@ -369,6 +376,19 @@ Quick Start:
     }
 
 
+/// Busybox dispatch: when this binary runs under a `lex-<sub>` file name
+/// (hardlink launchers in `sdk/bin` / `~/.lexicon/bin`), return `<sub>`.
+/// Unknown stems (plain `lex`, odd names) yield `None` → normal dispatch.
+fn exe_tool_subcommand() -> Option<String> {
+    let exe = std::env::current_exe().ok()?;
+    let stem = exe.file_stem()?.to_string_lossy().to_lowercase();
+    let sub = stem.strip_prefix("lex-")?;
+    if sub.is_empty() {
+        return None;
+    }
+    Some(sub.to_string())
+}
+
 fn main() -> Result<()> {
     // Inicializa logger global (usa RUST_LOG ou padrão info)
     env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
@@ -389,7 +409,22 @@ fn main() -> Result<()> {
         }
     }
 
-    let cli = get_style().get_matches();
+    // Busybox-style tool launchers (`lex-lsp`, `lex-run`, …): hardlinks to
+    // this binary shipped in `sdk/bin` and `~/.lexicon/bin`. Splice the
+    // subcommand into argv so `lex-lsp --foo` behaves EXACTLY like
+    // `lex lsp --foo` (same parser, same dispatch, zero code duplication).
+    let raw: Vec<String> = std::env::args().collect();
+    let argv: Vec<String> = match exe_tool_subcommand() {
+        Some(sub) => {
+            let mut it = raw.into_iter();
+            let mut v = vec![it.next().unwrap_or_else(|| "lex".to_string())];
+            v.push(sub);
+            v.extend(it);
+            v
+        }
+        None => raw,
+    };
+    let cli = get_style().try_get_matches_from(argv).unwrap_or_else(|e| e.exit());
     debug!("CLI args parseados");
 
     match cli.subcommand() {
@@ -496,7 +531,14 @@ fn main() -> Result<()> {
                 .get_many::<String>("args")
                 .map(|v| v.cloned().collect())
                 .unwrap_or_default();
-            compiler::mod_cmd(rest)?;
+            // Sem subcomando reconhecido (ou nenhum): validação antiga do
+            // manifesto; senão, gerenciador de pacotes (`pkg::cmd`).
+            let known = ["init", "add", "install", "remove", "rm", "tidy", "list", "graph", "verify", "help"];
+            if rest.is_empty() || !known.contains(&rest.first().map(|s| s.as_str()).unwrap_or("")) {
+                compiler::mod_cmd(rest)?;
+            } else {
+                pkg::cmd(rest)?;
+            }
         }
         Some(("env", _)) => {
             compiler::env_cmd()?;
@@ -567,8 +609,9 @@ fn main() -> Result<()> {
                 .map(|s| s.as_str())
                 .unwrap_or("export");
             let out = args.get_one::<String>("out").cloned();
+            let bin = args.get_one::<String>("bin").cloned();
             match action {
-                "export" => sdk::export(out)?,
+                "export" => sdk::export_with_bin(out, bin)?,
                 "verify" => sdk::verify(out)?,
                 "info" => sdk::info()?,
                 other => {

@@ -1,4 +1,4 @@
-# Troubleshooting e Glossário - Lexicon v0.2.0
+# Troubleshooting e Glossário - Lexicon v0.3.5
 
 ## 1. Troubleshooting (erros comuns e reais)
 
@@ -29,18 +29,18 @@
 
 ### 1.5 Código comentado "não executa" / rota sumiu
 
-- **Causa**: nenhuma — é o correto na v0.2.0. Comentários são removidos antes de
+- **Causa**: nenhuma — é o correto na v0.3.5. Comentários são removidos antes de
   runner/lint/scan; `print` ou `Http::serve` comentado nunca executa nem registra rota.
 
 ### 1.6 IntelliSense/vet não aparece no VS Code
 
 - **Causa**: extensão antiga ou `lex` fora do PATH (`lexicon.path`).
-- **Solução**: atualize a **Lexicon Super** para 1.1.x, rode `lex install` e
+- **Solução**: atualize a **Lexicon Super** para 1.2.0, rode `lex install` e
   confira `lex vet <arquivo>` no terminal — o vet-on-save espelha esse resultado.
 
 ### 1.7 `lex deploy` "funcionou" mas nada publicou / `lex ffi` sem bindings
 
-- **Causa**: ambos são **simulados** na v0.2.0 (output cosmético).
+- **Causa**: ambos são **simulados** na v0.3.5 (output cosmético).
 - **Solução**: não use em produção; acompanhe o roadmap para o status real.
 
 ## 2. Glossário

@@ -1,4 +1,4 @@
-# Documentação Técnica - Lexicon v0.2.0
+# Documentação Técnica - Lexicon v0.3.5
 
 ## 1. Arquitetura do sistema
 
@@ -74,10 +74,37 @@ W0001/W0002, com os mesmos achados no diagnóstico de save.
 via `lexicon-db`/SQLite), `routes.lex` (handlers `@Get/@Post`), `.env.dev` /
 `.env.prod`, `run-dev.ps1` / `run-prod.ps1`, `seed.py` + `dev.db` real.
 
-## 5. Limites honestos da v0.2.0
+## 5. Um binário, um SDK
+
+O `lex` publicado é **um** executável (~9,4 MB no perfil `dist`, `opt-level="z"`
++ LTO gorda). Os 38 launchers (`lex-run`, `lex-check`, `lex-mod`, …) são shims de
+~40 bytes que repassam o subcomando para o vizinho — não são 38 cópias do binário.
+
+- A stdlib, os templates e os exemplos estão **embutidos** no binário
+  (`include_str!`): `lex sdk export` escreve o kit em `build/sdk` (ou onde você
+  mandar) e o auto-install o replica em `~/.lexicon/sdk`.
+- `lex sdk verify` confere os 116 arquivos obrigatórios e o orçamento de tamanho
+  (mini ≤ 6 MB, full ≤ 16 MB) — dependência nova que estourar o orçamento reprova.
+- `lex sdk info` mostra sabor, caminho e tamanho do binário em uso.
+
+### 5.1 Motor gráfico (`lexicon-gui`, feature `gui`)
+
+`Window` / `Canvas` / `Input` / `Gpu` são nativos do interpretador
+(`src/lexicon-cli/src/gfx.rs`) sobre **eframe + wgpu**: o backend é escolhido
+pela placa (Vulkan, DX12, Metal, OpenGL, WebGPU). `Canvas::clear/fillRect/
+fillCircle/line/text`, `Input::keyDown(win, "left")` (nomes canônicos de tecla)
+e `Window::backend(win)`. Em `lex run --ci` a janela fecha sozinha após ~1 s
+(`LEXICON_GUI_AUTOQUIT=<frames>`).
+
+## 6. Limites honestos da v0.3.5
 
 - `lex deploy` e `lex ffi` são **simulados** (progresso fake, sem efeito real).
 - `lex run` executa **um arquivo**; o grafo de módulos é validado, não linkado.
 - Sem WebView nativa no binário (crate `webview` removida — não linkava no
   MinGW-GNU); `compiler.rs`/`webview.rs` seguem stubs desvinculados.
-- WASM AOT/JIT, LSP completo e package registry seguem no roadmap (itens 66–100).
+- WASM AOT/JIT e registry público de pacotes seguem no roadmap; `lex mod` já
+  resolve `github:`/`gitlab:`/`https:`/`path:` e grava `lexicon.lock`.
+- `lex build` ainda emite só um stub de LLVM IR (`define i32 @main() { ret i32 0 }`)
+  e **não** gera executável nativo: quem roda o programa é o interpretador
+  tree-walking de `lex run`. O que o interpretador não entende falha com erro de
+  runtime — só `lex check`/`lex vet` são gate pré-execução.

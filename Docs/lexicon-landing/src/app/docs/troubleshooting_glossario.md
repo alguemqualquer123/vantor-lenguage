@@ -1,42 +1,60 @@
-# Troubleshooting e Glossário - Lexicon SDK
+# Troubleshooting e Glossário - Lexicon v0.3.5
 
-## 1. Troubleshooting (Resolução de Erros Comuns)
+## 1. Troubleshooting (erros comuns e reais)
 
-### 1.1 Comando 'lex' não reconhecido
-- **Causa**: O binário `lex` não foi adicionado ao seu PATH.
-- **Solução**: Reinicie o terminal após a instalação. Se o erro persistir, siga o **Passo 2** do Guia de Instalação Manual.
+### 1.1 Comando `lex` não reconhecido
 
-### 1.2 Erro de Build: 'LEXICON_TARGET' não encontrado
-- **Causa**: Variável de ambiente necessária para builds cross-platform ausente.
-- **Solução**: Defina o target desejado (ex: `set LEXICON_TARGET=native` no Windows ou `export LEXICON_TARGET=native` no Linux).
+- **Causa**: `~/.lexicon/bin` ainda não está no PATH da sessão.
+- **Solução**: reabra o terminal e rode `lex install` (idempotente — nunca
+  duplica). No Windows o PATH persiste no registro do usuário e exige sessão nova.
 
-### 1.3 IntelliSense não funciona no VS Code
-- **Causa**: A extensão Lexicon pode estar em conflito com outras extensões ou não carregou corretamente.
-- **Solução**: Reinicie o VS Code. Verifique se a extensão **Lexicon Language Support** está habilitada.
+### 1.2 `file.lex:line:col: msg` antes de rodar
 
-### 1.4 Erro no Deploy: 'Unauthorized'
-- **Causa**: Você não está autenticado na Lexicon Cloud.
-- **Solução**: Execute `lex login` para vincular sua conta ao SDK.
+- **Causa**: o pre-run gate (ou `lex check`/`lex vet`) encontrou erro de sintaxe/tipo.
+- **Solução**: não é bug do runner — corrija a `linha:col` indicada. Erros comuns:
+  E0101 (string não fechada), E0201 (token esperado, ex. `;`), E0301 (type mismatch).
+  Dica: `lex fix --dry-run` mostra migrações seguras (ex. `Http.get(` → `Http::get(`).
 
-## 2. Glossário de Termos Técnicos
+### 1.3 Hot reload parou: "child keeps dying fast"
 
-### 2.1 AST (Abstract Syntax Tree)
-Representação em árvore da estrutura do código-fonte usada pelo compilador Lexicon.
+- **Causa**: o filho morreu em <1 s três vezes (porta ocupada é o clássico).
+- **Solução**: libere a porta do `Http::serve("0.0.0.0:3000")` literal ou corrija
+  o erro, e reinicie o `lex run --watch`. Backoff é proteção, não bug.
 
-### 2.2 Bytecode
-Forma intermediária do código compilado que o runtime Lexicon executa.
+### 1.4 `Env::get` devolve `NOT_FOUND`
 
-### 2.3 Cloud-Native
-Refere-se a sistemas projetados especificamente para rodar de forma eficiente em ambientes de nuvem e edge computing.
+- **Causa**: processo sem env carregado — comportamento correto, não erro.
+- **Solução**: rode com `demo-api\run-dev.ps1` / `run-prod.ps1`; e atribua a
+  variável primeiro (`let x = Env::get(..)`), pois inline em `print` sai literal.
 
-### 2.4 FFI (Foreign Function Interface)
-Mecanismo que permite ao Lexicon chamar funções escritas em outras linguagens, como C e Rust.
+### 1.5 Código comentado "não executa" / rota sumiu
 
-### 2.5 Hot Reload
-Capacidade do ambiente de desenvolvimento de aplicar mudanças no código sem a necessidade de reiniciar o processo manualmente.
+- **Causa**: nenhuma — é o correto na v0.3.5. Comentários são removidos antes de
+  runner/lint/scan; `print` ou `Http::serve` comentado nunca executa nem registra rota.
 
-### 2.6 Pipe Operator (|>)
-Operador usado para passar o resultado de uma expressão como o primeiro argumento de uma função subsequente, facilitando a legibilidade.
+### 1.6 IntelliSense/vet não aparece no VS Code
 
-### 2.7 WASM (WebAssembly)
-Formato de instrução binária para uma máquina virtual baseada em pilha, projetado para execução nativa no navegador.
+- **Causa**: extensão antiga ou `lex` fora do PATH (`lexicon.path`).
+- **Solução**: atualize a **Lexicon Super** para 1.2.0, rode `lex install` e
+  confira `lex vet <arquivo>` no terminal — o vet-on-save espelha esse resultado.
+
+### 1.7 `lex deploy` "funcionou" mas nada publicou / `lex ffi` sem bindings
+
+- **Causa**: ambos são **simulados** na v0.3.5 (output cosmético).
+- **Solução**: não use em produção; acompanhe o roadmap para o status real.
+
+## 2. Glossário
+
+- **AST**: árvore de sintaxe gerada por lexer/parser a partir de `.lex`.
+- **Backoff (hot reload)**: parada após 3 mortes rápidas do filho (<1 s).
+- **Comment-accurate runner**: runner opera sobre código sem comentários.
+- **Debounce (300 ms)**: coalescência de saves em um único restart.
+- **E-codes (E0101–E0801)**: códigos estáveis de diagnóstico para CI/IDEs.
+- **FFI**: interface para C/Rust (`lex ffi` hoje simulado).
+- **Hot Reload**: `lex run --watch` — save → auto-restart supervisionado.
+- **LEX_SUPERVISED=1**: marcador de ambiente do filho supervisionado.
+- **Pipe (`|>`)**: encadeamento funcional de dados.
+- **Pre-run gate**: barreira de sintaxe da extensão antes de executar.
+- **Vet (`lex vet`)**: checagens estáticas de correção (tipo/interface/ABI).
+- **Vet-on-save**: diagnósticos do vet dentro do editor ao salvar.
+- **WASM**: alvo WebAssembly (`--target wasm` no scaffold).

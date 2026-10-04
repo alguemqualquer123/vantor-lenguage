@@ -85,10 +85,43 @@ Verified-done, do not reopen: `--watch` supervisor, comment-accurate
 runner/lint/security, silent idempotent installer with registry dedup,
 webview dep removal (MinGW link), extension 1.1.x feature set,
 `demo-api/` (real axum + SQLite via `lexicon-db` + dev/prod env),
-working `check`/`vet`.
+working `check`/`vet`, `lex mod` package manager with `lexicon.lock`
+(0.3.2), native graphics engine on wgpu — `Window`/`Canvas`/`Input`/`Gpu`
+with Vulkan/DX12/OpenGL/Metal backends (0.3.2), one-binary SDK with
+~40-byte launcher shims (0.3.4), per-package symbol resolution in the
+interpreter (0.3.4).
 
 Genuinely missing: real cloud deploy, real FFI bindings, WASM
 auto-bindings, procedural-macro sandbox, full debugger, real registry
 upload, LLVM backend beyond IR-text stub, GC/scheduler runtime,
-package manager with lockfile, full LSP server, playground,
+full LSP server, playground,
 supply-chain tooling, advanced type-system/concurrency/FP features.
+
+## Stdlib Go-parity — estado em 0.3.4
+
+`lib/std` tem **89 pacotes** escritos em Lex, todos embarcados no SDK
+(`lex sdk export`) e checados por `lex check`. Quarta onda (0.3.4):
+`crypto/rc4`, `math/cmplx`, `net/netip` novos; `crypto/md5`, `crypto/sha1`,
+`mime/quotedprintable`, `sync/pool`, `text/tabwriter`, `encoding/binary`,
+`net/http` e `native/{window,canvas,input,gpu}` passaram a ser exportados.
+
+O que **ainda não** existe, e por quê:
+
+| Pacote Go | Bloqueio |
+|---|---|
+| `net`, `net/rpc`, `database/sql`, `crypto/tls` | exigem sockets/TLS reais no nativo; `net/http` hoje é o cliente embutido do motor |
+| `sync` (WaitGroup/Mutex/Once concorrentes) | não há scheduler de threads no interpretador; o que existe é semântica single-thread |
+| `context` com cancelamento assíncrono | idem — sem goroutines |
+| `reflect` completo (Field/SetValue, TypeByID) | só `typeOf`/`typeof`/`type` (0.3.1) |
+| `os` com processos/forks reais | `os/exec` chama o `Command` nativo; `os/user` e `os/signal` são aproximados |
+| `image`, `image/png`, `go/ast`, `go/parser` | fora do plano de paridade; `image/color` cobre paletas |
+| `crypto/{rsa,ecdsa,ed25519,aes,rand}` | dependem do gate `sign`/`tls` do `Cargo.toml` (FEATURE_MATRIX) |
+
+Regra de escrita de pacote (vale para qualquer onda futura): o namespace de
+imports é **achatado por nome simples**, então chamadas dentro de um pacote
+devem ficar qualificadas entre pacotes (`strings::Index`, não `Index`); o
+próprio pacote sempre vence o próprio nome desde 0.3.4. Operadores `|` e `~`
+não existem no parser — use `bitor(a,b) = a + b - (a & b)` e
+`NOT x = 4294967295 - x`. Divisão float por zero é erro de runtime, não
+`NaN`. Listas são **valor**: um helper não consegue mutar a lista do
+chamador.

@@ -229,7 +229,7 @@ Entregáveis em `lib/std/` (esta sessão começa aqui):
 - `lex fmt` (existe — expandir para gofmt-parity: 100% dos programas idempotem)
 - `lex vet` (existe — regras de go vet: printf, unreachable, struct tags)
 - `lex doc` — extrai docs de `//` acima de `pub fn`, gera HTML/pkg.lex.dev
-- `lex mod init/tidy/download/graph/verify` — `lex.mod`/`lex.sum` (go.mod/go.sum)
+- `lex mod init/tidy/add/install/graph/verify` — `lexicon.toml`/`lexicon.lock` (go.mod/go.sum) ✅ **entregue v0.3.2**: fontes git (`github:`/`gitlab:`/URL/`file://`) + `path:`, cache `~/.lexicon/pkg`, materialização em `lex_packages/` (resolvida pelo loader), lock com commit p/ build reproduzível
 - `lex work` — workspaces (`lex.work`)
 - `lex cover`/`lex pprof`/`lex trace` — perfis de cobertura/CPU/mem
 - `lex playground` — servidor web de snippets
@@ -309,6 +309,28 @@ Entregáveis em `lib/std/` (esta sessão começa aqui):
       (navegação no IDE; import aborta em vez de silenciar)
 - [x] Resolução espelha as raízes do interpretador (mesmo SDK de execução)
 - [x] Versão do binário **0.3.1** (dispara o auto-update do SDK instalado)
+- [x] `typeOf`/`typeof`/`type` + `x.type()` (nomes declarados p/ structs)
+- [x] 38 lançadores `lex-<tool>` (hardlinks busybox) em `sdk/bin` e
+      `~/.lexicon/bin`, com sync, verify e uninstall
+
+## 8. Pacotes + Motor gráfico (v0.3.2)
+
+- [x] **Gerenciador de pacotes** (`pkg.rs`, `lex mod …`): init/add/install/
+      remove/tidy/list/graph/verify; fontes git + path; cache global +
+      `lex_packages/` + `lexicon.lock` (commit pino); loader de módulos
+      resolve pacotes instalados (walk-up do importador, antes da SDK)
+- [x] **Motor gráfico nativo** (`gfx.rs`, feature `gui`): janelas reais via
+      eframe+wgpu — backends **Vulkan / DirectX 12 / OpenGL / Metal**,
+      canvas 2D imediato (`Canvas::*`), input (`Input::*`), widgets e menus
+      (Label/Button/TextField/Checkbox/MenuBar), pacing via `Window::present`,
+      autoquit CI (`LEXICON_GUI_AUTOQUIT`), demo `examples/pong.lex`
+- [x] Autocomplete + stubs de assinatura (`lib/std/native/{window,canvas,
+      input,gpu}.lex`)
+- Pendências conhecidas: `lex registry` (servidor), macOS precisa da main
+      thread p/ janela (usar `lex gui`), winit 0.30 = 1 event loop por
+      processo (host único + viewports egui — implementado), suíte `lex test`
+      com falhas pré-existentes no harness (divergência run-vs-test,
+      verificado com o binário de 01/10 — não é regressão desta sessão)
 
 ### 5.1 Decisões técnicas da Fase 0
 | Decisão | Escolha | Motivo |
@@ -323,10 +345,37 @@ Entregáveis em `lib/std/` (esta sessão começa aqui):
 ### 5.2 Regras de escrita da stdlib em Lex (descobertas desta sessão)
 | Regra | Detalhe |
 |---|---|
-| Chamadas sempre qualificadas | `strings::Index`, nunca `Index` — o namespace achatado resolve para o primeiro módulo carregado |
+| Chamadas entre pacotes sempre qualificadas | `strings::Index`, nunca `Index` — o namespace é achatado e resolve para o primeiro módulo carregado. **Desde 0.3.4** o próprio pacote vence: dentro de `crypto/md5.lex`, `Sum` é o `Sum` do md5 (`Cx::cur_mod` + `user_fn`/`user_struct`) |
 | Structs com nomes globalmente únicos | literais `Nome {...}` resolvem pelo mapa achatado (`Reader` do `io` vs `bufio` → `BufReader`; `PopResult` → `ListPopResult`/`HeapPopResult`) |
 | Sem `campo < campo` | `a.ms < b.ms` parseia `<` como type-args; usar locais (`let x = a.ms;`) ou `<=`/`>`/`==` |
 | Sem `\|` infixo | `x \| y` parseia como pipe-closure; usar `^`/`&`/`+` ou reestruturar |
 | Lambdas `\|x\| ...` (standalone) e `\| \| x` (zero args, com espaços) | `||` sem espaço lexes como `OrOr` |
 | Value semantics | structs/listas passam por cópia — ops que avançam retornam o valor (`r = io::Read(r, n).reader`, `xs = sort::Ints(xs)`) |
 | Comparadores como lambda | `heap::New(\|a, b\| a < b)`; chamada via campo funciona (`h.less(a, b)`) |
+
+---
+
+## Status da quarta onda (0.3.4)
+
+Entregue nesta passada, tudo validado por `lex check` + e2e:
+
+| Pacote | Estado | Observação |
+|---|---|---|
+| `crypto/rc4` | ✅ novo | vetores do RFC 6229 aplicatory note (`Keystream`, `Cipher`, `Hex`, `HexLower`) |
+| `math/cmplx` | ✅ novo | Smith para `Div`, C99 Annex G para `Sqrt`; conferido contra `cmath` |
+| `net/netip` | ✅ novo | `NetIP`/`NetPrefix`/`NetAddrPort`, formatter RFC 5952; zones rejeitadas (documentado no cabeçalho) |
+| `crypto/md5`, `crypto/sha1` | ✅ exportados | existiam em `lib/std`, faltavam no SDK |
+| `mime/quotedprintable` | ✅ exportado | `Decode` agora reporta escape truncado no EOF |
+| `sync/pool` | ✅ exportado | LIFO single-thread (sem scheduler real) |
+| `text/tabwriter` | ✅ exportado | regra da última célula livre do Go |
+| `encoding/binary` | ✅ exportado | `PutBE64` corrigido (byte 0 era `v/2^72`) |
+| `net/http` | ✅ exportado | cliente embutido (`Get/Post/ReadBody`) |
+| `native/{window,canvas,input,gpu}` | ✅ exportados | stubs de assinatura para go-to-definition no editor |
+| `net/textproto` | ✅ corrigido | `ReadMIMEHeader` perdia o último header → quebrava `mime/multipart` |
+
+Total no SDK: **89 arquivos `.lex`** de stdlib (antes 75).
+
+Bloqueados para ondas futuras (exigem runtime que o interpretador ainda não tem):
+`net` (sockets), `crypto/tls`, `database/sql`, `sync` concorrente, `context`
+assíncrono, `reflect` estrutural, `crypto/{aes,rsa,ecdsa,ed25519}` (bignum),
+`text/template`, `encoding/{xml,gob,asn1}`, `image/*`.
