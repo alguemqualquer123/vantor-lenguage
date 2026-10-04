@@ -1,0 +1,10 @@
+[project]
+name = "service"
+version = "0.1.0"
+template = None
+edge = false
+target = None
+grpc = true
+
+[dependencies]
+core = "0.1.0"

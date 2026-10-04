@@ -1,0 +1,9 @@
+veja quais pacotes podem ser implementados na linguage, "c:\Users\Admin\Desktop\[ Trabalhos ]\lex-lenguage\Cargo.lock" para implementação de funcionalidades e melhorias
+
+PS C:\Users\Admin\Desktop\[ Trabalhos ]\lex-lenguage\apps\minha-janela> lex run --ci src/main.lex
+Compiling and running...
+[lex-debug] interp unsupported (`Window::create`), using mock fallback
+Hello, LexiconLang!
+--------------------------
+[Supervised/CI mode: done — skipping interactive wait]
+Run time: 6ms 

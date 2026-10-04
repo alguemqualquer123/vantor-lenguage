@@ -1,0 +1,35 @@
+{
+    "name": "lexicon-pack",
+    "displayName": "Lexicon Extension Pack",
+    "description": "One install for Lexicon: bundles the Lexicon Super extension (grammar, snippets, themes, toolchain commands).",
+    "version": "1.0.0",
+    "publisher": "lexicon-team",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/lexicon-lang/lexicon"
+    },
+    "homepage": "https://github.com/lexicon-lang/lexicon#readme",
+    "bugs": {
+        "url": "https://github.com/lexicon-lang/lexicon/issues"
+    },
+    "icon": "./icons/lexicon-icon.png",
+    "galleryBanner": {
+        "color": "#0F1117",
+        "theme": "dark"
+    },
+    "engines": {
+        "vscode": "^1.60.0"
+    },
+    "categories": [
+        "Extension Packs"
+    ],
+    "keywords": [
+        "lexicon",
+        "lex",
+        "pack"
+    ],
+    "extensionPack": [
+        "lexicon-team.lexicon-super"
+    ]
+}

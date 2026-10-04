@@ -1,0 +1,11 @@
+[project]
+name = "vinix"
+version = "0.2.0"
+language = "0.2.0"
+template = "default"
+edge = false
+target = native
+grpc = false
+
+[dependencies]
+core = "0.2.0"

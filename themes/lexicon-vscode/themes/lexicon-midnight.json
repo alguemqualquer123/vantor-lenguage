@@ -1,62 +1,641 @@
 {
-    "name": "Lexicon Midnight",
-    "type": "dark",
-    "colors": {
-        "editor.background": "#020408",
-        "editor.foreground": "#C9D1D9",
-        "activityBar.background": "#000000",
-        "sideBar.background": "#000000",
-        "statusBar.background": "#000000",
-        "editorLineNumber.foreground": "#484F58",
-        "editorLineNumber.activeForeground": "#F0F6FC",
-        "editorIndentGuide.background": "#21262D",
-        "editor.selectionBackground": "#3392FF44"
+  "name": "Lexicon Midnight",
+  "type": "dark",
+  "colors": {
+    "editor.background": "#020408",
+    "editor.foreground": "#C9D1D9",
+    "activityBar.background": "#000000",
+    "sideBar.background": "#000000",
+    "statusBar.background": "#000000",
+    "editorLineNumber.foreground": "#484F58",
+    "editorLineNumber.activeForeground": "#F0F6FC",
+    "editorIndentGuide.background": "#21262D",
+    "editor.selectionBackground": "#3392FF44",
+    "editorBracketHighlight.foreground1": "#79C0FF",
+    "editorBracketHighlight.foreground2": "#D2A8FF",
+    "editorBracketHighlight.foreground3": "#7EE787",
+    "editorBracketHighlight.foreground4": "#FFA657",
+    "editorBracketHighlight.foreground5": "#FF7B72",
+    "editorBracketHighlight.foreground6": "#56D4DD",
+    "editorBracketHighlight.unexpectedBracket.foreground": "#FF7B72"
+  },
+  "tokenColors": [
+    {
+      "name": "Keywords",
+      "scope": [
+        "keyword.control.lexicon",
+        "keyword.control.lex"
+      ],
+      "settings": {
+        "foreground": "#FF7B72",
+        "fontStyle": "bold"
+      }
     },
-    "tokenColors": [
-        {
-            "name": "Keywords",
-            "scope": "keyword.control.lexicon",
-            "settings": { "foreground": "#FF7B72", "fontStyle": "bold" }
-        },
-        {
-            "name": "Functions",
-            "scope": "entity.name.function.lexicon",
-            "settings": { "foreground": "#D2A8FF" }
-        },
-        {
-            "name": "Strings",
-            "scope": "string.quoted.double.lexicon",
-            "settings": { "foreground": "#A5D6FF" }
-        },
-        {
-            "name": "Numbers",
-            "scope": "constant.numeric.lexicon",
-            "settings": { "foreground": "#79C0FF" }
-        },
-        {
-            "name": "Custom Types (PascalCase)",
-            "scope": "entity.name.type.lexicon",
-            "settings": { "foreground": "#4FC1FF", "fontStyle": "bold" }
-        },
-        {
-            "name": "Primitive Types",
-            "scope": "support.type.primitive.lexicon",
-            "settings": { "foreground": "#569CD6" }
-        },
-        {
-            "name": "Annotations/Decorators",
-            "scope": "entity.name.function.decorator.lexicon",
-            "settings": { "foreground": "#DCDCAA", "fontStyle": "bold italic" }
-        },
-        {
-            "name": "Operators",
-            "scope": "keyword.operator.lexicon",
-            "settings": { "foreground": "#FF7B72" }
-        },
-        {
-            "name": "Pipe Operator",
-            "scope": "keyword.operator.pipe.lexicon",
-            "settings": { "foreground": "#58A6FF", "fontStyle": "bold" }
-        }
-    ]
+    {
+      "name": "Lexicon control flow",
+      "scope": [
+        "keyword.control.conditional.lexicon",
+        "keyword.control.loop.lexicon",
+        "keyword.control.flow.lexicon",
+        "keyword.control.conditional.lex",
+        "keyword.control.loop.lex",
+        "keyword.control.flow.lex"
+      ],
+      "settings": {
+        "foreground": "#FF7B72",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon declarations",
+      "scope": [
+        "keyword.declaration.function.lexicon",
+        "keyword.declaration.type.lexicon",
+        "keyword.declaration.variable.lexicon",
+        "keyword.declaration.function.lex",
+        "keyword.declaration.type.lex",
+        "keyword.declaration.variable.lex"
+      ],
+      "settings": {
+        "foreground": "#FF7B72"
+      }
+    },
+    {
+      "name": "Lexicon modules/modifiers",
+      "scope": [
+        "keyword.module.lexicon",
+        "keyword.modifier.visibility.lexicon",
+        "keyword.modifier.async.lexicon",
+        "keyword.modifier.unsafe.lexicon",
+        "keyword.module.lex",
+        "keyword.modifier.visibility.lex",
+        "keyword.modifier.async.lex",
+        "keyword.modifier.unsafe.lex"
+      ],
+      "settings": {
+        "foreground": "#D2A8FF",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Lexicon exceptions",
+      "scope": [
+        "keyword.exception.lexicon",
+        "keyword.exception.lex"
+      ],
+      "settings": {
+        "foreground": "#FF7B72",
+        "fontStyle": "bold underline"
+      }
+    },
+    {
+      "name": "Functions",
+      "scope": [
+        "entity.name.function.lexicon",
+        "entity.name.function.lex"
+      ],
+      "settings": {
+        "foreground": "#D2A8FF"
+      }
+    },
+    {
+      "name": "Lexicon fn definitions",
+      "scope": [
+        "entity.name.function.definition.lexicon",
+        "entity.name.function.definition.async.lexicon",
+        "entity.name.function.definition.lex",
+        "entity.name.function.definition.async.lex"
+      ],
+      "settings": {
+        "foreground": "#79C0FF",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon builtins",
+      "scope": [
+        "support.function.builtin.print.lexicon",
+        "support.function.builtin.panic.lexicon",
+        "support.function.builtin.print.lex",
+        "support.function.builtin.panic.lex"
+      ],
+      "settings": {
+        "foreground": "#58A6FF",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Strings",
+      "scope": [
+        "string.quoted.double.lexicon",
+        "string.quoted.double.lex"
+      ],
+      "settings": {
+        "foreground": "#A5D6FF"
+      }
+    },
+    {
+      "name": "Lexicon interpolation",
+      "scope": [
+        "variable.other.string-interpolation.lexicon",
+        "variable.other.string-interpolation.lex"
+      ],
+      "settings": {
+        "foreground": "#79C0FF",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon char literal",
+      "scope": [
+        "string.quoted.single.char.lexicon",
+        "string.quoted.single.char.lex"
+      ],
+      "settings": {
+        "foreground": "#A5D6FF",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Numbers",
+      "scope": [
+        "constant.numeric.lexicon",
+        "constant.numeric.lex"
+      ],
+      "settings": {
+        "foreground": "#79C0FF"
+      }
+    },
+    {
+      "name": "Lexicon hex/binary",
+      "scope": [
+        "constant.numeric.hex.lexicon",
+        "constant.numeric.binary.lexicon",
+        "constant.numeric.hex.lex",
+        "constant.numeric.binary.lex"
+      ],
+      "settings": {
+        "foreground": "#D2A8FF"
+      }
+    },
+    {
+      "name": "Custom Types (PascalCase)",
+      "scope": [
+        "entity.name.type.lexicon",
+        "entity.name.type.lex"
+      ],
+      "settings": {
+        "foreground": "#4FC1FF",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon type definitions",
+      "scope": [
+        "entity.name.type.definition.lexicon",
+        "entity.name.type.definition.lex"
+      ],
+      "settings": {
+        "foreground": "#4FC1FF",
+        "fontStyle": "bold underline"
+      }
+    },
+    {
+      "name": "Primitive Types",
+      "scope": [
+        "support.type.primitive.lexicon",
+        "support.type.primitive.lex"
+      ],
+      "settings": {
+        "foreground": "#569CD6"
+      }
+    },
+    {
+      "name": "Lexicon storage types",
+      "scope": [
+        "storage.type.primitive.lexicon",
+        "storage.type.string.lexicon",
+        "storage.type.collection.lexicon",
+        "storage.type.generic.lexicon",
+        "storage.type.primitive.lex",
+        "storage.type.string.lex",
+        "storage.type.collection.lex",
+        "storage.type.generic.lex"
+      ],
+      "settings": {
+        "foreground": "#569CD6"
+      }
+    },
+    {
+      "name": "Annotations/Decorators",
+      "scope": [
+        "entity.name.function.decorator.lexicon",
+        "entity.name.function.decorator.lex"
+      ],
+      "settings": {
+        "foreground": "#DCDCAA",
+        "fontStyle": "bold italic"
+      }
+    },
+    {
+      "name": "Lexicon cfg attributes",
+      "scope": [
+        "entity.name.attribute.cfg.lexicon",
+        "entity.name.attribute.lexicon",
+        "entity.name.attribute.cfg.lex",
+        "entity.name.attribute.lex"
+      ],
+      "settings": {
+        "foreground": "#DCDCAA",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Operators",
+      "scope": [
+        "keyword.operator.lexicon",
+        "keyword.operator.lex"
+      ],
+      "settings": {
+        "foreground": "#FF7B72"
+      }
+    },
+    {
+      "name": "Pipe Operator",
+      "scope": [
+        "keyword.operator.pipe.lexicon",
+        "keyword.operator.pipe.lex"
+      ],
+      "settings": {
+        "foreground": "#58A6FF",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon arrows/nullable",
+      "scope": [
+        "keyword.operator.arrow.lexicon",
+        "keyword.operator.range.lexicon",
+        "keyword.operator.nullable.lexicon",
+        "keyword.operator.comparison.lexicon",
+        "keyword.operator.arrow.lex",
+        "keyword.operator.range.lex",
+        "keyword.operator.nullable.lex",
+        "keyword.operator.comparison.lex"
+      ],
+      "settings": {
+        "foreground": "#FF7B72"
+      }
+    },
+    {
+      "name": "Lexicon path/member",
+      "scope": [
+        "keyword.operator.path.lexicon",
+        "keyword.operator.member.lexicon",
+        "entity.name.namespace.lexicon",
+        "keyword.operator.path.lex",
+        "keyword.operator.member.lex",
+        "entity.name.namespace.lex"
+      ],
+      "settings": {
+        "foreground": "#D2A8FF"
+      }
+    },
+    {
+      "name": "Lexicon params/props",
+      "scope": [
+        "variable.parameter.lexicon",
+        "variable.object.property.lexicon",
+        "variable.object.key.lexicon",
+        "variable.parameter.lex",
+        "variable.object.property.lex",
+        "variable.object.key.lex"
+      ],
+      "settings": {
+        "foreground": "#79C0FF",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Lexicon doc comments",
+      "scope": [
+        "comment.line.documentation.lexicon",
+        "comment.line.documentation.lex"
+      ],
+      "settings": {
+        "foreground": "#7EE787",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Lexicon escapes",
+      "scope": [
+        "constant.character.escape.lexicon",
+        "constant.character.escape.lex"
+      ],
+      "settings": {
+        "foreground": "#D2A8FF"
+      }
+    },
+    {
+      "name": "Lexicon booleans",
+      "scope": [
+        "constant.language.boolean.lexicon",
+        "constant.language.boolean.lex"
+      ],
+      "settings": {
+        "foreground": "#79C0FF",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon null",
+      "scope": [
+        "constant.language.null.lexicon",
+        "constant.language.null.lex"
+      ],
+      "settings": {
+        "foreground": "#FF7B72",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Lexicon integers/floats",
+      "scope": [
+        "constant.numeric.integer.lexicon",
+        "constant.numeric.float.lexicon",
+        "constant.numeric.float.exponent.lexicon",
+        "constant.numeric.integer.lex",
+        "constant.numeric.float.lex",
+        "constant.numeric.float.exponent.lex"
+      ],
+      "settings": {
+        "foreground": "#79C0FF"
+      }
+    },
+    {
+      "name": "Lexicon calls/methods",
+      "scope": [
+        "entity.name.function.call.lexicon",
+        "entity.name.function.method.lexicon",
+        "entity.name.function.call.lex",
+        "entity.name.function.method.lex"
+      ],
+      "settings": {
+        "foreground": "#D2A8FF"
+      }
+    },
+    {
+      "name": "Lexicon option/result constructors",
+      "scope": [
+        "entity.name.option.lexicon",
+        "entity.name.option.lex"
+      ],
+      "settings": {
+        "foreground": "#7EE787",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon http decorators",
+      "scope": [
+        "keyword.http.get.lexicon",
+        "keyword.http.post.lexicon",
+        "keyword.http.put.lexicon",
+        "keyword.http.delete.lexicon",
+        "keyword.http.patch.lexicon",
+        "keyword.http.test.lexicon",
+        "keyword.http.get.lex",
+        "keyword.http.post.lex",
+        "keyword.http.put.lex",
+        "keyword.http.delete.lex",
+        "keyword.http.patch.lex",
+        "keyword.http.test.lex"
+      ],
+      "settings": {
+        "foreground": "#D2A8FF",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon other keywords",
+      "scope": [
+        "keyword.other.lexicon",
+        "keyword.other.lex"
+      ],
+      "settings": {
+        "foreground": "#D2A8FF"
+      }
+    },
+    {
+      "name": "Lexicon operators",
+      "scope": [
+        "keyword.operator.arithmetic.lexicon",
+        "keyword.operator.assignment.lexicon",
+        "keyword.operator.bitwise.lexicon",
+        "keyword.operator.logical.lexicon",
+        "keyword.operator.closure.lexicon",
+        "keyword.operator.closure-arrow.lexicon",
+        "keyword.operator.spread.lexicon",
+        "keyword.operator.arithmetic.lex",
+        "keyword.operator.assignment.lex",
+        "keyword.operator.bitwise.lex",
+        "keyword.operator.logical.lex",
+        "keyword.operator.closure.lex",
+        "keyword.operator.closure-arrow.lex",
+        "keyword.operator.spread.lex"
+      ],
+      "settings": {
+        "foreground": "#FF7B72"
+      }
+    },
+    {
+      "name": "Lexicon self",
+      "scope": [
+        "variable.language.self.lexicon",
+        "variable.language.self.lex"
+      ],
+      "settings": {
+        "foreground": "#FF7B72",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Lexicon shorthand fields",
+      "scope": [
+        "variable.other.object.shorthand.lexicon",
+        "variable.other.object.shorthand.lex"
+      ],
+      "settings": {
+        "foreground": "#79C0FF",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Lexicon placeholder",
+      "scope": [
+        "variable.other.placeholder.lexicon",
+        "variable.other.placeholder.lex"
+      ],
+      "settings": {
+        "foreground": "#FFA657",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Lexicon premium comments base",
+      "scope": [
+        "comment",
+        "comment.line.double-slash.lexicon",
+        "comment.block.lexicon",
+        "punctuation.definition.comment.lexicon",
+        "punctuation.definition.comment.begin.lexicon",
+        "punctuation.definition.comment.end.lexicon",
+        "comment.line.double-slash.lex",
+        "comment.block.lex",
+        "punctuation.definition.comment.lex",
+        "punctuation.definition.comment.begin.lex",
+        "punctuation.definition.comment.end.lex"
+      ],
+      "settings": {
+        "foreground": "#8B949E",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Lexicon premium doc comments",
+      "scope": [
+        "comment.line.documentation.lexicon",
+        "comment.line.documentation.inner.lexicon",
+        "comment.block.documentation.lexicon",
+        "punctuation.definition.comment.documentation.lexicon",
+        "comment.line.documentation.lex",
+        "comment.line.documentation.inner.lex",
+        "comment.block.documentation.lex",
+        "punctuation.definition.comment.documentation.lex"
+      ],
+      "settings": {
+        "foreground": "#7EE787",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Lexicon premium region",
+      "scope": [
+        "comment.line.region.lexicon",
+        "meta.region.lexicon",
+        "comment.line.region.lex",
+        "meta.region.lex"
+      ],
+      "settings": {
+        "foreground": "#79C0FF",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon premium TODO",
+      "scope": [
+        "comment.line.todo.lexicon",
+        "comment.block.todo.lexicon",
+        "todo.lexicon",
+        "comment.line.todo.lex",
+        "comment.block.todo.lex",
+        "todo.lex"
+      ],
+      "settings": {
+        "foreground": "#FFA657",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon premium FIXME",
+      "scope": [
+        "comment.line.fixme.lexicon",
+        "comment.block.fixme.lexicon",
+        "fixme.lexicon",
+        "comment.line.fixme.lex",
+        "comment.block.fixme.lex",
+        "fixme.lex"
+      ],
+      "settings": {
+        "foreground": "#FF7B72",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon premium NOTE",
+      "scope": [
+        "comment.line.note.lexicon",
+        "comment.block.note.lexicon",
+        "note.lexicon",
+        "comment.line.note.lex",
+        "comment.block.note.lex",
+        "note.lex"
+      ],
+      "settings": {
+        "foreground": "#79C0FF"
+      }
+    },
+    {
+      "name": "Lexicon premium todo-colon",
+      "scope": [
+        "punctuation.separator.todo-colon.lexicon",
+        "comment.line.todo.colon.lexicon",
+        "comment.line.fixme.colon.lexicon",
+        "comment.line.note.colon.lexicon",
+        "punctuation.separator.todo-colon.lex",
+        "comment.line.todo.colon.lex",
+        "comment.line.fixme.colon.lex",
+        "comment.line.note.colon.lex"
+      ],
+      "settings": {
+        "foreground": "#8B949E",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon premium markers",
+      "scope": [
+        "keyword.other.documentation.marker.lexicon",
+        "keyword.other.documentation.marker.lex"
+      ],
+      "settings": {
+        "foreground": "#D2A8FF",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon premium URL",
+      "scope": [
+        "markup.underline.link.lexicon",
+        "markup.underline.link.lex"
+      ],
+      "settings": {
+        "foreground": "#79C0FF",
+        "fontStyle": "underline"
+      }
+    },
+    {
+      "name": "Lexicon premium inline code",
+      "scope": [
+        "markup.inline.raw.lexicon",
+        "markup.inline.raw.lex"
+      ],
+      "settings": {
+        "foreground": "#A5D6FF",
+        "background": "#21262D"
+      }
+    }
+  ],
+  "semanticTokenColors": {
+    "function": "#79C0FF",
+    "variable": "#C9D1D9",
+    "parameter": "#79C0FF",
+    "property": "#79C0FF",
+    "namespace": "#D2A8FF",
+    "type": "#4FC1FF",
+    "decorator": "#DCDCAA",
+    "comment": "#8B949E"
+  },
+  "semanticHighlighting": true
 }

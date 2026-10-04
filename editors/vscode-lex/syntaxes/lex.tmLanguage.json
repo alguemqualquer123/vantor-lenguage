@@ -1,0 +1,73 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Lex",
+  "scopeName": "source.lex",
+  "fileTypes": ["lex"],
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#decorators" },
+    { "include": "#keywords" },
+    { "include": "#declarations" },
+    { "include": "#numbers" },
+    { "include": "#module-paths" },
+    { "include": "#types" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        { "name": "comment.line.double-slash.lex", "match": "//.*$" },
+        { "name": "comment.block.lex", "begin": "/\\*", "end": "\\*/" }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.lex",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            { "name": "constant.character.escape.lex", "match": "\\\\(\\\\|\"|n|t|r|0)" },
+            { "name": "meta.interpolation.lex", "match": "\\{[^\\}]*\\}" }
+          ]
+        }
+      ]
+    },
+    "decorators": {
+      "patterns": [
+        { "name": "entity.name.function.decorator.lex", "match": "@[A-Za-z_][A-Za-z0-9_]*" }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        { "name": "keyword.control.lex", "match": "\\b(fn|return|if|else|match|for|while|loop|break|continue|defer|in|switch|case|default|do|throw|try|catch|finally|with|yield|await|async|spawn|select|task)\\b" },
+        { "name": "keyword.declaration.lex", "match": "\\b(let|var|const|static|mut|pub|private|protected|struct|enum|class|interface|trait|impl|type|import|module|service|new|as|is|where|ref|self|super|crate|extern|unsafe|native|macro|derive|actor|effect)\\b" },
+        { "name": "constant.language.lex", "match": "\\b(true|false|null|None|Some|Self)\\b" }
+      ]
+    },
+    "declarations": {
+      "patterns": [
+        { "name": "meta.function.lex", "begin": "\\b(fn)\\s+([A-Za-z_][A-Za-z0-9_]*)", "beginCaptures": { "1": { "name": "keyword.declaration.lex" }, "2": { "name": "entity.name.function.lex" } }, "end": "(?=\\(|$)", "patterns": [{ "include": "#comments" }] },
+        { "name": "meta.type.lex", "match": "\\b(struct|enum|class|interface|trait|type)\\s+([A-Za-z_][A-Za-z0-9_]*)", "captures": { "1": { "name": "keyword.declaration.lex" }, "2": { "name": "entity.name.type.lex" } } }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        { "name": "constant.numeric.float.lex", "match": "\\b\\d[\\d_]*\\.\\d[\\d_]*(f32|f64)?\\b" },
+        { "name": "constant.numeric.integer.lex", "match": "\\b\\d[\\d_]*(i8|i16|i32|i64|i128|u8|u16|u32|u64|u128)?\\b" }
+      ]
+    },
+    "module-paths": {
+      "patterns": [
+        { "name": "entity.name.namespace.lex", "match": "\\b(std|[A-Z][A-Za-z0-9_]*)::" },
+        { "name": "support.function.lex", "match": "(?:::|\\.)[a-z_][A-Za-z0-9_]*(?=\\()" }
+      ]
+    },
+    "types": {
+      "patterns": [
+        { "name": "entity.name.type.lex", "match": "\\b[A-Z][A-Za-z0-9_]*\\b" },
+        { "name": "storage.type.lex", "match": "\\b(i8|i16|i32|i64|i128|u8|u16|u32|u64|u128|f32|f64|bool|char|String|Dynamic|void)\\b" }
+      ]
+    }
+  }
+}

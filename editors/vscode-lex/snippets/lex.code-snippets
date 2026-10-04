@@ -1,0 +1,126 @@
+{
+  "Lex main": {
+    "prefix": ["main", "fn main"],
+    "body": ["pub fn main() -> void {", "\t$0", "}"],
+    "description": "Lex program entry point"
+  },
+  "Lex function": {
+    "prefix": ["fn"],
+    "body": ["pub fn ${1:name}() -> ${2:void} {", "\t$0", "}"],
+    "description": "Lex function declaration"
+  },
+  "Lex HTTP endpoint": {
+    "prefix": ["@Get", "endpoint", "route"],
+    "body": [
+      "@${1|Get,Post,Put,Delete|}(\"${2:/}\")",
+      "pub fn ${3:handler}() -> String {",
+      "\treturn \"${4:ok}\";",
+      "}",
+      "",
+      "pub fn main() -> void {",
+      "\tHttp::serve(\"0.0.0.0:3000\");",
+      "}"
+    ],
+    "description": "Lex HTTP endpoint served by the real server"
+  },
+  "Lex serve": {
+    "prefix": ["serve", "Http::serve"],
+    "body": ["Http::serve(\"0.0.0.0:${1:3000}\");"],
+    "description": "Start the real Lex HTTP server"
+  },
+  "Lex match": {
+    "prefix": ["match"],
+    "body": ["match ${1:x} {", "\t$0", "}"],
+    "description": "Exhaustive pattern match"
+  },
+  "Lex struct": {
+    "prefix": ["struct"],
+    "body": ["struct ${1:Name} {", "\t$0", "}"],
+    "description": "Lex struct declaration"
+  },
+  "Lex test": {
+    "prefix": ["@Test", "test"],
+    "body": ["@Test", "pub fn ${1:test_}() -> bool {", "\treturn $0;", "}"],
+    "description": "Test discovered by lex test"
+  },
+  "Lex Http get": {
+    "prefix": ["Http::get", "fetch"],
+    "body": ["Http::get(\"${1:https://…}\")"],
+    "description": "Blocking HTTP GET at runtime"
+  },
+  "Lex Json parse": {
+    "prefix": ["Json::parse"],
+    "body": ["Json::parse(\"${1:{…}}\")"],
+    "description": "Parse JSON at runtime"
+  },
+  "Lex print": {
+    "prefix": ["print", "Console::writeLine"],
+    "body": ["Console::writeLine(\"${1:…}\");"],
+    "description": "Print a line to stdout"
+  },
+  "Lex import std": {
+    "prefix": ["import std", "use std"],
+    "body": ["import std::${1:strings};"],
+    "description": "Import a standard-library package (key = last segment)"
+  },
+  "Lex lambda": {
+    "prefix": ["lambda", "|x|"],
+    "body": ["|${1:x}| ${2:x}"],
+    "description": "First-class lambda (captures environment)"
+  },
+  "Lex assert": {
+    "prefix": ["assert"],
+    "body": ["assert(${1:cond}, \"${2:msg}\");"],
+    "description": "Runtime assertion (fails the run)"
+  },
+  "Lex let": {
+    "prefix": ["let"],
+    "body": ["let ${1:name} = ${2:value};"],
+    "description": "Immutable binding (also var, const)"
+  },
+  "Lex for": {
+    "prefix": ["for"],
+    "body": ["for ${1:x} in ${2:xs} {", "\t$0", "}"],
+    "description": "Iteration (also while, loop)"
+  },
+  "Lex errors::New": {
+    "prefix": ["errors::New", "new error"],
+    "body": ["import std::errors;", "", "errors::New(\"${1:…}\")"],
+    "description": "Go-parity error value"
+  },
+  "Lex strings import": {
+    "prefix": ["import strings"],
+    "body": ["import std::strings;"],
+    "description": "Go-parity string helpers"
+  },
+  "Lex math import": {
+    "prefix": ["import math"],
+    "body": ["import std::math;"],
+    "description": "Native float64 math + Pi/E consts"
+  },
+  "Lex json roundtrip": {
+    "prefix": ["json::", "Marshal"],
+    "body": ["import std::encoding::json;", "", "Json::serialize(${1:value})"],
+    "description": "Native JSON serialize (Json::parse/valid)"
+  },
+  "Lex time now": {
+    "prefix": ["time::Now", "Now()"],
+    "body": ["import std::time;", "", "time::Now()"],
+    "description": "Current instant (Format/ParseDate/Sleep)"
+  },
+  "Lex heap": {
+    "prefix": ["heap::New"],
+    "body": ["import std::container::heap;", "", "let ${1:h} = heap::New(|a, b| a < b);"],
+    "description": "Min-heap with lambda comparator"
+  },
+  "Lex regexp match": {
+    "prefix": ["regexp::Match"],
+    "body": ["import std::regexp;", "", "regexp::Match(\"${1:pattern}\", ${2:s})"],
+    "description": "Documented-subset regex match"
+  },
+  "Lex sha256": {
+    "prefix": ["sha256::Sum"],
+    "body": ["import std::crypto::sha256;", "", "sha256::Sum(${1:s})"],
+    "description": "SHA-256 hex digest (FIPS vectors)"
+  }
+}

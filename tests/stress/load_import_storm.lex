@@ -1,0 +1,53 @@
+// load_import_storm — loader breadth: 24 packages, one call each.
+import std::strings;
+import std::strconv;
+import std::math;
+import std::sort;
+import std::slices;
+import std::errors;
+import std::path;
+import std::fmt;
+import std::time;
+import std::bytes;
+import std::maps;
+import std::cmp;
+import std::iter;
+import std::os;
+import std::sync;
+import std::context;
+import std::log;
+import std::rand;
+import std::regexp;
+import std::html;
+import std::mime;
+import std::slog;
+import std::flag;
+import std::unicode::utf8;
+
+pub fn main() -> void {
+    assert(strings::ToUpper("a") == "A", "strings");
+    assert(strconv::Itoa(1) == "1", "strconv");
+    assert(math::Sqrt(4.0) == 2.0, "math");
+    assert(sort::Ints([2, 1])[0] == 1, "sort");
+    assert(slices::Contains([1], 1), "slices");
+    assert(errors::Is(errors::New("x"), errors::New("x")), "errors");
+    assert(path::Base("a/b") == "b", "path");
+    assert(time::UnixMilliOf(time::Unix(0)) == 0, "time");
+    assert(bytes::Equal(bytes::FromString("a"), bytes::FromString("a")), "bytes");
+    assert(maps::Len(maps::New()) == 0, "maps");
+    assert(cmp::CompareInt(1, 2) == -1, "cmp");
+    assert(iter::Take([1, 2], 1)[0] == 1, "iter");
+    assert(os::Getenv("LEX_DEFINITELY_MISSING_XYZ") == "", "os");
+    assert(sync::NewMutex().locked == false, "sync");
+    assert(!context::Done(context::Background()), "context");
+    assert(rand::Intn(1) == 0, "rand");
+    assert(regexp::Match("a", "a"), "regexp");
+    assert(html::EscapeString("<") == "&lt;", "html");
+    assert(mime::TypeByExtension(".json") == "application/json", "mime");
+    assert(utf8::RuneCount("ab") == 2, "utf8");
+    log::Print(["storm"]);
+    slog::Inf("storm");
+    flag::String("s", "d", "u");
+    fmt::Print([""]);
+    return;
+}

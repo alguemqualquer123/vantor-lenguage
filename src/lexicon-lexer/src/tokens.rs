@@ -28,6 +28,10 @@ pub enum Token {
     If,
     Else,
     Match,
+    Switch,
+    Case,
+    Default,
+    Do,
     For,
     While,
     Loop,
@@ -53,6 +57,8 @@ pub enum Token {
     Extern,
     Inline,
     Native,
+    Panic,
+    Recover,
     True,
     False,
     Null,
@@ -68,6 +74,7 @@ pub enum Token {
     Dynamic,
     Function,
     At,
+    DotDotDot,
     DotDot,
     DotDotEq,
     Hash,
@@ -157,6 +164,10 @@ impl Token {
                 | Token::If
                 | Token::Else
                 | Token::Match
+                | Token::Switch
+                | Token::Case
+                | Token::Default
+                | Token::Do
                 | Token::For
                 | Token::While
                 | Token::Loop
@@ -236,6 +247,10 @@ impl Token {
             "if" => Some(Token::If),
             "else" => Some(Token::Else),
             "match" => Some(Token::Match),
+            "switch" => Some(Token::Switch),
+            "case" => Some(Token::Case),
+            "default" => Some(Token::Default),
+            "do" => Some(Token::Do),
             "for" => Some(Token::For),
             "while" => Some(Token::While),
             "loop" => Some(Token::Loop),
@@ -262,6 +277,8 @@ impl Token {
             "extern" => Some(Token::Extern),
             "inline" => Some(Token::Inline),
             "native" => Some(Token::Native),
+            "panic" => Some(Token::Panic),
+            "recover" => Some(Token::Recover),
             "true" => Some(Token::True),
             "false" => Some(Token::False),
             "null" => Some(Token::Null),

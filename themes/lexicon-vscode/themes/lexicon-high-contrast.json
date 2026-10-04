@@ -1,0 +1,854 @@
+{
+  "name": "Lexicon High Contrast",
+  "type": "hc-black",
+  "colors": {
+    "editor.background": "#000000",
+    "editor.foreground": "#FFFFFF",
+    "editor.lineHighlightBackground": "#1A1A1A",
+    "editorLineNumber.foreground": "#A6A6A6",
+    "editorLineNumber.activeForeground": "#FFFFFF",
+    "editorCursor.foreground": "#FFFF00",
+    "editor.selectionBackground": "#264F78",
+    "editor.inactiveSelectionBackground": "#1A1A1A",
+    "editor.findMatchBackground": "#FFFF00",
+    "editor.findMatchHighlightBackground": "#FFFF0080",
+    "editorWidget.background": "#000000",
+    "editorWidget.border": "#FFFFFF",
+    "editorSuggestWidget.background": "#000000",
+    "editorSuggestWidget.border": "#FFFFFF",
+    "editorSuggestWidget.selectedBackground": "#264F78",
+    "editorHoverWidget.background": "#000000",
+    "editorHoverWidget.border": "#FFFFFF",
+    "activityBar.background": "#000000",
+    "activityBar.foreground": "#FFFFFF",
+    "activityBar.activeBackground": "#1A1A1A",
+    "activityBar.activeForeground": "#FFFF00",
+    "activityBarBadge.background": "#FFFF00",
+    "activityBarBadge.foreground": "#000000",
+    "sideBar.background": "#000000",
+    "sideBar.foreground": "#FFFFFF",
+    "sideBarSectionHeader.background": "#000000",
+    "sideBarSectionHeader.foreground": "#FFFFFF",
+    "sideBarTitle.foreground": "#FFFFFF",
+    "statusBar.background": "#000000",
+    "statusBar.foreground": "#FFFFFF",
+    "statusBar.noFolderBackground": "#000000",
+    "statusBar.debuggingBackground": "#FF0000",
+    "statusBar.debuggingForeground": "#FFFFFF",
+    "statusBarItem.activeBackground": "#1A1A1A",
+    "statusBarItem.hoverBackground": "#1A1A1A",
+    "statusBarItem.prominentBackground": "#FFFF00",
+    "statusBarItem.prominentHoverBackground": "#FFFF00",
+    "panel.background": "#000000",
+    "panel.border": "#FFFFFF",
+    "panelTitle.activeBorder": "#FFFF00",
+    "panelTitle.inactiveForeground": "#A6A6A6",
+    "terminal.background": "#000000",
+    "terminal.foreground": "#FFFFFF",
+    "terminal.ansiBlack": "#000000",
+    "terminal.ansiRed": "#FF6B6B",
+    "terminal.ansiGreen": "#00FF00",
+    "terminal.ansiYellow": "#FFFF00",
+    "terminal.ansiBlue": "#66D9FF",
+    "terminal.ansiMagenta": "#FF00FF",
+    "terminal.ansiCyan": "#00FFFF",
+    "terminal.ansiWhite": "#FFFFFF",
+    "terminal.ansiBrightBlack": "#A6A6A6",
+    "terminal.ansiBrightRed": "#FF6B6B",
+    "terminal.ansiBrightGreen": "#00FF00",
+    "terminal.ansiBrightYellow": "#FFFF00",
+    "terminal.ansiBrightBlue": "#66D9FF",
+    "terminal.ansiBrightMagenta": "#FF00FF",
+    "terminal.ansiBrightCyan": "#00FFFF",
+    "terminal.ansiBrightWhite": "#FFFFFF",
+    "terminalCursor.background": "#000000",
+    "terminalCursor.foreground": "#FFFF00",
+    "titleBar.activeBackground": "#000000",
+    "titleBar.activeForeground": "#FFFFFF",
+    "titleBar.inactiveBackground": "#000000",
+    "titleBar.inactiveForeground": "#A6A6A6",
+    "titleBar.border": "#FFFFFF",
+    "menu.background": "#000000",
+    "menu.foreground": "#FFFFFF",
+    "menu.selectionBackground": "#264F78",
+    "menu.selectionForeground": "#FFFFFF",
+    "input.background": "#000000",
+    "input.border": "#FFFFFF",
+    "input.foreground": "#FFFFFF",
+    "input.placeholderForeground": "#A6A6A6",
+    "inputValidation.infoBackground": "#000000",
+    "inputValidation.infoBorder": "#00FFFF",
+    "inputValidation.warningBackground": "#000000",
+    "inputValidation.warningBorder": "#FFFF00",
+    "inputValidation.errorBackground": "#000000",
+    "inputValidation.errorBorder": "#FF6B6B",
+    "editorIndentGuide.background": "#3A3A3A",
+    "editorIndentGuide.activeBackground": "#FFFFFF",
+    "editorWhitespace.foreground": "#3A3A3A",
+    "editorBracketMatch.background": "#FFFF0040",
+    "editorBracketMatch.border": "#FFFF00",
+    "editorGutter.background": "#000000",
+    "editorGutter.modifiedBackground": "#FFFF00",
+    "editorGutter.addedBackground": "#00FF00",
+    "editorGutter.deletedBackground": "#FF6B6B",
+    "editor.wordHighlightBackground": "#FFFF0040",
+    "editor.wordHighlightStrongBackground": "#FF00FF40",
+    "editorLink.activeForeground": "#00FFFF",
+    "list.activeSelectionBackground": "#264F78",
+    "list.activeSelectionForeground": "#FFFFFF",
+    "list.hoverBackground": "#1A1A1A",
+    "list.focusBackground": "#264F78",
+    "list.focusOutline": "#FFFF00",
+    "list.highlightForeground": "#FFFF00",
+    "notifications.background": "#000000",
+    "notifications.border": "#FFFFFF",
+    "peekView.border": "#FFFF00",
+    "peekViewEditor.background": "#000000",
+    "peekViewResult.background": "#000000",
+    "peekViewTitle.background": "#000000",
+    "debugToolBar.background": "#000000",
+    "debugToolBar.border": "#FFFFFF",
+    "debugConsole.infoForeground": "#00FFFF",
+    "debugConsole.warningForeground": "#FFFF00",
+    "debugConsole.errorForeground": "#FF6B6B",
+    "scrollbarSlider.background": "#FFFFFF80",
+    "scrollbarSlider.hoverBackground": "#FFFFFFA0",
+    "minimap.background": "#000000"
+  },
+  "tokenColors": [
+    {
+      "name": "Lexicon HC keywords",
+      "scope": [
+        "keyword",
+        "storage.type",
+        "storage.modifier",
+        "support.type.primitive"
+      ],
+      "settings": {
+        "foreground": "#FFFF00",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon HC control flow",
+      "scope": [
+        "keyword.control",
+        "keyword.operator"
+      ],
+      "settings": {
+        "foreground": "#FFFF00",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon HC functions",
+      "scope": [
+        "entity.name.function",
+        "support.function",
+        "meta.function-call",
+        "meta.function",
+        "entity.name.function.member"
+      ],
+      "settings": {
+        "foreground": "#00FF00"
+      }
+    },
+    {
+      "name": "Lexicon HC variables",
+      "scope": [
+        "variable",
+        "meta.definition.variable",
+        "support.variable",
+        "variable.other.readwrite",
+        "variable.other.field",
+        "variable.other.property",
+        "entity.name.variable"
+      ],
+      "settings": {
+        "foreground": "#FFFFFF"
+      }
+    },
+    {
+      "name": "Lexicon HC parameters",
+      "scope": [
+        "variable.parameter",
+        "meta.definition.parameter"
+      ],
+      "settings": {
+        "foreground": "#FFFFFF",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Lexicon HC constants",
+      "scope": [
+        "variable.other.readonly",
+        "variable.other.constant",
+        "constant.other",
+        "constant.language"
+      ],
+      "settings": {
+        "foreground": "#00FFFF",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Lexicon HC types",
+      "scope": [
+        "entity.name.type",
+        "entity.name.class",
+        "entity.name.struct",
+        "entity.name.enum",
+        "entity.name.interface",
+        "entity.name.union",
+        "support.class",
+        "support.type"
+      ],
+      "settings": {
+        "foreground": "#FFFF00",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon HC primitive types",
+      "scope": [
+        "entity.name.type.primitive",
+        "storage.type.primitive"
+      ],
+      "settings": {
+        "foreground": "#FFFF00"
+      }
+    },
+    {
+      "name": "Lexicon HC namespaces",
+      "scope": [
+        "entity.name.namespace",
+        "entity.name.package",
+        "entity.name.module"
+      ],
+      "settings": {
+        "foreground": "#00FFFF",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon HC strings",
+      "scope": [
+        "string",
+        "string.quoted",
+        "string.template",
+        "string.tag",
+        "string.value",
+        "string.regexp",
+        "string.quoted.single",
+        "string.quoted.double"
+      ],
+      "settings": {
+        "foreground": "#00FFFF"
+      }
+    },
+    {
+      "name": "Lexicon HC escapes",
+      "scope": [
+        "string.escape",
+        "constant.character.escape"
+      ],
+      "settings": {
+        "foreground": "#FFFF00"
+      }
+    },
+    {
+      "name": "Lexicon HC numbers/booleans",
+      "scope": [
+        "number",
+        "constant.numeric",
+        "constant.decimal",
+        "constant.hex",
+        "boolean"
+      ],
+      "settings": {
+        "foreground": "#FFA500"
+      }
+    },
+    {
+      "name": "Lexicon HC null",
+      "scope": [
+        "null",
+        "constant.language.null"
+      ],
+      "settings": {
+        "foreground": "#FF6B6B",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon HC comments",
+      "scope": [
+        "comment",
+        "punctuation.definition.comment"
+      ],
+      "settings": {
+        "foreground": "#A6A6A6",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Lexicon HC decorators",
+      "scope": [
+        "meta.decorator",
+        "decorator",
+        "annotation",
+        "meta.annotation"
+      ],
+      "settings": {
+        "foreground": "#FF00FF",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon HC punctuation/operators",
+      "scope": [
+        "punctuation",
+        "operator"
+      ],
+      "settings": {
+        "foreground": "#FFFFFF"
+      }
+    },
+    {
+      "name": "Lexicon HC invalid",
+      "scope": [
+        "invalid",
+        "invalid.deprecated"
+      ],
+      "settings": {
+        "foreground": "#FFFFFF",
+        "background": "#FF0000",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon HC lex keywords",
+      "scope": [
+        "keyword.lex",
+        "keyword.lexicon",
+        "storage.modifier.lex",
+        "storage.type.lex",
+        "keyword.control.lex",
+        "keyword.control.flow.lex",
+        "storage.modifier.access.lex",
+        "storage.modifier.lexicon",
+        "storage.type.lexicon",
+        "keyword.control.lexicon",
+        "keyword.control.flow.lexicon",
+        "storage.modifier.access.lexicon"
+      ],
+      "settings": {
+        "foreground": "#FFFF00",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon HC lex functions",
+      "scope": [
+        "entity.name.function.lex",
+        "entity.name.function.lexicon",
+        "entity.name.function.call.lexicon",
+        "entity.name.function.method.lexicon",
+        "entity.name.function.definition.lexicon",
+        "entity.name.function.definition.async.lexicon",
+        "meta.function.lex",
+        "support.function.builtin.lexicon",
+        "support.function.builtin.print.lexicon",
+        "support.function.builtin.panic.lexicon",
+        "entity.name.function.call.lex",
+        "entity.name.function.method.lex",
+        "entity.name.function.definition.lex",
+        "entity.name.function.definition.async.lex",
+        "meta.function.lexicon",
+        "support.function.builtin.lex",
+        "support.function.builtin.print.lex",
+        "support.function.builtin.panic.lex"
+      ],
+      "settings": {
+        "foreground": "#00FF00",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon HC lex types",
+      "scope": [
+        "entity.name.type.lex",
+        "entity.name.type.lexicon",
+        "entity.name.class.lex",
+        "entity.name.struct.lex",
+        "entity.name.enum.lex",
+        "entity.name.interface.lex",
+        "support.type.lex",
+        "support.type.primitive.lexicon",
+        "storage.type.primitive.lex",
+        "storage.type.primitive.lexicon",
+        "storage.type.generic.lexicon",
+        "storage.type.collection.lexicon",
+        "storage.type.string.lexicon",
+        "entity.name.type.definition.lexicon",
+        "support.class.collections.lexicon",
+        "entity.name.option.lexicon",
+        "entity.name.result.lexicon",
+        "entity.name.trait.lexicon",
+        "entity.name.impl.lexicon",
+        "entity.name.class.lexicon",
+        "entity.name.struct.lexicon",
+        "entity.name.enum.lexicon",
+        "entity.name.interface.lexicon",
+        "support.type.lexicon",
+        "support.type.primitive.lex",
+        "storage.type.generic.lex",
+        "storage.type.collection.lex",
+        "storage.type.string.lex",
+        "entity.name.type.definition.lex",
+        "support.class.collections.lex",
+        "entity.name.option.lex",
+        "entity.name.result.lex",
+        "entity.name.trait.lex",
+        "entity.name.impl.lex"
+      ],
+      "settings": {
+        "foreground": "#FFFF00",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon HC lex variables/params",
+      "scope": [
+        "variable.lex",
+        "variable.parameter.lex",
+        "variable.parameter.lexicon",
+        "meta.definition.variable.lex",
+        "variable.object.property.lexicon",
+        "variable.object.key.lexicon",
+        "variable.other.object.shorthand.lexicon",
+        "variable.language.self.lexicon",
+        "variable.language.lexicon",
+        "variable.lexicon",
+        "meta.definition.variable.lexicon",
+        "variable.object.property.lex",
+        "variable.object.key.lex",
+        "variable.other.object.shorthand.lex",
+        "variable.language.self.lex",
+        "variable.language.lex"
+      ],
+      "settings": {
+        "foreground": "#FFFFFF"
+      }
+    },
+    {
+      "name": "Lexicon HC lex readonly",
+      "scope": [
+        "variable.other.readonly.lex",
+        "variable.other.constant.lex",
+        "constant.language.null.lexicon",
+        "constant.language.none.lexicon",
+        "constant.language.boolean.lexicon",
+        "variable.other.readonly.lexicon",
+        "variable.other.constant.lexicon",
+        "constant.language.null.lex",
+        "constant.language.none.lex",
+        "constant.language.boolean.lex"
+      ],
+      "settings": {
+        "foreground": "#00FFFF"
+      }
+    },
+    {
+      "name": "Lexicon HC lex strings/numbers",
+      "scope": [
+        "string.lex",
+        "string.quoted.lex",
+        "string.quoted.double.lexicon",
+        "variable.other.string-interpolation.lexicon",
+        "variable.other.placeholder.lexicon",
+        "string.lexicon",
+        "string.quoted.lexicon",
+        "string.quoted.double.lex",
+        "variable.other.string-interpolation.lex",
+        "variable.other.placeholder.lex"
+      ],
+      "settings": {
+        "foreground": "#00FFFF"
+      }
+    },
+    {
+      "name": "Lexicon HC lex numerics",
+      "scope": [
+        "number.lex",
+        "constant.numeric.lex",
+        "constant.numeric.integer.lexicon",
+        "constant.numeric.float.lexicon",
+        "constant.numeric.float.exponent.lexicon",
+        "constant.numeric.hex.lexicon",
+        "constant.numeric.binary.lexicon",
+        "number.lexicon",
+        "constant.numeric.lexicon",
+        "constant.numeric.integer.lex",
+        "constant.numeric.float.lex",
+        "constant.numeric.float.exponent.lex",
+        "constant.numeric.hex.lex",
+        "constant.numeric.binary.lex"
+      ],
+      "settings": {
+        "foreground": "#FFA500"
+      }
+    },
+    {
+      "name": "Lexicon HC lex comments",
+      "scope": [
+        "comment.lex",
+        "comment.line.documentation.lexicon",
+        "punctuation.definition.comment.lex",
+        "comment.lexicon",
+        "comment.line.documentation.lex",
+        "punctuation.definition.comment.lexicon"
+      ],
+      "settings": {
+        "foreground": "#A6A6A6",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Lexicon HC lex decorators/http",
+      "scope": [
+        "meta.decorator.lex",
+        "decorator.lex",
+        "entity.name.function.decorator.lexicon",
+        "keyword.http.get.lexicon",
+        "keyword.http.post.lexicon",
+        "keyword.http.put.lexicon",
+        "keyword.http.delete.lexicon",
+        "keyword.http.patch.lexicon",
+        "keyword.http.test.lexicon",
+        "entity.name.attribute.lexicon",
+        "entity.name.attribute.cfg.lexicon",
+        "meta.decorator.lexicon",
+        "decorator.lexicon",
+        "entity.name.function.decorator.lex",
+        "keyword.http.get.lex",
+        "keyword.http.post.lex",
+        "keyword.http.put.lex",
+        "keyword.http.delete.lex",
+        "keyword.http.patch.lex",
+        "keyword.http.test.lex",
+        "entity.name.attribute.lex",
+        "entity.name.attribute.cfg.lex"
+      ],
+      "settings": {
+        "foreground": "#FF00FF",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon HC lex namespaces/modules",
+      "scope": [
+        "entity.name.namespace.lex",
+        "entity.name.namespace.lexicon",
+        "entity.name.package.lex",
+        "entity.name.module.lex",
+        "keyword.module.lexicon",
+        "keyword.import.lexicon",
+        "namespace.lexicon",
+        "entity.name.package.lexicon",
+        "entity.name.module.lexicon",
+        "keyword.module.lex",
+        "keyword.import.lex",
+        "namespace.lex"
+      ],
+      "settings": {
+        "foreground": "#00FFFF",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon HC lex operators",
+      "scope": [
+        "punctuation.lex",
+        "operator.lex",
+        "keyword.operator.pipe.lexicon",
+        "keyword.operator.arrow.lexicon",
+        "keyword.operator.range.lexicon",
+        "keyword.operator.spread.lexicon",
+        "keyword.operator.closure.lexicon",
+        "keyword.operator.closure-arrow.lexicon",
+        "keyword.operator.comparison.lexicon",
+        "keyword.operator.logical.lexicon",
+        "keyword.operator.bitwise.lexicon",
+        "keyword.operator.arithmetic.lexicon",
+        "keyword.operator.assignment.lexicon",
+        "keyword.operator.path.lexicon",
+        "keyword.operator.member.lexicon",
+        "keyword.operator.nullable.lexicon",
+        "keyword.async.lexicon",
+        "keyword.await.lexicon",
+        "keyword.other.await.lex",
+        "keyword.match.lexicon",
+        "pattern.match.lexicon",
+        "keyword.cast.lexicon",
+        "keyword.module.lexicon",
+        "closure.lexicon",
+        "lambda.lexicon",
+        "storage.modifier.mut.lexicon",
+        "storage.modifier.static.lexicon",
+        "keyword.trycatch.lexicon",
+        "keyword.throw.lexicon",
+        "keyword.exception.lexicon",
+        "keyword.constructor.lexicon",
+        "keyword.control.conditional.lexicon",
+        "keyword.control.loop.lexicon",
+        "keyword.control.flow.lexicon",
+        "keyword.declaration.function.lexicon",
+        "keyword.declaration.type.lexicon",
+        "keyword.declaration.variable.lexicon",
+        "keyword.modifier.visibility.lexicon",
+        "keyword.modifier.async.lexicon",
+        "keyword.modifier.unsafe.lexicon",
+        "keyword.other.lexicon",
+        "entity.name.enum.variant.lexicon",
+        "punctuation.lexicon",
+        "operator.lexicon",
+        "keyword.operator.pipe.lex",
+        "keyword.operator.arrow.lex",
+        "keyword.operator.range.lex",
+        "keyword.operator.spread.lex",
+        "keyword.operator.closure.lex",
+        "keyword.operator.closure-arrow.lex",
+        "keyword.operator.comparison.lex",
+        "keyword.operator.logical.lex",
+        "keyword.operator.bitwise.lex",
+        "keyword.operator.arithmetic.lex",
+        "keyword.operator.assignment.lex",
+        "keyword.operator.path.lex",
+        "keyword.operator.member.lex",
+        "keyword.operator.nullable.lex",
+        "keyword.async.lex",
+        "keyword.await.lex",
+        "keyword.other.await.lexicon",
+        "keyword.match.lex",
+        "pattern.match.lex",
+        "keyword.cast.lex",
+        "keyword.module.lex",
+        "closure.lex",
+        "lambda.lex",
+        "storage.modifier.mut.lex",
+        "storage.modifier.static.lex",
+        "keyword.trycatch.lex",
+        "keyword.throw.lex",
+        "keyword.exception.lex",
+        "keyword.constructor.lex",
+        "keyword.control.conditional.lex",
+        "keyword.control.loop.lex",
+        "keyword.control.flow.lex",
+        "keyword.declaration.function.lex",
+        "keyword.declaration.type.lex",
+        "keyword.declaration.variable.lex",
+        "keyword.modifier.visibility.lex",
+        "keyword.modifier.async.lex",
+        "keyword.modifier.unsafe.lex",
+        "keyword.other.lex",
+        "entity.name.enum.variant.lex"
+      ],
+      "settings": {
+        "foreground": "#FFFF00"
+      }
+    },
+    {
+      "name": "Lexicon HC lex char literal",
+      "scope": [
+        "string.quoted.single.char.lexicon",
+        "string.quoted.single.char.lex"
+      ],
+      "settings": {
+        "foreground": "#00FFFF",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Lexicon premium comments base",
+      "scope": [
+        "comment",
+        "comment.line.double-slash.lexicon",
+        "comment.block.lexicon",
+        "punctuation.definition.comment.lexicon",
+        "punctuation.definition.comment.begin.lexicon",
+        "punctuation.definition.comment.end.lexicon",
+        "comment.line.double-slash.lex",
+        "comment.block.lex",
+        "punctuation.definition.comment.lex",
+        "punctuation.definition.comment.begin.lex",
+        "punctuation.definition.comment.end.lex"
+      ],
+      "settings": {
+        "foreground": "#A6A6A6",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Lexicon premium doc comments",
+      "scope": [
+        "comment.line.documentation.lexicon",
+        "comment.line.documentation.inner.lexicon",
+        "comment.block.documentation.lexicon",
+        "punctuation.definition.comment.documentation.lexicon",
+        "comment.line.documentation.lex",
+        "comment.line.documentation.inner.lex",
+        "comment.block.documentation.lex",
+        "punctuation.definition.comment.documentation.lex"
+      ],
+      "settings": {
+        "foreground": "#00FF00",
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "name": "Lexicon premium region",
+      "scope": [
+        "comment.line.region.lexicon",
+        "meta.region.lexicon",
+        "comment.line.region.lex",
+        "meta.region.lex"
+      ],
+      "settings": {
+        "foreground": "#00FFFF",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon premium TODO",
+      "scope": [
+        "comment.line.todo.lexicon",
+        "comment.block.todo.lexicon",
+        "todo.lexicon",
+        "comment.line.todo.lex",
+        "comment.block.todo.lex",
+        "todo.lex"
+      ],
+      "settings": {
+        "foreground": "#FFFF00",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon premium FIXME",
+      "scope": [
+        "comment.line.fixme.lexicon",
+        "comment.block.fixme.lexicon",
+        "fixme.lexicon",
+        "comment.line.fixme.lex",
+        "comment.block.fixme.lex",
+        "fixme.lex"
+      ],
+      "settings": {
+        "foreground": "#FFFFFF",
+        "background": "#FF0000",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon premium NOTE",
+      "scope": [
+        "comment.line.note.lexicon",
+        "comment.block.note.lexicon",
+        "note.lexicon",
+        "comment.line.note.lex",
+        "comment.block.note.lex",
+        "note.lex"
+      ],
+      "settings": {
+        "foreground": "#00FFFF"
+      }
+    },
+    {
+      "name": "Lexicon premium todo-colon",
+      "scope": [
+        "punctuation.separator.todo-colon.lexicon",
+        "comment.line.todo.colon.lexicon",
+        "comment.line.fixme.colon.lexicon",
+        "comment.line.note.colon.lexicon",
+        "punctuation.separator.todo-colon.lex",
+        "comment.line.todo.colon.lex",
+        "comment.line.fixme.colon.lex",
+        "comment.line.note.colon.lex"
+      ],
+      "settings": {
+        "foreground": "#FFFFFF",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon premium markers",
+      "scope": [
+        "keyword.other.documentation.marker.lexicon",
+        "keyword.other.documentation.marker.lex"
+      ],
+      "settings": {
+        "foreground": "#FF00FF",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "Lexicon premium URL",
+      "scope": [
+        "markup.underline.link.lexicon",
+        "markup.underline.link.lex"
+      ],
+      "settings": {
+        "foreground": "#00FFFF",
+        "fontStyle": "underline"
+      }
+    },
+    {
+      "name": "Lexicon premium inline code",
+      "scope": [
+        "markup.inline.raw.lexicon",
+        "markup.inline.raw.lex"
+      ],
+      "settings": {
+        "foreground": "#FFFFFF",
+        "background": "#1A1A1A"
+      }
+    }
+  ],
+  "semanticTokenColors": {
+    "namespace": {
+      "foreground": "#00FFFF",
+      "fontStyle": "bold"
+    },
+    "type": {
+      "foreground": "#FFFF00",
+      "fontStyle": "bold"
+    },
+    "function": {
+      "foreground": "#00FF00"
+    },
+    "variable": {
+      "foreground": "#FFFFFF"
+    },
+    "parameter": {
+      "foreground": "#FFFFFF",
+      "fontStyle": "italic"
+    },
+    "decorator": {
+      "foreground": "#FF00FF",
+      "fontStyle": "bold"
+    },
+    "keyword": {
+      "foreground": "#FFFF00",
+      "fontStyle": "bold"
+    },
+    "comment": {
+      "foreground": "#A6A6A6"
+    },
+    "*.declaration": {
+      "fontStyle": "bold"
+    }
+  },
+  "semanticHighlighting": true
+}

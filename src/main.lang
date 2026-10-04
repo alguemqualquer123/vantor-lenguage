@@ -1,0 +1,4 @@
+// Entry point for lexlang
+func main() {
+    // println("Hello, lexlang!")
+}

@@ -1,0 +1,10 @@
+[project]
+name = "plugin"
+version = "0.1.0"
+template = None
+edge = false
+target = Some("wasm")
+grpc = false
+
+[dependencies]
+core = "0.1.0"

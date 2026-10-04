@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 import { 
   Download, Terminal, Zap, Shield, Globe, Cpu, 
   ChevronRight, Github, Code, Box, Layers, 
-  Monitor, Layout, CheckCircle2, Languages
+  Monitor, Layout, CheckCircle2, Languages,
+  Flame, Blocks, ShieldCheck, PackageCheck
 } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -133,8 +134,8 @@ export default function LandingPage() {
                 <div className="p-8 text-left text-sm md:text-base leading-relaxed code-font overflow-x-auto">
                    <pre>
                      <code>
-                       <span className="text-primary font-bold">import</span> core.net.Http;<br />
-                       <span className="text-primary font-bold">import</span> core.json.Json;<br /><br />
+                        <span className="text-primary font-bold">import</span> core::net::Http;<br />
+                        <span className="text-primary font-bold">import</span> core::json::Json;<br /><br />
                        <span className="text-muted-foreground italic opacity-60">@Test</span><br />
                        <span className="text-primary font-bold">fn</span> <span className="text-blue-400">test_api</span>() &#123;<br />
                        &nbsp;&nbsp;<span className="text-primary font-bold">let</span> response = Http::get(<span className="text-green-400">"/status"</span>);<br />
@@ -142,7 +143,7 @@ export default function LandingPage() {
                        &#125;<br /><br />
                        <span className="text-primary font-bold">pub fn</span> <span className="text-blue-400">main</span>() <span className="text-primary font-bold">-&gt;</span> <span className="text-cyan-400 font-bold">void</span> &#123;<br />
                        &nbsp;&nbsp;<span className="text-primary font-bold">let</span> server = Http::serve(<span className="text-green-400">"0.0.0.0:8080"</span>);<br />
-                       &nbsp;&nbsp;server.listen(); <span className="text-muted-foreground opacity-40">// {"|>"} hot reload active</span><br />
+                        &nbsp;&nbsp;server.listen(); <span className="text-muted-foreground opacity-40">// save → auto-restart (lex run --watch)</span><br />
                        &#125;
                      </code>
                    </pre>
@@ -160,10 +161,10 @@ export default function LandingPage() {
             <p className="text-muted-foreground text-lg font-medium">{t.features.subtitle}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-            <FeatureItem icon={<Cpu />} title={t.features.native.title} desc={t.features.native.desc} />
-            <FeatureItem icon={<Globe />} title={t.features.wasm.title} desc={t.features.wasm.desc} />
-            <FeatureItem icon={<Shield />} title={t.features.cloud.title} desc={t.features.cloud.desc} />
-            <FeatureItem icon={<Zap />} title={t.features.pipes.title} desc={t.features.pipes.desc} />
+            <FeatureItem icon={<Flame />} title={t.features.hotreload.title} desc={t.features.hotreload.desc} />
+            <FeatureItem icon={<Blocks />} title={t.features.extension.title} desc={t.features.extension.desc} />
+            <FeatureItem icon={<ShieldCheck />} title={t.features.diagnostics.title} desc={t.features.diagnostics.desc} />
+            <FeatureItem icon={<PackageCheck />} title={t.features.installer.title} desc={t.features.installer.desc} />
           </div>
         </div>
       </section>
@@ -177,7 +178,7 @@ export default function LandingPage() {
               <span className="gradient-text">{t.templates.title.split(' ').slice(1).join(' ')}</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-xl font-medium">
-              {lang === 'en' ? 'Start instantly with pre-configured models for any use case.' : 'Comece instantaneamente com modelos pré-configurados para qualquer caso de uso.'}
+              {t.templates.subtitle}
             </p>
           </div>
           
@@ -185,24 +186,42 @@ export default function LandingPage() {
             <TemplateCard 
               icon={<Globe className="text-primary" />}
               title={t.templates.api}
-              badge={lang === 'en' ? "RECOMMENDED" : "RECOMENDADO"}
+              badge="v0.2.0"
               command="lex new api --edge"
-              description={lang === 'en' ? "Optimized for low latency on cloud providers. Includes router, middleware and native JSON support." : "Otimizado para baixa latência em cloud providers. Inclui router, middleware e suporte a JSON nativo."}
+              description={t.templates.api_desc}
             />
             <TemplateCard 
               icon={<Cpu className="text-primary" />}
               title={t.templates.plugin}
-              badge={lang === 'en' ? "EXPERIMENTAL" : "EXPERIMENTAL"}
+              badge={lang === 'en' ? "SCAFFOLD" : "SCAFFOLD"}
               command="lex new plugin --target wasm"
-              description={lang === 'en' ? "Create extensible plugins that run in the browser or in serverless runtimes with native performance." : "Crie plugins extensíveis que rodam no navegador ou em runtimes serverless com performance nativa."}
+              description={t.templates.plugin_desc}
             />
             <TemplateCard 
               icon={<Layers className="text-primary" />}
               title={t.templates.service}
-              badge={lang === 'en' ? "STABLE" : "ESTÁVEL"}
+              badge={lang === 'en' ? "SCAFFOLD" : "SCAFFOLD"}
               command="lex new service --grpc"
-              description={lang === 'en' ? "Microservices architecture with gRPC and native integration for inter-process communication." : "Arquitetura de microsserviços com gRPC e integração nativa para comunicação entre processos."}
+              description={t.templates.service_desc}
             />
+          </div>
+
+          {/* Real quickstart: verified v0.2.0 commands */}
+          <div className="mt-12 glass p-8 rounded-[2rem] border border-white/5">
+            <div className="flex items-center gap-3 mb-2">
+              <Terminal size={18} className="text-primary" />
+              <h3 className="text-lg font-black uppercase tracking-tight">{t.templates.quickstart_title}</h3>
+            </div>
+            <p className="text-muted-foreground text-sm font-medium mb-6">{t.templates.quickstart_desc}</p>
+            <div className="bg-black/40 p-6 rounded-xl border border-white/5 code-font text-sm leading-loose overflow-x-auto">
+              <div><span className="text-muted-foreground"># hot reload — save to auto-restart</span></div>
+              <div><span className="text-primary font-bold">lex run --watch</span> <span className="text-green-400">demo-api/main.lex</span></div>
+              <div><span className="text-muted-foreground"># static correctness gate before running</span></div>
+              <div><span className="text-primary font-bold">lex vet</span> <span className="text-green-400">demo-api/models.lex</span></div>
+              <div><span className="text-muted-foreground"># real demo API (axum HTTP + SQLite, dev .env)</span></div>
+              <div><span className="text-primary font-bold">powershell -ExecutionPolicy Bypass -File</span> <span className="text-green-400">demo-api\run-dev.ps1</span></div>
+              <div><span className="text-primary font-bold">curl</span> <span className="text-green-400">http://localhost:3000/users</span></div>
+            </div>
           </div>
         </div>
       </section>
@@ -216,10 +235,10 @@ export default function LandingPage() {
           </h2>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            <OSCard icon={<Monitor />} name="Windows" version="v0.1.0-alpha" ext=".msi" />
-            <OSCard icon={<Box />} name="Linux" version="v0.1.0-alpha" ext=".tar.gz" />
-            <OSCard icon={<Layout />} name="macOS" version="v0.1.0-alpha" ext=".pkg" />
-            <OSCard icon={<Cpu />} name="WASM" version="v0.1.0-alpha" ext=".wasm" />
+            <OSCard icon={<Monitor />} name="Windows" version="v0.2.0" ext=".msi" />
+            <OSCard icon={<Box />} name="Linux" version="v0.2.0" ext=".tar.gz" />
+            <OSCard icon={<Layout />} name="macOS" version="v0.2.0" ext=".pkg" />
+            <OSCard icon={<Cpu />} name="WASM" version="v0.2.0" ext=".wasm" />
           </div>
 
           <div className="mt-20 glass p-8 rounded-[2rem] max-w-2xl mx-auto border border-white/10">
@@ -255,7 +274,8 @@ export default function LandingPage() {
              <a href="#" className="hover:text-primary transition-colors">Cloud</a>
           </div>
 
-          <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.2em]">
+          <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.2em] text-center md:text-right">
+            <span className="inline-block bg-primary/10 border border-primary/20 text-primary px-2 py-0.5 rounded-full mb-2">v0.2.0</span><br />
             © 2026 LEXICON TEAM. {lang === 'en' ? 'MIT LICENSE' : 'LICENÇA MIT'}.
           </div>
         </div>
@@ -268,7 +288,7 @@ function FeatureItem({ icon, title, desc }: { icon: React.ReactNode, title: stri
   return (
     <div className="text-center group">
       <div className="w-16 h-16 bg-white/5 rounded-[2rem] flex items-center justify-center mx-auto mb-8 group-hover:bg-primary/10 group-hover:rotate-12 transition-all duration-500 border border-white/5 group-hover:border-primary/20">
-        {React.cloneElement(icon as React.ReactElement, { size: 28, className: "text-primary" })}
+        {React.cloneElement(icon as React.ReactElement<{ size?: number; className?: string }>, { size: 28, className: "text-primary" })}
       </div>
       <h3 className="text-lg font-black uppercase tracking-tight mb-4">{title}</h3>
       <p className="text-muted-foreground text-sm font-medium leading-relaxed">{desc}</p>
@@ -303,7 +323,7 @@ function OSCard({ icon, name, version, ext }: { icon: React.ReactNode, name: str
   return (
     <div className="glass p-6 rounded-2xl border border-white/5 hover:bg-white/[0.03] transition-all cursor-pointer group">
       <div className="text-muted-foreground group-hover:text-primary transition-colors mb-4 flex justify-center">
-        {React.cloneElement(icon as React.ReactElement, { size: 32 })}
+        {React.cloneElement(icon as React.ReactElement<{ size?: number }>, { size: 32 })}
       </div>
       <h4 className="font-black text-sm uppercase tracking-widest mb-1">{name}</h4>
       <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground font-bold">

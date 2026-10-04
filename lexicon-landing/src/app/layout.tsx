@@ -13,13 +13,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Lexicon SDK | A Linguagem para Cloud & Edge",
-  description: "Construa APIs escaláveis com performance nativa, WebAssembly e deploy instantâneo. Conheça o Lexicon, a linguagem de programação da nova era.",
-  keywords: ["Lexicon", "Programação", "SDK", "Cloud", "Edge", "WASM", "WebAssembly", "Rust", "Performance"],
+  title: "Lexicon SDK v0.2.0 | Hot Reload, Super Extension & Pre-Run Diagnostics",
+  description: "Lexicon v0.2.0: hot-reload supervisor (lex run --watch), VS Code super extension 1.1.x, lex check + lex vet with E-code diagnostics, and a real axum HTTP + SQLite demo API.",
+  keywords: ["Lexicon", "Programação", "SDK", "v0.2.0", "Hot Reload", "VS Code", "WASM", "WebAssembly", "Rust", "Performance", "SQLite"],
   authors: [{ name: "Lexicon Team" }],
   openGraph: {
-    title: "Lexicon SDK | A Linguagem para Cloud & Edge",
-    description: "Sintaxe moderna, performance de baixo nível e deploy instantâneo.",
+    title: "Lexicon SDK v0.2.0 | Hot Reload, Super Extension & Pre-Run Diagnostics",
+    description: "Save → auto-restart. Syntax gate with line:col errors. Real HTTP + SQLite demo.",
     url: "https://lexicon.dev",
     siteName: "Lexicon",
     images: [
@@ -34,8 +34,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Lexicon SDK | A Linguagem para Cloud & Edge",
-    description: "Construa APIs escaláveis com performance nativa.",
+    title: "Lexicon SDK v0.2.0 | Hot Reload, Super Extension & Pre-Run Diagnostics",
+    description: "Save → auto-restart. Syntax gate with line:col errors. Real HTTP + SQLite demo.",
     images: ["/og-image.png"],
   },
   icons: {

@@ -63,6 +63,27 @@ pub enum Decl {
     GlobalVar(GlobalVar),
     TypeAlias(TypeAlias),
     Effect(Effect),
+    /// RPC service definition: `service Name { rpc F(x: T) -> R; ... }`.
+    /// Checked for duplicate rpc names; codegen treats it as metadata
+    /// (like traits) until a backend lowers it.
+    Service(ServiceDecl),
+}
+
+#[derive(Debug, Clone)]
+pub struct ServiceDecl {
+    pub attrs: Vec<Attribute>,
+    pub visibility: Visibility,
+    pub name: Ident,
+    pub rpcs: Vec<ServiceRpc>,
+    pub span: Span,
+}
+
+#[derive(Debug, Clone)]
+pub struct ServiceRpc {
+    pub name: Ident,
+    pub params: Vec<Param>,
+    pub return_type: Option<Type>,
+    pub span: Span,
 }
 
 #[derive(Debug, Clone)]
@@ -231,6 +252,9 @@ pub struct Param {
     pub is_mutable: bool,
     pub name: Ident,
     pub ty: Type,
+    /// `name: T...` — variadic parameter (Spec §4). Must be the last
+    /// parameter; callers may pass zero or more trailing arguments.
+    pub is_variadic: bool,
     pub default: Option<Expr>,
     pub span: Span,
 }
@@ -249,6 +273,32 @@ pub struct Attribute {
     pub span: Span,
 }
 
+impl Attribute {
+    /// First string-literal argument, if present
+    /// (`#[abi("C")]` records its calling convention this way).
+    pub fn str_arg(&self) -> Option<String> {
+        match self.args.first() {
+            Some(Expr::Literal(Literal::String(s))) => Some(s.clone()),
+            _ => None,
+        }
+    }
+}
+
+impl Function {
+    /// Calling convention from `#[abi("C")]` / `@abi("C")`, if present.
+    pub fn abi(&self) -> Option<String> {
+        self.attrs
+            .iter()
+            .find(|a| a.name.text == "abi")
+            .and_then(|a| a.str_arg())
+    }
+
+    /// Whether `#[inline]` / `@inline` was recorded on this function.
+    pub fn is_inline(&self) -> bool {
+        self.attrs.iter().any(|a| a.name.text == "inline")
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Block {
     pub statements: Vec<Stmt>,
@@ -261,8 +311,10 @@ pub enum Stmt {
     Decl(DeclStmt),
     If(IfStmt),
     Match(MatchStmt),
+    Switch(SwitchStmt),
     For(ForStmt),
     While(WhileStmt),
+    DoWhile(DoWhileStmt),
     Loop(LoopStmt),
     Return(ReturnStmt),
     Break(BreakStmt),
@@ -330,6 +382,35 @@ pub struct MatchArm {
     pub span: Span,
 }
 
+/// `switch` statement (Spec §3): scrutinee + ordered cases + optional default.
+/// Falls through only when a case body ends without `break`/`return`.
+#[derive(Debug, Clone)]
+pub struct SwitchStmt {
+    pub scrutinee: Expr,
+    pub cases: Vec<SwitchCase>,
+    pub default: Option<Block>,
+    pub span: Span,
+}
+
+#[derive(Debug, Clone)]
+pub struct SwitchCase {
+    pub exprs: Vec<Expr>,
+    /// Optional `if cond` guard: `case a, b if cond:` (Spec §3).
+    /// A guarded case never falls through implicitly; the guard must be
+    /// `bool`. Parity with `match` guards (`pattern if cond => body`).
+    pub guard: Option<Expr>,
+    pub body: Block,
+    pub span: Span,
+}
+
+/// `do { ... } while (cond);` (Spec §3 SHOULD).
+#[derive(Debug, Clone)]
+pub struct DoWhileStmt {
+    pub body: Block,
+    pub condition: Expr,
+    pub span: Span,
+}
+
 #[derive(Debug, Clone)]
 pub struct ForStmt {
     pub pattern: Pattern,
@@ -382,6 +463,7 @@ pub enum Expr {
     Call(CallExpr),
     Index(IndexExpr),
     FieldAccess(FieldAccessExpr),
+    OptionalFieldAccess(OptionalFieldAccessExpr),
     MethodCall(MethodCallExpr),
     Literal(Literal),
     Ident(Ident),
@@ -405,6 +487,16 @@ pub enum Expr {
     Destructuring(DestructuringExpr),
     MacroCall(MacroCall),
     InterpolatedString(Vec<InterpolatedPart>),
+    Spread(Box<Expr>, Span),
+    /// `unsafe { ... }` block (Spec §32). Contents are checked with
+    /// diagnostics still active; raw operations are confined here.
+    UnsafeBlock(Box<Block>, Span),
+}
+
+#[derive(Debug, Clone)]
+pub struct SpreadExpr {
+    pub expr: Box<Expr>,
+    pub span: Span,
 }
 
 #[derive(Debug, Clone)]
@@ -480,6 +572,13 @@ pub struct CallExpr {
 pub struct IndexExpr {
     pub object: Box<Expr>,
     pub index: Box<Expr>,
+    pub span: Span,
+}
+
+#[derive(Debug, Clone)]
+pub struct OptionalFieldAccessExpr {
+    pub object: Box<Expr>,
+    pub field: Ident,
     pub span: Span,
 }
 
@@ -640,6 +739,8 @@ pub enum Type {
     Path(Path),
     Nullable(Box<Type>),
     Array(Box<Type>, Option<Box<Expr>>),
+    Slice(Box<Type>),
+    Map(Box<Type>, Box<Type>),
     Function(Vec<Type>, Box<Type>),
     Tuple(Vec<Type>),
     Reference(bool, Box<Type>),

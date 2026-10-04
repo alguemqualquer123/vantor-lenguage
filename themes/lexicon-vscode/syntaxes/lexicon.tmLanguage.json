@@ -2,137 +2,134 @@
 	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
 	"name": "Lexicon",
 	"scopeName": "source.lexicon",
+	"version": "1.0.0",
 	"patterns": [
 		{ "include": "#comments" },
-		{ "include": "#keywords" },
-		{ "include": "#async_await" },
-		{ "include": "#try_catch" },
-		{ "include": "#strings" },
-		{ "include": "#constants" },
-		{ "include": "#operators" },
-		{ "include": "#annotations" },
 		{ "include": "#http_decorators" },
-		{ "include": "#function_calls" },
+		{ "include": "#annotations" },
+		{ "include": "#attributes" },
+		{ "include": "#strings" },
 		{ "include": "#this_self" },
+		{ "include": "#keywords" },
+		{ "include": "#functions" },
+		{ "include": "#function_calls" },
+		{ "include": "#type_definitions" },
+		{ "include": "#types" },
+		{ "include": "#constants" },
 		{ "include": "#closures" },
+		{ "include": "#operators" },
+		{ "include": "#punctuation" },
+		{ "include": "#namespace" },
 		{ "include": "#struct_shorthand" },
 		{ "include": "#parameters" },
-		{ "include": "#types" },
-		{ "include": "#collections" },
-		{ "include": "#namespace" },
-		{ "include": "#classes" },
-		{ "include": "#objects" },
-		{ "include": "#type_definitions" },
-		{ "include": "#imports" },
-		{ "include": "#functions" },
-		{ "include": "#generics" },
-		{ "include": "#attributes" }
+		{ "include": "#objects" }
 	],
 	"repository": {
 		"comments": {
 			"patterns": [
-				{ "name": "comment.line.double-slash.lexicon", "match": "//.*$" },
-				{ "name": "comment.block.lexicon", "begin": "/\\*", "end": "\\*/" },
-				{ "name": "comment.doc.lexicon", "match": "///.*$" }
+				{ "include": "#comment-block-doc" },
+				{ "include": "#comment-block" },
+				{ "include": "#comment-line-doc" },
+				{ "include": "#comment-line-inner-doc" },
+				{ "include": "#comment-line-region" },
+				{ "include": "#comment-line" }
 			]
 		},
-		"keywords": {
+		"comment-line-doc": {
+			"name": "comment.line.documentation.lexicon",
+			"begin": "(^\\s*)(///)(?!/)",
+			"end": "$",
+			"beginCaptures": {
+				"2": { "name": "punctuation.definition.comment.documentation.lexicon" }
+			},
+			"patterns": [{ "include": "#comment-inline" }]
+		},
+		"comment-line-inner-doc": {
+			"name": "comment.line.documentation.inner.lexicon",
+			"begin": "(^\\s*)(//!)(?!/)",
+			"end": "$",
+			"beginCaptures": {
+				"2": { "name": "punctuation.definition.comment.documentation.lexicon" }
+			},
+			"patterns": [{ "include": "#comment-inline" }]
+		},
+		"comment-line-region": {
+			"name": "meta.region.lexicon",
+			"match": "^\\s*(//)\\s*(#?(?:region|endregion)\\b.*)$",
+			"captures": {
+				"1": { "name": "punctuation.definition.comment.lexicon" },
+				"2": { "name": "comment.line.region.lexicon" }
+			}
+		},
+		"comment-line": {
+			"name": "comment.line.double-slash.lexicon",
+			"begin": "(//)",
+			"end": "$",
+			"beginCaptures": {
+				"1": { "name": "punctuation.definition.comment.lexicon" }
+			},
+			"patterns": [{ "include": "#comment-inline" }]
+		},
+		"comment-block-doc": {
+			"name": "comment.block.documentation.lexicon",
+			"begin": "/\\*\\*(?!/)",
+			"end": "\\*/",
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.comment.begin.lexicon" }
+			},
+			"endCaptures": {
+				"0": { "name": "punctuation.definition.comment.end.lexicon" }
+			},
+			"patterns": [{ "include": "#comment-inline" }, { "include": "#comments" }]
+		},
+		"comment-block": {
+			"name": "comment.block.lexicon",
+			"begin": "/\\*(?!\\*)",
+			"end": "\\*/",
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.comment.begin.lexicon" }
+			},
+			"endCaptures": {
+				"0": { "name": "punctuation.definition.comment.end.lexicon" }
+			},
+			"patterns": [{ "include": "#comment-inline" }, { "include": "#comments" }]
+		},
+		"comment-inline": {
 			"patterns": [
 				{
-					"name": "keyword.control.lexicon",
-					"match": "\\b(if|else|for|while|loop|break|continue|return|match|where|yield)\\b"
+					"match": "(?i)\\b(TODO|HACK|XXX|WIP|TBD)\\b(:)?",
+					"captures": {
+						"1": { "name": "comment.line.todo.lexicon comment.block.todo.lexicon todo.lexicon" },
+						"2": { "name": "punctuation.separator.todo-colon.lexicon comment.line.todo.colon.lexicon" }
+					}
 				},
 				{
-					"name": "keyword.module.lexicon",
-					"match": "\\b(module|import|pub|use|crate|mod|export|from|as)\\b"
+					"match": "(?i)\\b(FIXME|BUG)\\b(:)?",
+					"captures": {
+						"1": { "name": "comment.line.fixme.lexicon comment.block.fixme.lexicon fixme.lexicon" },
+						"2": { "name": "punctuation.separator.todo-colon.lexicon comment.line.fixme.colon.lexicon" }
+					}
 				},
 				{
-					"name": "keyword.class.lexicon",
-					"match": "\\b(class|struct|enum|trait|impl|type|interface|extends|implements)\\b"
+					"match": "(?i)\\b(NOTE|SAFETY|PERF|TEMP)\\b(:)?",
+					"captures": {
+						"1": { "name": "comment.line.note.lexicon comment.block.note.lexicon note.lexicon" },
+						"2": { "name": "punctuation.separator.todo-colon.lexicon comment.line.note.colon.lexicon" }
+					}
 				},
 				{
-					"name": "keyword.function.lexicon",
-					"match": "\\b(fn|pub|static|async|await|virtual|override)\\b"
+					"name": "markup.underline.link.lexicon",
+					"match": "\\b(?:https?://|file://|vscode://|www\\.)[^\\s`<>\"'\\]]+"
 				},
 				{
-					"name": "keyword.variable.lexicon",
-					"match": "\\b(let|var|mut|const|final|static|late)\\b"
+					"name": "markup.inline.raw.lexicon",
+					"match": "`[^`\\n]+`"
 				},
 				{
-					"name": "keyword.modifier.lexicon",
-					"match": "\\b(private|protected|public|internal|sealed|abstract|final|override)\\b"
-				},
-				{
-					"name": "keyword.match.lexicon",
-					"match": "\\b(match|where|yield|guard)\\b"
-				},
-				{
-					"name": "keyword.constructor.lexicon",
-					"match": "\\b(constructor|new|self|super|this|init|get|set)\\b"
-				},
-				{
-					"name": "keyword.import.lexicon",
-					"match": "\\b(import|export|from|use|require|include)\\b"
-				},
-				{
-					"name": "keyword.exception.lexicon",
-					"match": "\\b(throw|throws|try|catch|finally|raise)\\b"
+					"name": "keyword.other.documentation.marker.lexicon",
+					"match": "@[A-Za-z_][A-Za-z0-9_]*"
 				}
 			]
-		},
-		"async_await": {
-			"patterns": [
-				{
-					"name": "keyword.async.lexicon",
-					"match": "\\basync\\b"
-				},
-				{
-					"name": "keyword.await.lexicon",
-					"match": "\\bawait\\b"
-				}
-			]
-		},
-		"try_catch": {
-			"patterns": [
-				{
-					"name": "keyword.trycatch.lexicon",
-					"match": "\\b(try|catch|finally)\\b"
-				},
-				{
-					"name": "keyword.throw.lexicon",
-					"match": "\\b(throw|throws|raise)\\b"
-				}
-			]
-		},
-		"this_self": {
-			"patterns": [
-				{
-					"name": "variable.language.lexicon",
-					"match": "\\b(this|self|Self|SUPER)\\b"
-				},
-				{
-					"name": "variable.language.property.lexicon",
-					"match": "\\b(this|self)\\.[a-zA-Z_][a-zA-Z0-9_]*"
-				}
-			]
-		},
-		"closures": {
-			"patterns": [
-				{
-					"name": "closure.lexicon",
-					"match": "\\|[^|]*\\|"
-				},
-				{
-					"name": "closure.arrow.lexicon",
-					"match": "=>"
-				}
-			]
-		},
-		"annotations": {
-			"patterns": [{
-				"name": "entity.name.function.decorator.lexicon",
-				"match": "@[a-zA-Z_][a-zA-Z0-9_]*"
-			}]
 		},
 		"http_decorators": {
 			"patterns": [
@@ -141,8 +138,18 @@
 				{ "name": "keyword.http.put.lexicon", "match": "@Put\\([^)]*\\)" },
 				{ "name": "keyword.http.delete.lexicon", "match": "@Delete\\([^)]*\\)" },
 				{ "name": "keyword.http.patch.lexicon", "match": "@Patch\\([^)]*\\)" },
-				{ "name": "keyword.http.head.lexicon", "match": "@Head\\([^)]*\\)" },
-				{ "name": "keyword.http.options.lexicon", "match": "@Options\\([^)]*\\)" }
+				{ "name": "keyword.http.test.lexicon", "match": "@Test\\b" }
+			]
+		},
+		"annotations": {
+			"patterns": [
+				{ "name": "entity.name.function.decorator.lexicon", "match": "@[a-zA-Z_][a-zA-Z0-9_]*" }
+			]
+		},
+		"attributes": {
+			"patterns": [
+				{ "name": "entity.name.attribute.cfg.lexicon", "match": "#\\[cfg\\([^\\]]*\\)\\]" },
+				{ "name": "entity.name.attribute.lexicon", "match": "#\\[[^\\]]+\\]" }
 			]
 		},
 		"strings": {
@@ -155,62 +162,116 @@
 						{ "name": "constant.character.escape.lexicon", "match": "\\\\." },
 						{
 							"name": "variable.other.string-interpolation.lexicon",
-							"begin": "\\$\\{",
-							"end": "\\}"
-						},
-						{
-							"name": "variable.other.placeholder.lexicon",
-							"match": "\\$[a-zA-Z_][a-zA-Z0-9_]*"
+							"begin": "\\{",
+							"end": "\\}",
+							"patterns": [{ "include": "$self" }]
 						}
 					]
 				},
 				{
-					"name": "string.quoted.single.lexicon",
+					"name": "string.quoted.single.char.lexicon",
 					"begin": "'",
-					"end": "'"
-				},
-				{
-					"name": "string.template.lexicon",
-					"begin": "`",
-					"end": "`"
-				},
-				{
-					"name": "string.raw.lexicon",
-					"begin": "r(#*)\"",
-					"end": "\"#*"
+					"end": "'",
+					"patterns": [
+						{ "name": "constant.character.escape.lexicon", "match": "\\\\." }
+					]
 				}
 			]
 		},
-		"constants": {
-			"patterns": [
-				{ "name": "constant.language.lexicon", "match": "\\b(true|false|yes|no|on|off)\\b" },
-				{ "name": "constant.language.null.lexicon", "match": "\\b(null|None|nil|undefined|void)\\b" },
-				{ "name": "entity.name.option.lexicon", "match": "\\b(Some|None)\\b" },
-				{ "name": "entity.name.result.lexicon", "match": "\\b(Ok|Err)\\b" },
-				{ "name": "constant.numeric.lexicon", "match": "\\b[0-9]+(\\.[0-9]+)?\\b" },
-				{ "name": "constant.numeric.hex.lexicon", "match": "\\b0x[0-9a-fA-F]+\\b" },
-				{ "name": "constant.numeric.binary.lexicon", "match": "\\b0b[01]+\\b" },
-				{ "name": "constant.numeric.octal.lexicon", "match": "\\b0o[0-7]+\\b" }
-			]
-		},
-		"operators": {
-			"patterns": [
-				{ "name": "keyword.operator.pipe.lexicon", "match": "(▷|\\|>)" },
-				{ "name": "keyword.operator.arrow.lexicon", "match": "(->|=>|->>)" },
-				{ "name": "keyword.operator.lexicon", "match": "(==|!=|<=|>=|&&|\\|\\||\\?|\\?\\?|::|\\+|-|\\*|/|%)" },
-				{ "name": "keyword.operator.spread.lexicon", "match": "\\.\\.\\." },
-				{ "name": "keyword.operator.nullable.lexicon", "match": "\\?" }
-			]
-		},
-		"namespace": {
+		"keywords": {
 			"patterns": [
 				{
-					"name": "namespace.lexicon",
-					"match": "[a-zA-Z_][a-zA-Z0-9_]*::[a-zA-Z_][a-zA-Z0-9_]*"
+					"name": "keyword.control.conditional.lexicon",
+					"match": "\\b(if|else|switch|case|default|match)\\b"
 				},
 				{
-					"name": "namespace.lexicon",
-					"match": "[a-zA-Z_][a-zA-Z0-9_]*\\.[a-zA-Z_][a-zA-Z0-9_]*"
+					"name": "keyword.control.loop.lexicon",
+					"match": "\\b(for|while|loop|do|in|break|continue)\\b"
+				},
+				{
+					"name": "keyword.control.flow.lexicon",
+					"match": "\\b(return|defer|yield|where)\\b"
+				},
+				{
+					"name": "keyword.declaration.function.lexicon",
+					"match": "\\b(fn|lambda)\\b"
+				},
+				{
+					"name": "keyword.declaration.type.lexicon",
+					"match": "\\b(struct|enum|class|trait|interface|type|effect|constructor)\\b"
+				},
+				{
+					"name": "keyword.declaration.variable.lexicon",
+					"match": "\\b(let|var|mut|const|static|ref)\\b"
+				},
+				{
+					"name": "keyword.module.lexicon",
+					"match": "\\b(module|import|as|extends|implements|with|derive)\\b"
+				},
+				{
+					"name": "keyword.modifier.visibility.lexicon",
+					"match": "\\b(pub|private|protected)\\b"
+				},
+				{
+					"name": "keyword.modifier.async.lexicon",
+					"match": "\\b(async|await|task|actor|spawn|select|channel)\\b"
+				},
+				{
+					"name": "keyword.modifier.unsafe.lexicon",
+					"match": "\\b(unsafe|extern|native|inline)\\b"
+				},
+				{
+					"name": "keyword.exception.lexicon",
+					"match": "\\b(try|catch|throw|finally|panic|recover)\\b"
+				},
+				{
+					"name": "keyword.other.lexicon",
+					"match": "\\b(self|super|new|is|macro|dynamic|function)\\b"
+				},
+				{
+					"name": "constant.language.boolean.lexicon",
+					"match": "\\b(true|false)\\b"
+				},
+				{
+					"name": "constant.language.null.lexicon",
+					"match": "\\b(null|None)\\b"
+				},
+				{
+					"name": "entity.name.option.lexicon",
+					"match": "\\b(Some|Ok|Err)\\b"
+				},
+				{
+					"name": "storage.type.primitive.lexicon",
+					"match": "\\b(bool|int|uint|byte|rune|char|i8|i16|i32|i64|i128|u8|u16|u32|u64|u128|f32|f64|float32|float64|decimal|void)\\b"
+				},
+				{
+					"name": "storage.type.string.lexicon",
+					"match": "\\b(string|String)\\b"
+				}
+			]
+		},
+		"functions": {
+			"patterns": [
+				{
+					"name": "entity.name.function.definition.lexicon",
+					"match": "(?<=\\bfn\\s)[a-zA-Z_][a-zA-Z0-9_]*"
+				},
+				{
+					"name": "entity.name.function.definition.async.lexicon",
+					"match": "\\b(async)\\s+(fn)\\s+([a-zA-Z_][a-zA-Z0-9_]*)",
+					"captures": {
+						"1": { "name": "keyword.modifier.async.lexicon" },
+						"2": { "name": "keyword.declaration.function.lexicon" },
+						"3": { "name": "entity.name.function.lexicon" }
+					}
+				},
+				{
+					"name": "support.function.builtin.print.lexicon",
+					"match": "\\b(print|println)\\b(?=\\s*\\()"
+				},
+				{
+					"name": "support.function.builtin.panic.lexicon",
+					"match": "\\b(panic|recover|assert|inspect)\\b(?=\\s*\\()"
 				}
 			]
 		},
@@ -218,71 +279,97 @@
 			"patterns": [
 				{
 					"name": "entity.name.function.call.lexicon",
-					"match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\("
+					"match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*(?=\\()"
 				},
 				{
 					"name": "entity.name.function.method.lexicon",
-					"match": "\\.([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\("
-				},
-				{
-					"name": "support.function.builtin.lexicon",
-					"match": "\\b(println|print|panic|assert|unwrap|expect|map|filter|reduce|panic)\\b"
+					"match": "(?<=\\.)([a-zA-Z_][a-zA-Z0-9_]*)\\s*(?=\\()"
 				}
 			]
 		},
-		"parameters": {
+		"type_definitions": {
 			"patterns": [
 				{
-					"name": "variable.parameter.lexicon",
-					"match": "(?<=^|\\(|,|\\s)([a-z_][a-zA-Z0-9_]*)(?=\\s*:|\\s*,|\\s*\\))"
+					"match": "\\b(struct|enum|class|trait|interface|type|effect)\\s+([a-zA-Z_][a-zA-Z0-9_]*)",
+					"captures": {
+						"1": { "name": "keyword.declaration.type.lexicon" },
+						"2": { "name": "entity.name.type.definition.lexicon" }
+					}
 				}
 			]
 		},
 		"types": {
 			"patterns": [
 				{
-					"name": "storage.type.primitive.lexicon",
-					"match": "\\b(i8|i16|i32|i64|i128|u8|u16|u32|u64|u128|f32|f64|bool|char|void|usize|isize)\\b"
-				},
-				{
-					"name": "storage.type.string.lexicon",
-					"match": "\\b(string|String|str|&str|StringBuffer|StringBuilder)\\b"
-				},
-				{
-					"name": "storage.type.number.lexicon",
-					"match": "\\b(int|integer|number|float|double|long|short|byte)\\b"
-				},
-				{
-					"name": "storage.type.collection.lexicon",
-					"match": "\\b(Array|List|Map|Set|HashMap|HashSet|TreeMap|TreeSet|Vec|VecDeque)\\b"
-				},
-				{
-					"name": "storage.type.option.lexicon",
-					"match": "\\b(Option|Result|None|Some|Ok|Err)\\b"
-				},
-				{
-					"name": "storage.type.smartpointer.lexicon",
-					"match": "\\b(Box|Rc|Arc|Cell|RefCell|Weak|Mutex|RwLock)\\b"
+					"name": "storage.type.generic.lexicon",
+					"match": "\\b([A-Z][a-zA-Z0-9_]*)\\s*(?=<)"
 				},
 				{
 					"name": "entity.name.type.lexicon",
 					"match": "\\b([A-Z][a-zA-Z0-9_]*)\\b"
 				},
 				{
-					"name": "storage.type.generic.lexicon",
-					"match": "<[a-zA-Z_][a-zA-Z0-9_,* ]*>"
+					"name": "storage.type.collection.lexicon",
+					"match": "\\b(Array|List|Map|Set|Vec|Option|Result)\\b"
 				}
 			]
 		},
-		"collections": {
+		"constants": {
+			"patterns": [
+				{ "name": "constant.numeric.hex.lexicon", "match": "\\b0[xX][0-9a-fA-F_]+\\b" },
+				{ "name": "constant.numeric.binary.lexicon", "match": "\\b0[bB][01_]+\\b" },
+				{ "name": "constant.numeric.float.lexicon", "match": "\\b[0-9][0-9_]*\\.[0-9_]+([eE][+-]?[0-9_]+)?\\b" },
+				{ "name": "constant.numeric.float.exponent.lexicon", "match": "\\b[0-9][0-9_]*[eE][+-]?[0-9_]+\\b" },
+				{ "name": "constant.numeric.integer.lexicon", "match": "\\b[0-9][0-9_]*\\b" }
+			]
+		},
+		"this_self": {
+			"patterns": [
+				{ "name": "variable.language.self.lexicon", "match": "\\b(self|super)\\b" }
+			]
+		},
+		"closures": {
 			"patterns": [
 				{
-					"name": "support.class.collections.lexicon",
-					"match": "\\b(List|Map|Set|Vector|Array|HashMap|HashSet|TreeMap|TreeSet|VecDeque)\\b"
+					"name": "keyword.operator.closure.lexicon",
+					"match": "\\|[^|\\n]+\\|"
 				},
 				{
-					"name": "support.class.option.lexicon",
-					"match": "\\b(Option|Result)\\b"
+					"name": "keyword.operator.closure-arrow.lexicon",
+					"match": "=>"
+				}
+			]
+		},
+		"operators": {
+			"patterns": [
+				{ "name": "keyword.operator.pipe.lexicon", "match": "(\\|>)" },
+				{ "name": "keyword.operator.arrow.lexicon", "match": "(->)" },
+				{ "name": "keyword.operator.spread.lexicon", "match": "(\\.\\.\\.)" },
+				{ "name": "keyword.operator.range.lexicon", "match": "(\\.\\.=|\\.\\.)" },
+				{ "name": "keyword.operator.nullable.lexicon", "match": "(\\?\\?|\\?\\.|\\?)" },
+				{ "name": "keyword.operator.comparison.lexicon", "match": "(==|!=|<=|>=)" },
+				{ "name": "keyword.operator.logical.lexicon", "match": "(&&|\\|\\||!)" },
+				{ "name": "keyword.operator.bitwise.lexicon", "match": "(<<|>>|&|\\||\\^|~)" },
+				{ "name": "keyword.operator.arithmetic.lexicon", "match": "(\\+=|-=|\\*=|/=|%=|\\+\\+|--|\\+|-|\\*|/|%)" },
+				{ "name": "keyword.operator.assignment.lexicon", "match": "(=>|=)" },
+				{ "name": "keyword.operator.path.lexicon", "match": "(::)" },
+				{ "name": "keyword.operator.member.lexicon", "match": "(\\.)" }
+			]
+		},
+		"punctuation": {
+			"patterns": [
+				{ "name": "punctuation.bracket.lexicon", "match": "[\\(\\)\\[\\]\\{\\}]" },
+				{ "name": "punctuation.separator.lexicon", "match": "[,;]" },
+				{ "name": "punctuation.definition.colon.lexicon", "match": ":(?!:)" },
+				{ "name": "punctuation.definition.hash.lexicon", "match": "#(?!\\[)" },
+				{ "name": "variable.other.placeholder.lexicon", "match": "(?<![a-zA-Z0-9_])_(?![a-zA-Z0-9_])" }
+			]
+		},
+		"namespace": {
+			"patterns": [
+				{
+					"name": "entity.name.namespace.lexicon",
+					"match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)(?=::)"
 				}
 			]
 		},
@@ -291,26 +378,6 @@
 				{
 					"name": "variable.other.object.shorthand.lexicon",
 					"match": "([a-zA-Z_][a-zA-Z0-9_]*)\\s*(?=[,}])"
-				}
-			]
-		},
-		"classes": {
-			"patterns": [
-				{
-					"name": "entity.name.class.lexicon",
-					"match": "(?<=class\\s)[a-zA-Z_][a-zA-Z0-9_]*"
-				},
-				{
-					"name": "entity.name.class.inheritance.lexicon",
-					"match": "(?<=extends\\s)[a-zA-Z_][a-zA-Z0-9_]*"
-				},
-				{
-					"name": "entity.name.class.implements.lexicon",
-					"match": "(?<=implements\\s)[a-zA-Z_][a-zA-Z0-9_]*"
-				},
-				{
-					"name": "storage.type.class.field.lexicon",
-					"match": "(?<=^|\\s|\\t)([a-z_][a-zA-Z0-9_]*)(?=\\s*:\\s*\\w)"
 				}
 			]
 		},
@@ -318,205 +385,11 @@
 			"patterns": [
 				{
 					"name": "variable.object.property.lexicon",
-					"match": "\\.([a-z_][a-zA-Z0-9_]*)(?=\\s|,|;|\\)|\\}|\\]|\\.)"
+					"match": "(?<=\\.)[a-z_][a-zA-Z0-9_]*"
 				},
 				{
 					"name": "variable.object.key.lexicon",
-					"match": "(?<=\\{|,\\s*)([a-z_][a-zA-Z0-9_]*)(?=\\s*:)"
-				}
-			]
-		},
-		"type_definitions": {
-			"patterns": [
-				{
-					"name": "entity.name.type.lexicon",
-					"match": "(?<=type\\s)[a-zA-Z_][a-zA-Z0-9_]*"
-				},
-				{
-					"name": "entity.name.type.alias.lexicon",
-					"match": "(?<=type\\s)[a-zA-Z_][a-zA-Z0-9_]*(?=\\s*=)"
-				}
-			]
-		},
-		"imports": {
-			"patterns": [
-				{
-					"name": "keyword.import.path.lexicon",
-					"match": "import\\s+([a-zA-Z_][a-zA-Z0-9_.]*)"
-				},
-				{
-					"name": "keyword.import.alias.lexicon",
-					"match": "as\\s+([a-zA-Z_][a-zA-Z0-9_]*)"
-				}
-			]
-		},
-		"functions": {
-			"patterns": [
-				{
-					"name": "entity.name.function.lexicon",
-					"match": "(?<=fn\\s)([a-zA-Z_][a-zA-Z0-9_]*)(?=\\s*\\(|\\s*<)"
-				},
-				{
-					"name": "entity.name.function.pub.lexicon",
-					"match": "(?<=pub\\s+fn\\s)([a-zA-Z_][a-zA-Z0-9_]*)(?=\\s*\\(|\\s*<)"
-				},
-				{
-					"name": "entity.name.function.async.lexicon",
-					"match": "(?<=async\\s+fn\\s)([a-zA-Z_][a-zA-Z0-9_]*)(?=\\s*\\(|\\s*<)"
-				}
-			]
-		},
-		"generics": {
-			"patterns": [
-				{
-					"name": "storage.type.generic.lexicon",
-					"match": "<[a-zA-Z_][a-zA-Z0-9_,\\s]*>"
-				},
-				{
-					"name": "storage.type.generic.bounds.lexicon",
-					"match": "(?<=<)[a-zA-Z_][a-zA-Z0-9_]*(?=:|\\s)"
-				}
-			]
-		},
-		"attributes": {
-			"patterns": [
-				{
-					"name": "entity.name.attribute.lexicon",
-					"match": "#\\[[^\\]]+\\]"
-				}
-			]
-		}
-	}
-}
-			]
-		},
-		"async_await": {
-			"patterns": [
-				{
-					"name": "keyword.async.lexicon",
-					"match": "\\basync\\b"
-				},
-				{
-					"name": "keyword.await.lexicon",
-					"match": "\\bawait\\b"
-				}
-			]
-		},
-		"try_catch": {
-			"patterns": [
-				{
-					"name": "keyword.trycatch.lexicon",
-					"match": "\\b(try|catch)\\b"
-				},
-				{
-					"name": "keyword.throw.lexicon",
-					"match": "\\bthrow\\b"
-				}
-			]
-		},
-		"this_self": {
-			"patterns": [
-				{
-					"name": "variable.language.lexicon",
-					"match": "\\b(this|self)\\b"
-				},
-				{
-					"name": "variable.language.property.lexicon",
-					"match": "\\b(this|self)\\.[a-zA-Z_][a-zA-Z0-9_]*"
-				}
-			]
-		},
-		"closures": {
-			"patterns": [
-				{
-					"name": "closure.lexicon",
-					"match": "\\|[^|]*\\|"
-				}
-			]
-		},
-		"annotations": {
-			"patterns": [{
-				"name": "entity.name.function.decorator.lexicon",
-				"match": "@[a-zA-Z_][a-zA-Z0-9_]*"
-			}]
-		},
-		"http_decorators": {
-			"patterns": [
-				{ "name": "keyword.http.get.lexicon", "match": "@Get\\([^)]*\\)" },
-				{ "name": "keyword.http.post.lexicon", "match": "@Post\\([^)]*\\)" },
-				{ "name": "keyword.http.put.lexicon", "match": "@Put\\([^)]*\\)" },
-				{ "name": "keyword.http.delete.lexicon", "match": "@Delete\\([^)]*\\)" },
-				{ "name": "keyword.http.patch.lexicon", "match": "@Patch\\([^)]*\\)" }
-			]
-		},
-		"strings": {
-			"patterns": [
-				{
-					"name": "string.quoted.double.lexicon",
-					"begin": "\"",
-					"end": "\"",
-					"patterns": [
-						{ "name": "constant.character.escape.lexicon", "match": "\\\\." },
-						{
-							"name": "variable.other.string-interpolation.lexicon",
-							"begin": "\\$\\{",
-							"end": "\\}"
-						},
-						{
-							"name": "variable.other.placeholder.lexicon",
-							"match": "\\$[a-zA-Z_][a-zA-Z0-9_]*"
-						}
-					]
-				},
-				{
-					"name": "string.quoted.single.lexicon",
-					"begin": "'",
-					"end": "'"
-				},
-				{
-					"name": "string.template.lexicon",
-					"begin": "`",
-					"end": "`"
-				}
-			]
-		},
-		"constants": {
-			"patterns": [
-				{ "name": "constant.language.lexicon", "match": "\\b(true|false)\\b" },
-				{ "name": "constant.language.null.lexicon", "match": "\\b(null|None)\\b" },
-				{ "name": "entity.name.option.lexicon", "match": "\\b(Some)\\b" },
-				{ "name": "entity.name.result.lexicon", "match": "\\b(Ok|Err)\\b" },
-				{ "name": "constant.numeric.lexicon", "match": "\\b[0-9]+(\\.[0-9]+)?\\b" }
-			]
-		},
-		"operators": {
-			"patterns": [
-				{ "name": "keyword.operator.pipe.lexicon", "match": "(▷|\\|>)" },
-				{ "name": "keyword.operator.arrow.lexicon", "match": "(->|=>)" },
-				{ "name": "keyword.operator.lexicon", "match": "(==|!=|<=|>=|&&|\\|\\||\\?|\\?\\?|::|\\+|-|\\*|/|%)" }
-			]
-		},
-		"namespace": {
-			"patterns": [
-				{
-					"name": "namespace.lexicon",
-					"match": "[a-zA-Z_][a-zA-Z0-9_]*::[a-zA-Z_][a-zA-Z0-9_]*"
-				}
-			]
-		},
-		"function_calls": {
-			"patterns": [
-				{
-					"name": "entity.name.function.call.lexicon",
-					"match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\("
-				},
-				{
-					"name": "entity.name.function.method.lexicon",
-					"match": "\\.([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\("
-				},
-				{
-					"name": "support.function.builtin.lexicon",
-					"match": "\\b(println|print|panic|assert|unwrap|expect|map|filter|reduce)\\b"
+					"match": "([a-z_][a-zA-Z0-9_]*)(?=\\s*:)"
 				}
 			]
 		},
@@ -524,51 +397,7 @@
 			"patterns": [
 				{
 					"name": "variable.parameter.lexicon",
-					"match": "(?<=^|\\(|,|\\s)([a-z_][a-zA-Z0-9_]*)(?=\\s*:|\\s*,|\\s*\\))"
-				}
-			]
-		},
-		"types": {
-			"patterns": [
-				{
-					"name": "storage.type.primitive.lexicon",
-					"match": "\\b(i8|i16|i32|i64|i128|u8|u16|u32|u64|u128|f32|f64|bool|char|void)\\b"
-				},
-				{
-					"name": "storage.type.string.lexicon",
-					"match": "\\b(string|String)\\b"
-				},
-				{
-					"name": "storage.type.number.lexicon",
-					"match": "\\b(int|float|integer|number)\\b"
-				},
-				{
-					"name": "entity.name.type.lexicon",
-					"match": "\\b([A-Z][a-zA-Z0-9_]*)\\b"
-				},
-				{
-					"name": "storage.type.generic.lexicon",
-					"match": "<[a-zA-Z_][a-zA-Z0-9_,* ]*>"
-				}
-			]
-		},
-		"collections": {
-			"patterns": [
-				{
-					"name": "support.class.collections.lexicon",
-					"match": "\\b(List|Map|Set|Vector|Array|HashMap|HashSet)\\b"
-				},
-				{
-					"name": "support.class.option.lexicon",
-					"match": "\\b(Option|Result)\\b"
-				}
-			]
-		},
-		"struct_shorthand": {
-			"patterns": [
-				{
-					"name": "variable.other.object.shorthand.lexicon",
-					"match": "([a-zA-Z_][a-zA-Z0-9_]*)\\s*(?=[,}])"
+					"match": "([a-z_][a-zA-Z0-9_]*)(?=\\s*:)"
 				}
 			]
 		}

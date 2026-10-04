@@ -1,0 +1,72 @@
+{
+  "name": "vscode-lex",
+  "displayName": "Lex Language",
+  "description": "Syntax highlighting, snippets, tasks and problem matchers for the Lex programming language (toolchain: `lex`).",
+  "version": "1.1.2",
+  "publisher": "lexiconlang",
+  "license": "MIT",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Programming Languages", "Snippets", "Linters"],
+  "keywords": ["lex", "lexlang", "compiler", "lsp"],
+  "contributes": {
+    "languages": [
+      {
+        "id": "lex",
+        "aliases": ["Lex", "lexlang"],
+        "extensions": [".lex"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "lex",
+        "scopeName": "source.lex",
+        "path": "./syntaxes/lex.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      { "language": "lex", "path": "./snippets/lex.code-snippets" }
+    ],
+    "taskDefinitions": [
+      {
+        "type": "lex",
+        "required": ["command"],
+        "properties": {
+          "command": { "type": "string", "description": "lex subcommand: run, build, test, check, vet, lint, fmt, bench, serve" },
+          "file": { "type": "string", "description": "Target .lex file" },
+          "release": { "type": "boolean", "description": "Release build" },
+          "watch": { "type": "boolean", "description": "Hot reload (run only)" },
+          "host": { "type": "string", "description": "Bind host (serve/test-net)" },
+          "port": { "type": "number", "description": "Port (serve/test-net)" },
+          "args": { "type": "array", "description": "Extra CLI args" }
+        }
+      }
+    ],
+    "problemMatchers": [
+      {
+        "name": "$lexicon-build",
+        "owner": "lex",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": { "regexp": "^(.*):(\\d+):(\\d+):\\s+(error|warning):\\s+(.*)$", "file": 1, "line": 2, "column": 3, "severity": 4, "message": 5 }
+      },
+      {
+        "name": "$lexicon-check",
+        "owner": "lex",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": { "regexp": "^\\[(E\\d+)\\]\\s+(.*?)\\s+at\\s+(.*):(\\d+):(\\d+)$", "code": 1, "message": 2, "file": 3, "line": 4, "column": 5 }
+      },
+      {
+        "name": "$lexicon-test",
+        "owner": "lex-test",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": { "regexp": "^(PASS|FAIL|ok|FAILED)\\s+(.*)$", "severity": 1, "message": 2 }
+      },
+      {
+        "name": "$lexicon-vet",
+        "owner": "lex",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": { "regexp": "^(.*):(\\d+):(\\d+):\\s+(.*)$", "file": 1, "line": 2, "column": 3, "message": 4 }
+      }
+    ]
+  }
+}

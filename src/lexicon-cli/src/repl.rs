@@ -76,6 +76,7 @@ impl Repl {
                 println!("  :type <expr> - Show type of expression");
                 println!("  :run <code> - Run Lexicon code");
                 println!("  :ast <code> - Show AST of expression");
+                println!("  :complete <prefix> - Suggest completions (e.g. Http::)");
             }
             ":quit" | ":q" => {
                 std::process::exit(0);
@@ -116,6 +117,19 @@ impl Repl {
             cmd if cmd.starts_with(":ast ") => {
                 let code = &cmd[5..];
                 self.show_ast(code);
+            }
+            ":complete" => {
+                println!("Usage: :complete <prefix>  (e.g. :complete Http::s)");
+            }
+            cmd if cmd.starts_with(":complete ") => {
+                let prefix = &cmd[10..];
+                let items = crate::complete::complete(prefix);
+                if items.is_empty() {
+                    println!("(no completions for {:?})", prefix);
+                }
+                for it in items {
+                    println!("{}\t{}\t{}", it.label, it.kind.as_str(), it.detail);
+                }
             }
             _ => {
                 println!("Unknown command. Type :help for help.");

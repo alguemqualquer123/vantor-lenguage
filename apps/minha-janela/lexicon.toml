@@ -1,0 +1,10 @@
+[project]
+name = "minha-janela"
+version = "0.1.0"
+template = None
+edge = false
+target = None
+grpc = false
+
+[dependencies]
+core = "0.1.0"

@@ -1,7 +1,9 @@
 use once_cell::sync::Lazy;
+
+#[allow(dead_code)]
 use std::collections::HashMap;
 use std::sync::Mutex;
-use webview::{Content, WebView};
+// use webview::{Content, WebView};
 
 static WEBVIEW_STATE: Lazy<Mutex<WebViewState>> = Lazy::new(|| Mutex::new(WebViewState::default()));
 
@@ -11,6 +13,7 @@ pub struct WebViewState {
 }
 
 #[derive(Clone)]
+#[allow(dead_code)]
 pub struct WebViewWindow {
     pub title: String,
     pub width: u32,
@@ -18,6 +21,20 @@ pub struct WebViewWindow {
     pub html: String,
     pub scripts: Vec<String>,
     pub events: HashMap<String, String>,
+}
+
+
+pub fn register_window(window: WebViewWindow) {
+    if let Ok(mut state) = WEBVIEW_STATE.lock() {
+        state.windows.push(window);
+    }
+}
+
+pub fn windows() -> Vec<WebViewWindow> {
+    WEBVIEW_STATE
+        .lock()
+        .map(|state| state.windows.clone())
+        .unwrap_or_default()
 }
 
 pub fn parse_webview_code(source: &str) -> Vec<WebViewWindow> {
@@ -158,59 +175,18 @@ fn extract_size_u32_opt(line: &str) -> Option<(u32, u32)> {
 pub fn run_webview(source: &str) {
     let windows = parse_webview_code(source);
 
-    if windows.is_empty() {
-        let default_html = r#"<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Lexicon WebView</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        .container {
-            text-align: center;
-            padding: 40px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-        }
-        h1 { font-size: 2.5em; margin-bottom: 20px; }
-        button {
-            padding: 15px 30px;
-            font-size: 1.2em;
-            border: none;
-            border-radius: 10px;
-            background: white;
-            color: #667eea;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        button:hover { transform: scale(1.05); }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🚀 Lexicon WebView</h1>
-        <p>Welcome to Lexicon GUI with WebView!</p>
-        <button onclick="sayHello()">Click Me!</button>
-    </div>
-    <script>
-        function sayHello() {
-            alert('Hello from Lexicon WebView!');
-        }
-    </script>
-</body>
-</html>"#;
+    if let Ok(mut state) = WEBVIEW_STATE.lock() {
+        state.windows = windows.clone();
+    }
 
-        run_webview_window("Lexicon WebView App", 800, 600, default_html);
+    if windows.is_empty() {
+        run_webview_window(
+            "Lexicon WebView App",
+            800,
+            600,
+            "<html><body><h1>Lexicon</h1></body></html>",
+        );
+
         return;
     }
 
@@ -221,7 +197,12 @@ pub fn run_webview(source: &str) {
             window.html
         };
 
-        run_webview_window(&window.title, window.width, window.height, &html);
+        run_webview_window(
+            &window.title,
+            window.width,
+            window.height,
+            &html,
+        );
     }
 }
 

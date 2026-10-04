@@ -17,7 +17,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "1.0.0"
+version = "0.3.1"
 edition = "2021"
 license = "MIT"
 authors = ["lexiconLang Team"]
@@ -28,7 +28,7 @@ log = "0.4"
 env_logger = "0.11"
 thiserror = "1.0"
 anyhow = "1.0"
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros", "net", "sync", "time", "io-util"] }
 indicatif = "0.17"
 axum = "0.7"
 serde = { version = "1.0", features = ["derive"] }
@@ -48,6 +48,13 @@ lto = true
 codegen-units = 1
 panic = "abort"
 strip = true
+
+# Distribuicao (SDK): binario minimo. `cargo build --profile dist -p lexicon-cli`.
+# Troca ~10% de throughput por ~30-40% menos bytes vs `release`.
+[profile.dist]
+inherits = "release"
+opt-level = "z"
+lto = "fat"
 
 [profile.bench]
 inherits = "release"

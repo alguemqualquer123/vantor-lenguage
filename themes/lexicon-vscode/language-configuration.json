@@ -20,6 +20,50 @@
 		["[", "]"],
 		["(", ")"],
 		["\"", "\""],
-		["'", "'"]
-	]
+		["'", "'"],
+		["`", "`"]
+	],
+	"wordPattern": "(-?\\d*\\.\\d\\w*)|([^\\`\\~\\!\\@\\#\\%\\^\\&\\*\\(\\)\\-\\=\\+\\[\\{\\]\\}\\\\\\|\\;\\:\\'\\\"\\,\\.\\<\\>\\/\\?\\s]+)",
+	"indentationRules": {
+		"increaseIndentPattern": "^.*(\\{|\\b(match|switch)\\b.*\\{|\\b(if|for|while|loop|do|else|try|unsafe|extern)\\b.*)$",
+		"decreaseIndentPattern": "^\\s*(\\}|\\b(else|catch|finally|default)\\b)"
+	},
+	"onEnterRules": [
+		{
+			"beforeText": "^\\s*///.*$",
+			"action": { "indentAction": "none", "appendText": "/// " }
+		},
+		{
+			"beforeText": "^\\s*//!(?!/).*$",
+			"action": { "indentAction": "none", "appendText": "//! " }
+		},
+		{
+			"beforeText": "^\\s*//(?!/|!|\\*).*$",
+			"action": { "indentAction": "none", "appendText": "// " }
+		},
+		{
+			"beforeText": "^\\s*/\\*\\*(?!/).*([^*/]|\\*[^*/])$",
+			"afterText": "^\\s*\\*/$",
+			"action": { "indentAction": "indentOutdent", "appendText": " * " }
+		},
+		{
+			"beforeText": "^\\s*/\\*(?!\\*)(?!\\*/).*$",
+			"action": { "indentAction": "none", "appendText": " * " }
+		},
+		{
+			"beforeText": "^\\s*\\*.*$",
+			"action": { "indentAction": "none", "appendText": "* " }
+		},
+		{
+			"beforeText": "^\\s*\\{[^}]*$",
+			"afterText": "^\\s*\\}$",
+			"action": { "indentAction": "indentOutdent" }
+		}
+	],
+	"folding": {
+		"markers": {
+			"start": "^\\s*(?://|/\\*)\\s*#?region\\b",
+			"end": "^\\s*(?://|/\\*)\\s*#?endregion\\b"
+		}
+	}
 }

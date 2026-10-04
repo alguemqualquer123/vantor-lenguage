@@ -1,82 +1,85 @@
 {
   "iconDefinitions": {
     "_vnt": {
-      "iconPath": "./icons/lexicon-dark.svg"
+      "iconPath": "../icons/lexicon-dark.svg"
     },
     "_js": {
-      "iconPath": "./icons/js.svg"
+      "iconPath": "../icons/js.svg"
     },
     "_ts": {
-      "iconPath": "./icons/ts.svg"
+      "iconPath": "../icons/ts.svg"
     },
     "_py": {
-      "iconPath": "./icons/py.svg"
+      "iconPath": "../icons/py.svg"
     },
     "_rs": {
-      "iconPath": "./icons/rs.svg"
+      "iconPath": "../icons/rs.svg"
     },
     "_java": {
-      "iconPath": "./icons/java.svg"
+      "iconPath": "../icons/java.svg"
     },
     "_cs": {
-      "iconPath": "./icons/cs.svg"
+      "iconPath": "../icons/cs.svg"
     },
     "_go": {
-      "iconPath": "./icons/go.svg"
+      "iconPath": "../icons/go.svg"
     },
     "_json": {
-      "iconPath": "./icons/json.svg"
+      "iconPath": "../icons/json.svg"
     },
     "_md": {
-      "iconPath": "./icons/md.svg"
+      "iconPath": "../icons/md.svg"
     },
     "_html": {
-      "iconPath": "./icons/html.svg"
+      "iconPath": "../icons/html.svg"
     },
     "_css": {
-      "iconPath": "./icons/css.svg"
+      "iconPath": "../icons/css.svg"
     },
     "_vue": {
-      "iconPath": "./icons/vue.svg"
+      "iconPath": "../icons/vue.svg"
     },
     "_svelte": {
-      "iconPath": "./icons/svelte.svg"
+      "iconPath": "../icons/svelte.svg"
     },
     "_react": {
-      "iconPath": "./icons/react.svg"
+      "iconPath": "../icons/react.svg"
     },
     "_yml": {
-      "iconPath": "./icons/yml.svg"
+      "iconPath": "../icons/yml.svg"
     },
     "_toml": {
-      "iconPath": "./icons/toml.svg"
+      "iconPath": "../icons/toml.svg"
     },
     "_sh": {
-      "iconPath": "./icons/sh.svg"
+      "iconPath": "../icons/sh.svg"
     },
     "_sql": {
-      "iconPath": "./icons/sql.svg"
+      "iconPath": "../icons/sql.svg"
     },
     "_docker": {
-      "iconPath": "./icons/docker.svg"
+      "iconPath": "../icons/docker.svg"
     },
     "_git": {
-      "iconPath": "./icons/git.svg"
+      "iconPath": "../icons/git.svg"
     },
     "_rust": {
-      "iconPath": "./icons/rust.svg"
+      "iconPath": "../icons/rust.svg"
     },
     "_default": {
-      "iconPath": "./icons/default.svg"
+      "iconPath": "../icons/default.svg"
     },
     "_folder": {
-      "iconPath": "./icons/folder.svg"
+      "iconPath": "../icons/folder.svg"
     },
     "_folder_open": {
-      "iconPath": "./icons/folder-open.svg"
+      "iconPath": "../icons/folder-open.svg"
     },
     "_file": {
-      "iconPath": "./icons/file.svg"
+      "iconPath": "../icons/file.svg"
+    },
+    "_lex": {
+      "iconPath": "../icons/lex.svg"
     }
   },
   "file": "_file",
@@ -85,9 +88,9 @@
     "lexicon.toml": "_vnt",
     "lexicontoml": "_vnt",
     "js": "_js",
-    "jsx": "_js",
+    "jsx": "_react",
     "ts": "_ts",
-    "tsx": "_ts",
+    "tsx": "_react",
     "py": "_py",
     "rs": "_rs",
     "java": "_java",
@@ -103,8 +106,6 @@
     "less": "_css",
     "vue": "_vue",
     "svelte": "_svelte",
-    "jsx": "_react",
-    "tsx": "_react",
     "react": "_react",
     "yml": "_yml",
     "yaml": "_yml",
@@ -119,10 +120,11 @@
     "gitignore": "_git",
     "gitattributes": "_git",
     "gitmodules": "_git",
-    "lock": "_lock"
+    "lex": "_lex",
+    "lang": "_lex"
   },
   "languageIds": {
-    "lexicon": "_vnt",
+    "lexicon": "_lex",
     "javascript": "_js",
     "typescript": "_ts",
     "python": "_py",
@@ -154,7 +156,11 @@
   },
   "light": {
     "file": "_file",
-    "folder": "_folder"
+    "folder": "_folder",
+    "fileExtensions": {
+      "lex": "_lex",
+      "lang": "_lex"
+    }
   },
   "highContrast": {
     "file": "_file",

@@ -2,25 +2,16 @@
 	"Main Function": {
 		"prefix": "main",
 		"body": [
-			"pub fn main() {",
+			"pub fn main() -> void {",
 			"\t$0",
 			"}"
 		],
-		"description": "Main entry point function"
-	},
-	"Main Async": {
-		"prefix": "maina",
-		"body": [
-			"pub async fn main() -> void {",
-			"\t$0",
-			"}"
-		],
-		"description": "Async main entry point function"
+		"description": "Main entry point"
 	},
 	"Function": {
 		"prefix": "fn",
 		"body": [
-			"fn ${1:name}($2) -> ${3:void} {",
+			"fn ${1:name}(${2:params}) -> ${3:void} {",
 			"\t$0",
 			"}"
 		],
@@ -29,7 +20,7 @@
 	"Public Function": {
 		"prefix": "pfn",
 		"body": [
-			"pub fn ${1:name}($2) -> ${3:void} {",
+			"pub fn ${1:name}(${2:params}) -> ${3:void} {",
 			"\t$0",
 			"}"
 		],
@@ -38,440 +29,91 @@
 	"Async Function": {
 		"prefix": "afn",
 		"body": [
-			"pub async fn ${1:name}($2) -> ${3:void} {",
+			"pub async fn ${1:name}(${2:params}) -> ${3:void} {",
 			"\t$0",
 			"}"
 		],
 		"description": "Async function declaration"
 	},
-	"Public Async Function": {
-		"prefix": "pafn",
+	"Generic Function": {
+		"prefix": "gfn",
 		"body": [
-			"pub async fn ${1:name}($2) -> ${3:void} {",
+			"fn ${1:name}<${2:T}>(${3:arg}: ${2:T}) -> ${2:T} {",
 			"\t$0",
 			"}"
 		],
-		"description": "Public async function declaration"
+		"description": "Generic function"
 	},
-	"Nested Function": {
-		"prefix": "nfn",
+	"Generic Bounded Function": {
+		"prefix": "bgfn",
 		"body": [
-			"fn ${1:outer}() {",
-			"\tfn ${2:inner}($3) -> ${4:void} {",
-			"\t\t$0",
-			"\t}",
-			"}"
-		],
-		"description": "Nested function declaration"
-	},
-	"Function Returning Closure": {
-		"prefix": "fnc",
-		"body": [
-			"fn ${1:name}() -> fn(${2:Args}) -> ${3:ReturnType} {",
-			"\t|$4| -> ${5:ReturnType} {",
-			"\t\t$0",
-			"\t}",
-			"}"
-		],
-		"description": "Function that returns a closure"
-	},
-	"Import": {
-		"prefix": "imp",
-		"body": [
-			"import ${1:module};"
-		],
-		"description": "Import a module"
-	},
-	"Import Core": {
-		"prefix": "impc",
-		"body": [
-			"import core.${1:module}.${2:Component};"
-		],
-		"description": "Import from core module"
-	},
-	"Import with Alias": {
-		"prefix": "impa",
-		"body": [
-			"import ${1:module} as ${2:alias};"
-		],
-		"description": "Import module with alias"
-	},
-	"Import Specific Members": {
-		"prefix": "impm",
-		"body": [
-			"import { ${1:member1}, ${2:member2} } from '${3:module}';"
-		],
-		"description": "Import specific members from module"
-	},
-	"Re-export": {
-		"prefix": "reex",
-		"body": [
-			"pub use ${1:module}::${2:member};"
-		],
-		"description": "Re-export module member"
-	},
-	"Struct": {
-		"prefix": "struct",
-		"body": [
-			"struct ${1:Name} {",
-			"\t${2:field}: ${3:Type},$0",
-			"}"
-		],
-		"description": "Struct definition"
-	},
-	"Public Struct": {
-		"prefix": "pstruct",
-		"body": [
-			"pub struct ${1:Name} {",
-			"\t${2:field}: ${3:Type},$0",
-			"}"
-		],
-		"description": "Public struct definition"
-	},
-	"Struct with Fields": {
-		"prefix": "sfields",
-		"body": [
-			"struct ${1:Name} {",
-			"\tpub ${2:field1}: ${3:Type1},",
-			"\tpub ${4:field2}: ${5:Type2},",
+			"fn ${1:name}<${2:T}: ${3:Bound}>(${4:arg}: ${2:T}) -> ${2:T} {",
 			"\t$0",
 			"}"
 		],
-		"description": "Struct with multiple fields"
+		"description": "Generic function with trait bound"
 	},
-	"Tuple Struct": {
-		"prefix": "tstruct",
+	"Where Clause Function": {
+		"prefix": "where",
 		"body": [
-			"struct ${1:Name}(${2:Type1}, ${3:Type2});"
-		],
-		"description": "Tuple struct definition"
-	},
-	"Enum": {
-		"prefix": "enum",
-		"body": [
-			"enum ${1:Name} {",
-			"\t${2:Variant1},$0",
-			"\t${3:Variant2}(${4:Type}),",
-			"}"
-		],
-		"description": "Enum definition"
-	},
-	"Enum with Values": {
-		"prefix": "enumv",
-		"body": [
-			"enum ${1:Name} {",
-			"\t${2:Variant1} = ${3:1},",
-			"\t${4:Variant2} = ${5:2},",
+			"fn ${1:name}<${2:T}>(${3:arg}: ${2:T}) -> ${4:ReturnType}",
+			"\twhere ${2:T}: ${5:Bound}",
+			"{",
 			"\t$0",
 			"}"
 		],
-		"description": "Enum with integer values"
+		"description": "Function with where clause"
 	},
-	"Enum with Methods": {
-		"prefix": "enumm",
+	"Variadic Function": {
+		"prefix": "vfn",
 		"body": [
-			"enum ${1:Name} {",
-			"\t${2:Variant1},",
-			"\t${3:Variant2},",
-			"}",
-			"",
-			"impl ${1:Name} {",
-			"\tpub fn ${4:method}(&self) -> ${5:Type} {",
-			"\t\tmatch self {",
-			"\t\t\t${1:Name}::${2:Variant1} => ${6:value1},",
-			"\t\t\t${1:Name}::${3:Variant2} => ${7:value2},",
-			"\t\t}",
-			"\t}",
-			"}"
-		],
-		"description": "Enum with methods"
-	},
-	"C-like Enum": {
-		"prefix": "cenum",
-		"body": [
-			"enum ${1:Name} {",
-			"\t${2:Variant1} = 0,",
-			"\t${3:Variant2} = 1,",
-			"\t${4:Variant3} = 2,",
-			"}"
-		],
-		"description": "C-like enum"
-	},
-	"Trait": {
-		"prefix": "trait",
-		"body": [
-			"trait ${1:Name} {",
-			"\tfn ${2:method}($3) -> ${4:ReturnType};$0",
-			"}"
-		],
-		"description": "Trait definition"
-	},
-	"Trait with Default Methods": {
-		"prefix": "traitd",
-		"body": [
-			"trait ${1:Name} {",
-			"\tfn ${2:method}($3) -> ${4:ReturnType};",
-			"",
-			"\tfn ${5:default_method}($6) -> ${7:void} {",
-			"\t\t$0",
-			"\t}",
-			"}"
-		],
-		"description": "Trait with default methods"
-	},
-	"Impl": {
-		"prefix": "impl",
-		"body": [
-			"impl ${1:Type} {",
-			"\tpub fn ${2:method}($3) -> ${4:void} {",
-			"\t\t$0",
-			"\t}",
-			"}"
-		],
-		"description": "Impl block"
-	},
-	"Impl Trait": {
-		"prefix": "implt",
-		"body": [
-			"impl ${1:Trait} for ${2:Type} {",
-			"\tfn ${3:method}($4) -> ${5:ReturnType} {",
-			"\t\t$0",
-			"\t}",
-			"}"
-		],
-		"description": "Impl trait for type"
-	},
-	"Constructor": {
-		"prefix": "new",
-		"body": [
-			"pub fn new($1) -> Self {",
-			"\t${2:Self} {",
-			"\t\t$0",
-			"\t}",
-			"}"
-		],
-		"description": "Constructor method"
-	},
-	"Constructor Full": {
-		"prefix": "con",
-		"body": [
-			"pub constructor($1) {",
+			"pub fn ${1:name}(${2:first}: ${3:int}, ${4:rest}: ${3:int}...) -> ${5:int} {",
 			"\t$0",
 			"}"
 		],
-		"description": "Class constructor"
+		"description": "Variadic function (trailing ... must be last)"
 	},
-	"Private Constructor": {
-		"prefix": "pcon",
-		"body": [
-			"fn new($1) -> Self {",
-			"\tSelf {",
-			"\t\t$0",
-			"\t}",
-			"}"
-		],
-		"description": "Private constructor"
-	},
-	"Static Constructor": {
-		"prefix": "scon",
-		"body": [
-			"pub static fn create($1) -> Self {",
-			"\t$0",
-			"}"
-		],
-		"description": "Static factory method"
-	},
-	"Class": {
-		"prefix": "class",
-		"body": [
-			"class ${1:Name} {",
-			"\t$0",
-			"}"
-		],
-		"description": "Class definition"
-	},
-	"Class with Fields": {
-		"prefix": "classf",
-		"body": [
-			"class ${1:Name} {",
-			"\tpub ${2:field}: ${3:Type},",
-			"\t$0",
-			"}"
-		],
-		"description": "Class with fields"
-	},
-	"Class with Constructor": {
-		"prefix": "classc",
-		"body": [
-			"class ${1:Name} {",
-			"\tpub ${2:field}: ${3:Type},",
-			"",
-			"\tpub constructor($4) {",
-			"\t\tthis.${2:field} = $5;",
-			"\t}",
-			"}"
-		],
-		"description": "Class with constructor"
-	},
-	"Class with Methods": {
-		"prefix": "classm",
-		"body": [
-			"class ${1:Name} {",
-			"\tpub ${2:field}: ${3:Type},",
-			"",
-			"\tpub fn ${4:getter}(&self) -> ${3:Type} {",
-			"\t\tself.${2:field}",
-			"\t}",
-			"",
-			"\tpub fn ${5:setter}(&mut self, value: ${3:Type}) {",
-			"\t\tself.${2:field} = value;",
-			"\t}",
-			"}"
-		],
-		"description": "Class with getter and setter"
-	},
-	"Class Inheritance": {
-		"prefix": "classi",
-		"body": [
-			"class ${1:Child} extends ${2:Parent} {",
-			"\tpub constructor($3) {",
-			"\t\tsuper($4);",
-			"\t\t$0",
-			"\t}",
-			"}"
-		],
-		"description": "Class with inheritance"
-	},
-	"Object Literal": {
-		"prefix": "obj",
-		"body": [
-			"let ${1:name} = {",
-			"\t${2:key1}: ${3:value1},",
-			"\t${4:key2}: ${5:value2},",
-		 "\t$0",
-			"};"
-		],
-		"description": "Object literal"
-	},
-	"Object with Methods": {
-		"prefix": "objm",
-		"body": [
-			"let ${1:name} = {",
-			"\t${2:prop}: ${3:value},",
-			"",
-			"\tfn ${4:method}($5) -> ${6:Type} {",
-			"\t\t$0",
-			"\t}",
-			"};"
-		],
-		"description": "Object with methods"
-	},
-	"Object Spread": {
-		"prefix": "objs",
-		"body": [
-			"let ${1:name} = {",
-			"\t...${2:source},",
-			"\t${3:newKey}: ${4:value},",
-			"};"
-		],
-		"description": "Object with spread operator"
-	},
-	"Type Alias": {
-		"prefix": "type",
-		"body": [
-			"type ${1:Alias} = ${2:Type};"
-		],
-		"description": "Type alias"
-	},
-	"Type Alias Generic": {
-		"prefix": "typeg",
-		"body": [
-			"type ${1:Alias}<${2:T}> = ${3:Type}<${2:T}>;"
-		],
-		"description": "Generic type alias"
-	},
-	"New Type": {
-		"prefix": "newtype",
-		"body": [
-			"struct ${1:Name}(${2:InnerType});"
-		],
-		"description": "Newtype pattern"
-	},
-	"Path Operations": {
-		"prefix": "path",
-		"body": [
-			"let ${1:path} = Path::new(\"${2:path/to/file}\");",
-			"let ${3:exists} = ${1:path}.exists();",
-			"let ${4:isFile} = ${1:path}.isFile();",
-			"let ${5:isDir} = ${1:path}.isDir();",
-			"let ${6:extension} = ${1:path}.extension();",
-			"let ${7:filename} = ${1:path}.fileName();",
-			"let ${8:parent} = ${1:path}.parent();"
-		],
-		"description": "Path operations"
-	},
-	"Path Join": {
-		"prefix": "pathj",
-		"body": [
-			"let ${1:path} = Path::new(\"${2:base}\").join(\"${3:child}\");"
-		],
-		"description": "Join path components"
-	},
-	"Path Creation": {
-		"prefix": "pathc",
-		"body": [
-			"let ${1:path} = Path::new(\"${2:path}\");"
-		],
-		"description": "Create new path"
-	},
-	"Description Builder": {
-		"prefix": "desc",
-		"body": [
-			"let ${1:description} = Description::new(\"${2:Title}\")",
-			"\t.setText(\"${3:text}\")",
-			"\t.setColor(\"${4:#FFFFFF}\")",
-			"\t.setTimestamp(${5:timestamp})",
-			"\t.addField(\"${6:key}\", \"${7:value}\")",
-			"\t.addImage(\"${8:url}\")",
-			"\t.addLink(\"${9:label}\", \"${10:url}\");"
-		],
-		"description": "Description builder"
-	},
-	"Description Simple": {
-		"prefix": "descs",
-		"body": [
-			"let ${1:description} = Description::new(\"${2:title}\")",
-			"\t.setText(\"${3:text}\");"
-		],
-		"description": "Simple description"
-	},
-	"Variable (let)": {
+	"Let Variable": {
 		"prefix": "let",
 		"body": [
 			"let ${1:name} = ${2:value};"
 		],
-		"description": "Let variable declaration"
+		"description": "Immutable variable"
 	},
-	"Variable (const)": {
-		"prefix": "const",
+	"Typed Let": {
+		"prefix": "letc",
 		"body": [
-			"const ${1:NAME} = ${2:value};"
+			"let ${1:name}: ${2:Type} = ${3:value};"
 		],
-		"description": "Constant declaration"
+		"description": "Typed variable declaration"
 	},
 	"Mutable Variable": {
 		"prefix": "mut",
 		"body": [
 			"let mut ${1:name} = ${2:value};"
 		],
-		"description": "Mutable variable declaration"
+		"description": "Mutable variable"
 	},
-	"Static Variable": {
+	"Const": {
+		"prefix": "const",
+		"body": [
+			"const ${1:NAME} = ${2:value};"
+		],
+		"description": "Compile-time constant"
+	},
+	"Static": {
 		"prefix": "stat",
 		"body": [
 			"static ${1:NAME}: ${2:Type} = ${3:value};"
 		],
 		"description": "Static variable"
+	},
+	"Destructuring Let": {
+		"prefix": "letd",
+		"body": [
+			"let (${1:a}, ${2:b}) = ${3:tuple};"
+		],
+		"description": "Tuple destructuring"
 	},
 	"If Statement": {
 		"prefix": "if",
@@ -482,7 +124,7 @@
 		],
 		"description": "If statement"
 	},
-	"If-Else": {
+	"If Else": {
 		"prefix": "ife",
 		"body": [
 			"if ${1:condition} {",
@@ -493,56 +135,25 @@
 		],
 		"description": "If-else statement"
 	},
-	"If-Else If": {
-		"prefix": "ifelif",
-		"body": [
-			"if ${1:condition1} {",
-			"\t$2",
-			"} else if ${3:condition2} {",
-			"\t$4",
-			"} else {",
-			"\t$0",
-			"}"
-		],
-		"description": "If-else if statement"
-	},
 	"Match": {
 		"prefix": "match",
 		"body": [
 			"match ${1:expr} {",
-			"\t${2:pattern} => ${3:result},$0",
+			"\t${2:pattern} => ${3:result},",
 			"\t_ => ${4:default},",
 			"}"
 		],
 		"description": "Match expression"
 	},
-	"Match Full": {
-		"prefix": "matchf",
+	"Match Guard": {
+		"prefix": "matchg",
 		"body": [
 			"match ${1:expr} {",
-			"\t${2:Variant1} => {",
-			"\t\t$3",
-			"\t},",
-			"\t${4:Variant2}(${5:data}) => {",
-			"\t\t$6",
-			"\t},",
-			"\t_ => {",
-			"\t\t$0",
-			"\t}",
+			"\t${2:n} if ${2:n} ${3:>} ${4:0} => ${5:result},",
+			"\t_ => ${6:default},",
 			"}"
 		],
-		"description": "Full match expression with blocks"
-	},
-	"Match Enum": {
-		"prefix": "menum",
-		"body": [
-			"match ${1:expr} {",
-			"\t${2:Enum}::${3:Variant1} => ${4:value1},",
-			"\t${2:Enum}::${5:Variant2}(${6:data}) => ${7:value2},",
-			"\t_ => ${8:default},",
-			"}"
-		],
-		"description": "Match enum expression"
+		"description": "Match with guard clause"
 	},
 	"Match Option": {
 		"prefix": "mopt",
@@ -552,7 +163,7 @@
 			"\tNone => ${4:default},",
 			"}"
 		],
-		"description": "Match Option type"
+		"description": "Match Option"
 	},
 	"Match Result": {
 		"prefix": "mres",
@@ -562,7 +173,31 @@
 			"\tErr(${4:error}) => ${5:failure},",
 			"}"
 		],
-		"description": "Match Result type"
+		"description": "Match Result"
+	},
+	"Match Bool Exhaustive": {
+		"prefix": "mbool",
+		"body": [
+			"match ${1:flag} {",
+			"\ttrue => ${2:on_true},",
+			"\tfalse => ${3:on_false},",
+			"}"
+		],
+		"description": "Exhaustive bool match"
+	},
+	"Switch": {
+		"prefix": "switch",
+		"body": [
+			"switch ${1:expr} {",
+			"\tcase ${2:1}:",
+			"\t\t$3",
+			"\tcase ${4:2}, ${5:3}:",
+			"\t\t$6",
+			"\tdefault:",
+			"\t\t$0",
+			"}"
+		],
+		"description": "Switch statement with cases and default"
 	},
 	"For Loop": {
 		"prefix": "for",
@@ -573,6 +208,15 @@
 		],
 		"description": "For loop"
 	},
+	"For Range": {
+		"prefix": "forr",
+		"body": [
+			"for ${1:i} in ${2:0}..${3:10} {",
+			"\t$0",
+			"}"
+		],
+		"description": "For over range"
+	},
 	"While Loop": {
 		"prefix": "while",
 		"body": [
@@ -581,6 +225,15 @@
 			"}"
 		],
 		"description": "While loop"
+	},
+	"Do While": {
+		"prefix": "dowhile",
+		"body": [
+			"do {",
+			"\t$0",
+			"} while ${1:condition};"
+		],
+		"description": "Do-while loop"
 	},
 	"Infinite Loop": {
 		"prefix": "loop",
@@ -598,13 +251,6 @@
 		],
 		"description": "Break statement"
 	},
-	"Break with Value": {
-		"prefix": "breakv",
-		"body": [
-			"break ${1:value};"
-		],
-		"description": "Break with value"
-	},
 	"Continue": {
 		"prefix": "cont",
 		"body": [
@@ -617,152 +263,281 @@
 		"body": [
 			"return ${1:value};"
 		],
-		"description": "Return statement"
+		"description": "Return with value"
 	},
 	"Return Void": {
 		"prefix": "retv",
 		"body": [
 			"return;"
 		],
-		"description": "Return void"
+		"description": "Bare return"
+	},
+	"Defer": {
+		"prefix": "defer",
+		"body": [
+			"defer ${1:cleanup()};"
+		],
+		"description": "Deferred call (runs at scope unwind)"
+	},
+	"Struct": {
+		"prefix": "struct",
+		"body": [
+			"struct ${1:Name} {",
+			"\t${2:field}: ${3:Type},",
+			"\t$0",
+			"}"
+		],
+		"description": "Struct definition"
+	},
+	"Public Struct": {
+		"prefix": "pstruct",
+		"body": [
+			"pub struct ${1:Name} {",
+			"\tpub ${2:field}: ${3:Type},",
+			"\t$0",
+			"}"
+		],
+		"description": "Public struct definition"
+	},
+	"Struct Literal": {
+		"prefix": "slit",
+		"body": [
+			"${1:Name} {",
+			"\t${2:field}: ${3:value},",
+			"\t$0",
+			"}"
+		],
+		"description": "Struct literal"
+	},
+	"Enum": {
+		"prefix": "enum",
+		"body": [
+			"enum ${1:Name} {",
+			"\t${2:Variant1},",
+			"\t${3:Variant2}(${4:Type}),",
+			"\t$0",
+			"}"
+		],
+		"description": "Enum definition"
+	},
+	"Trait": {
+		"prefix": "trait",
+		"body": [
+			"trait ${1:Name} {",
+			"\tfn ${2:method}(${3:params}) -> ${4:ReturnType};$0",
+			"}"
+		],
+		"description": "Trait definition"
+	},
+	"Interface": {
+		"prefix": "iface",
+		"body": [
+			"interface ${1:Name} {",
+			"\tfn ${2:method}(${3:params}) -> ${4:ReturnType};$0",
+			"}"
+		],
+		"description": "Interface definition"
+	},
+	"Class": {
+		"prefix": "class",
+		"body": [
+			"class ${1:Name} {",
+			"\t$0",
+			"}"
+		],
+		"description": "Class definition"
+	},
+	"Class Implements": {
+		"prefix": "classi",
+		"body": [
+			"class ${1:Name} implements ${2:Trait} {",
+			"\tpub fn ${3:method}(${4:params}) -> ${5:ReturnType} {",
+			"\t\t$0",
+			"\t}",
+			"}"
+		],
+		"description": "Class implementing a trait"
+	},
+	"Class Extends": {
+		"prefix": "classe",
+		"body": [
+			"class ${1:Child} extends ${2:Parent} {",
+			"\t$0",
+			"}"
+		],
+		"description": "Class with inheritance"
+	},
+	"Type Alias": {
+		"prefix": "type",
+		"body": [
+			"type ${1:Alias} = ${2:Type};"
+		],
+		"description": "Type alias"
+	},
+	"Print": {
+		"prefix": "print",
+		"body": [
+			"print(${1:message});"
+		],
+		"description": "Print to stdout"
+	},
+	"Println": {
+		"prefix": "println",
+		"body": [
+			"println(${1:message});"
+		],
+		"description": "Print line to stdout"
+	},
+	"Print Concat": {
+		"prefix": "printf",
+		"body": [
+			"print(\"${1:text}\" + ${2:variable});"
+		],
+		"description": "Print with concatenation"
+	},
+	"Print Env": {
+		"prefix": "printenv",
+		"body": [
+			"let ${1:cfg} = Env::get(\"${2:VAR_NAME}\");",
+			"print(${1:cfg});"
+		],
+		"description": "Read env var into variable, then print (evaluates for real)"
+	},
+	"As Cast": {
+		"prefix": "as",
+		"body": [
+			"${1:value} as ${2:Type}"
+		],
+		"description": "Explicit cast (required for narrowing)"
 	},
 	"HTTP Get Route": {
 		"prefix": "get",
 		"body": [
 			"@Get(\"${1:/path}\")",
-			"pub async fn ${2:handler}() -> ${3:String} {",
-			"\treturn ${4:\"response\"};$0",
+			"pub fn ${2:handler}() -> String {",
+			"\treturn ${3:\"response\"};$0",
 			"}"
 		],
-		"description": "HTTP GET route"
+		"description": "HTTP GET route handler"
 	},
 	"HTTP Post Route": {
 		"prefix": "post",
 		"body": [
 			"@Post(\"${1:/path}\")",
-			"pub async fn ${2:handler}(${3:payload}: ${4:Type}) -> ${5:Type} {",
-			"\treturn ${6:payload};$0",
+			"pub fn ${2:handler}() -> String {",
+			"\treturn ${3:\"created\"};$0",
 			"}"
 		],
-		"description": "HTTP POST route"
+		"description": "HTTP POST route handler"
 	},
 	"HTTP Put Route": {
 		"prefix": "put",
 		"body": [
 			"@Put(\"${1:/path}\")",
-			"pub async fn ${2:handler}(${3:payload}: ${4:Type}) -> ${5:Type} {",
-			"\treturn ${6:payload};$0",
+			"pub fn ${2:handler}() -> String {",
+			"\treturn ${3:\"updated\"};$0",
 			"}"
 		],
-		"description": "HTTP PUT route"
+		"description": "HTTP PUT route handler"
 	},
 	"HTTP Delete Route": {
 		"prefix": "del",
 		"body": [
 			"@Delete(\"${1:/path}\")",
-			"pub async fn ${2:handler}() -> ${3:void} {",
+			"pub fn ${2:handler}() -> String {",
 			"\t$0",
 			"}"
 		],
-		"description": "HTTP DELETE route"
+		"description": "HTTP DELETE route handler"
 	},
 	"HTTP Serve": {
 		"prefix": "serve",
 		"body": [
 			"Http::serve(\"${1:0.0.0.0:3000}\");"
 		],
-		"description": "Start HTTP server"
+		"description": "Start HTTP server (literal bind address)"
 	},
-	"HTTP Get Request": {
+	"HTTP Client Get": {
 		"prefix": "httpg",
 		"body": [
-			"let ${1:response} = Http.get(\"${2:url}\");"
+			"let ${1:response} = Http::get(\"${2:url}\");"
 		],
-		"description": "HTTP GET request"
+		"description": "HTTP GET client request"
 	},
-	"HTTP Post Request": {
+	"HTTP Client Post": {
 		"prefix": "httpp",
 		"body": [
-			"let ${1:response} = Http.post(\"${2:url}\", ${3:body});"
+			"let ${1:response} = Http::post(\"${2:url}\", ${3:body});"
 		],
-		"description": "HTTP POST request"
+		"description": "HTTP POST client request"
 	},
-	"Console WriteLine": {
-		"prefix": "print",
+	"Full API File": {
+		"prefix": "api",
 		"body": [
-			"Console::writeLine(\"${1:message}\");"
+			"import core::net::Http;",
+			"",
+			"let app_env = Env::get(\"APP_ENV\");",
+			"",
+			"@Get(\"${1:/hello}\")",
+			"pub fn ${2:hello}() -> String {",
+			"\treturn ${3:\"Hello from Lexicon!\"};",
+			"}",
+			"",
+			"pub fn main() -> void {",
+			"\tprint(\"env=\" + app_env);",
+			"\tHttp::serve(\"${4:0.0.0.0:3000}\");",
+			"}"
 		],
-		"description": "Print to console"
+		"description": "Minimal runnable HTTP API file"
 	},
-	"Console Write": {
-		"prefix": "write",
+	"Db Connect": {
+		"prefix": "dbcon",
 		"body": [
-			"Console::write(\"${1:message}\");"
+			"let ${1:db} = Db::connect(${2:url});"
 		],
-		"description": "Write to console without newline"
+		"description": "Open database connection"
 	},
-	"Println Shortcut": {
-		"prefix": "println",
+	"Db Query": {
+		"prefix": "dbq",
 		"body": [
-			"println(\"${1:message}\");"
+			"let ${1:rows} = Db::query(\"${2:SELECT id, name FROM users}\");"
 		],
-		"description": "Println shortcut"
+		"description": "Run SELECT query"
 	},
-	"Print with Variable": {
-		"prefix": "printf",
+	"Db Execute": {
+		"prefix": "dbx",
 		"body": [
-			"Console::writeLine(\"${1:text}\" + ${2:variable});"
+			"Db::execute(\"${1:CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT)}\");"
 		],
-		"description": "Print with variable concatenation"
+		"description": "Run DDL/DML statement"
 	},
-	"List Create": {
-		"prefix": "list",
+	"Db Insert": {
+		"prefix": "dbi",
 		"body": [
-			"let ${1:name} = List<${2:Type}>::new();"
+			"Db::execute(\"INSERT INTO users (name, email) VALUES (?, ?)\");"
 		],
-		"description": "Create a new List"
+		"description": "Parameterized INSERT"
 	},
-	"List with Initial Values": {
-		"prefix": "listi",
+	"Env Get": {
+		"prefix": "envg",
 		"body": [
-			"let ${1:name} = List::from([${2:values}]);"
+			"Env::get(\"${1:VAR_NAME}\")"
 		],
-		"description": "List with initial values"
+		"description": "Read environment variable"
 	},
-	"List Add": {
-		"prefix": "add",
+	"Json Parse": {
+		"prefix": "jsonp",
 		"body": [
-			"${1:list}.add(${2:item});"
+			"Json::parse(\"${1:{...}}\")"
 		],
-		"description": "Add item to list"
+		"description": "Parse JSON string"
 	},
-	"List Get": {
-		"prefix": "lget",
+	"Json Stringify": {
+		"prefix": "jsons",
 		"body": [
-			"${1:list}.get(${2:index})"
+			"Json::stringify(${1:value})"
 		],
-		"description": "Get item from list by index"
-	},
-	"Map Create": {
-		"prefix": "map",
-		"body": [
-			"let ${1:name} = Map<${2:Key}, ${3:Value}>::new();"
-		],
-		"description": "Create a new Map"
-	},
-	"Map Set": {
-		"prefix": "mset",
-		"body": [
-			"${1:map}.set(${2:key}, ${3:value});"
-		],
-		"description": "Set value in map"
-	},
-	"Map Get": {
-		"prefix": "mget",
-		"body": [
-			"${1:map}.get(${2:key})"
-		],
-		"description": "Get value from map"
+		"description": "Value to JSON string"
 	},
 	"Option Some": {
 		"prefix": "some",
@@ -792,55 +567,28 @@
 		],
 		"description": "Result Err"
 	},
-	"Try-Catch": {
+	"Panic": {
+		"prefix": "panic",
+		"body": [
+			"panic(\"${1:message}\");"
+		],
+		"description": "Fatal runtime error (Never type)"
+	},
+	"Try Catch": {
 		"prefix": "try",
 		"body": [
 			"try {",
 			"\t$0",
 			"} catch ${1:e} {",
-			"\tConsole::writeLine(${1:e}.to_string());",
+			"\tprint(${1:e});",
 			"}"
 		],
 		"description": "Try-catch block"
 	},
-	"Try-Catch-Finally": {
-		"prefix": "tryf",
-		"body": [
-			"try {",
-			"\t$1",
-			"} catch ${2:e} {",
-			"\t$3",
-			"} finally {",
-			"\t$4",
-			"}"
-		],
-		"description": "Try-catch-finally block"
-	},
-	"Throw": {
-		"prefix": "throw",
-		"body": [
-			"throw ${1:error};"
-		],
-		"description": "Throw error"
-	},
-	"String to String": {
-		"prefix": "str",
-		"body": [
-			"\"${1:text}\".to_string()"
-		],
-		"description": "Convert to String"
-	},
-	"String Format": {
-		"prefix": "fmt",
-		"body": [
-			"String::format(\"${1:{}}\", ${2:args})"
-		],
-		"description": "String format"
-	},
-	"Pipe Operator": {
+	"Pipe": {
 		"prefix": "pipe",
 		"body": [
-			"${1:value} |> ${2:function}($3)"
+			"${1:value} |> ${2:function}()"
 		],
 		"description": "Pipe operator"
 	},
@@ -858,16 +606,74 @@
 			"\t$0",
 			"}"
 		],
-		"description": "Closure with block"
+		"description": "Closure with block body"
 	},
-	"Closure with Return": {
-		"prefix": "closr",
+	"Spawn Task": {
+		"prefix": "spawn",
 		"body": [
-			"|${1:args}| -> ${2:ReturnType} {",
+			"spawn ${1:task()};"
+		],
+		"description": "Spawn lightweight task"
+	},
+	"Channel": {
+		"prefix": "chan",
+		"body": [
+			"let ${1:ch} = Channel::new(${2:capacity});"
+		],
+		"description": "Create channel"
+	},
+	"Unsafe Block": {
+		"prefix": "unsafe",
+		"body": [
+			"unsafe {",
 			"\t$0",
 			"}"
 		],
-		"description": "Closure with return type"
+		"description": "Unsafe block (raw ops confined here)"
+	},
+	"Extern Block": {
+		"prefix": "extern",
+		"body": [
+			"extern \"${1:C}\" {",
+			"\tfn ${2:name}(${3:params}) -> ${4:ReturnType};",
+			"}"
+		],
+		"description": "Foreign function declaration"
+	},
+	"Cfg Feature": {
+		"prefix": "cfg",
+		"body": [
+			"#[cfg(feature = \"${1:name}\")]"
+		],
+		"description": "Conditional compilation attribute"
+	},
+	"Import Module": {
+		"prefix": "imp",
+		"body": [
+			"import ${1:app::module};"
+		],
+		"description": "Import module with :: path"
+	},
+	"Import Core": {
+		"prefix": "impc",
+		"body": [
+			"import core::${1:net}::${2:Http};"
+		],
+		"description": "Import core module"
+	},
+	"Import Alias": {
+		"prefix": "impa",
+		"body": [
+			"import ${1:module} as ${2:alias};"
+		],
+		"description": "Import with alias"
+	},
+	"Module Declaration": {
+		"prefix": "mod",
+		"body": [
+			"module ${1:app::name};"
+		],
+		"description": "Module declaration"
 	},
 	"Test Function": {
 		"prefix": "test",
@@ -877,651 +683,353 @@
 			"\t$0",
 			"}"
 		],
-		"description": "Test function"
-	},
-	"Test with Assert": {
-		"prefix": "testa",
-		"body": [
-			"@Test",
-			"pub fn ${1:test_name}() {",
-			"\tlet ${2:result} = ${3:function}();",
-			"\tassert(${2:result} == ${4:expected});",
-			"}"
-		],
-		"description": "Test function with assertion"
+		"description": "Test picked up by lex test"
 	},
 	"Assert": {
 		"prefix": "assert",
 		"body": [
 			"assert(${1:condition});"
 		],
-		"description": "Assert statement"
+		"description": "Assertion"
 	},
-	"Assert Equal": {
-		"prefix": "asserteq",
-		"body": [
-			"assert(${1:actual} == ${2:expected});"
-		],
-		"description": "Assert equality"
-	},
-	"Middleware": {
-		"prefix": "mid",
-		"body": [
-			"@Middleware",
-			"pub fn ${1:name}(ctx: Context) -> Response {",
-			"\t$0",
-			"\treturn ctx.next();",
-			"}"
-		],
-		"description": "Middleware function"
-	},
-	"Context": {
-		"prefix": "ctx",
-		"body": [
-			"let ${1:value} = ctx.get(\"${2:key}\");"
-		],
-		"description": "Get value from context"
-	},
-	"JSON Parse": {
-		"prefix": "jsonp",
-		"body": [
-			"Json::parse<${1:Type}>(${2:json_string})"
-		],
-		"description": "Parse JSON string"
-	},
-	"JSON Stringify": {
-		"prefix": "jsons",
-		"body": [
-			"Json::stringify(${1:value})"
-		],
-		"description": "Convert value to JSON string"
-	},
-	"Env Get": {
-		"prefix": "envg",
-		"body": [
-			"Env::get(\"${1:VAR_NAME}\")"
-		],
-		"description": "Get environment variable"
-	},
-	"Class with Decorators": {
-		"prefix": "class",
-		"body": [
-			"@Getter",
-			"@Setter",
-			"class ${1:MyClass} {",
-			"\tpub constructor($2) {",
-			"\t\t$0",
-			"\t}",
-			"}"
-		],
-		"description": "Class with common decorators"
-	},
-	"Getter": {
-		"prefix": "get",
-		"body": [
-			"@Getter",
-			"class ${1:Name} {",
-			"\t${2:field}: ${3:Type},",
-			"}"
-		],
-		"description": "Class with Getter"
-	},
-	"Setter": {
-		"prefix": "set",
-		"body": [
-			"@Setter",
-			"class ${1:Name} {",
-			"\t${2:field}: ${3:Type},",
-			"}"
-		],
-		"description": "Class with Setter"
-	},
-	"Data Class": {
-		"prefix": "data",
-		"body": [
-			"@Getter",
-			"@Setter",
-			"@Builder",
-			"class ${1:Name} {",
-			"\t${2:field}: ${3:Type},$0",
-			"}"
-		],
-		"description": "Data class with common annotations"
-	},
-	"Builder Pattern": {
-		"prefix": "build",
-		"body": [
-			"${1:Type}::builder()",
-			"\t.${2:field1}(${3:value1})",
-			"\t.${4:field2}(${5:value2})",
-			"\t.build()"
-		],
-		"description": "Builder pattern"
-	},
-	"Async Await": {
-		"prefix": "await",
-		"body": [
-			"await ${1:future};"
-		],
-		"description": "Await async operation"
-	},
-	"Async Function Definition": {
-		"prefix": "asyncfn",
-		"body": [
-			"pub async fn ${1:name}($2) -> ${3:Result} {",
-			"\t$0",
-			"}"
-		],
-		"description": "Async function definition"
-	},
-	"Comment Line": {
+	"Line Comment": {
 		"prefix": "//",
 		"body": [
 			"// ${1:comment}"
 		],
 		"description": "Line comment"
 	},
-	"Comment Block": {
-		"prefix": "/**",
-		"body": [
-			"/**",
-			" * ${1:description}",
-			" */"
-		],
-		"description": "Block comment"
-	},
 	"Doc Comment": {
 		"prefix": "///",
 		"body": [
 			"/// ${1:description}"
 		],
-		"description": "Documentation comment"
-	},
-	"Unwrap": {
-		"prefix": "unwrap",
-		"body": [
-			"${1:expr}.unwrap()"
-		],
-		"description": "Unwrap Option or Result"
-	},
-	"Unwrap Or": {
-		"prefix": "unwrap_or",
-		"body": [
-			"${1:expr}.unwrap_or(${2:default})"
-		],
-		"description": "Unwrap with default value"
-	},
-	"Unwrap Or Else": {
-		"prefix": "unwrap_oe",
-		"body": [
-			"${1:expr}.unwrap_or_else(|| ${2:compute_default})"
-		],
-		"description": "Unwrap or compute default"
-	},
-	"Match Full": {
-		"prefix": "matchfull",
-		"body": [
-			"match ${1:expr} {",
-			"\tSome(${2:value}) => {",
-			"\t\t$3",
-			"\t},",
-			"\tNone => {",
-			"\t\t$4",
-			"\t}",
-			"}"
-		],
-		"description": "Match Option full"
-	},
-	"Match Result": {
-		"prefix": "matchres",
-		"body": [
-			"match ${1:expr} {",
-			"\tOk(${2:value}) => {",
-			"\t\t$3",
-			"\t},",
-			"\tErr(${4:error}) => {",
-			"\t\t$5",
-			"\t}",
-			"}"
-		],
-		"description": "Match Result full"
-	},
-	"Try Block": {
-		"prefix": "tryb",
-		"body": [
-			"try {",
-			"\t$1",
-			"} catch ${2:e} {",
-			"\t$3",
-			"}"
-		],
-		"description": "Try-catch block"
-	},
-	"Throw Error": {
-		"prefix": "throw",
-		"body": [
-			"throw ${1:Error}::new(\"${2:message}\");"
-		],
-		"description": "Throw error"
-	},
-	"Closure Pipe": {
-		"prefix": "cpipe",
-		"body": [
-			"|${1:arg}| ${2:expr} |> ${3:next}"
-		],
-		"description": "Closure with pipe"
-	},
-	"For In": {
-		"prefix": "forin",
-		"body": [
-			"for ${1:item} in ${2:collection} {",
-			"\t$0",
-			"}"
-		],
-		"description": "For in loop"
-	},
-	"For Range": {
-		"prefix": "forr",
-		"body": [
-			"for ${1:i} in ${2:0}..${3:10} {",
-			"\t$0",
-			"}"
-		],
-		"description": "For range loop"
-	},
-	"Loop Infinite": {
-		"prefix": "loopi",
-		"body": [
-			"loop {",
-			"\t$0",
-			"}"
-		],
-		"description": "Infinite loop"
-	},
-	"Break If": {
-		"prefix": "breakif",
-		"body": [
-			"if ${1:condition} {",
-			"\tbreak;",
-			"}"
-		],
-		"description": "Break if condition"
-	},
-	"Continue If": {
-		"prefix": "contif",
-		"body": [
-			"if ${1:condition} {",
-			"\tcontinue;",
-			"}"
-		],
-		"description": "Continue if condition"
-	},
-	"Return Early": {
-		"prefix": "retif",
-		"body": [
-			"if ${1:condition} {",
-			"\treturn ${2:value};",
-			"}"
-		],
-		"description": "Return early if condition"
-	},
-	"List New": {
-		"prefix": "listn",
-		"body": [
-			"let ${1:list} = List<${2:T}>::new();"
-		],
-		"description": "Create new List"
-	},
-	"List From": {
-		"prefix": "listf",
-		"body": [
-			"let ${1:list} = List::from([${2:items}]);"
-		],
-		"description": "Create List from array"
-	},
-	"Map New": {
-		"prefix": "mapn",
-		"body": [
-			"let ${1:map} = Map<${2:K}, ${3:V}>::new();"
-		],
-		"description": "Create new Map"
-	},
-	"Map Set": {
-		"prefix": "mapset",
-		"body": [
-			"${1:map}.set(${2:key}, ${3:value});"
-		],
-		"description": "Set value in Map"
-	},
-	"Vector New": {
-		"prefix": "vecn",
-		"body": [
-			"let ${1:vec} = Vec<${2:T}>::new();"
-		],
-		"description": "Create new Vector"
-	},
-	"Vector Push": {
-		"prefix": "vecp",
-		"body": [
-			"${1:vec}.push(${2:item});"
-		],
-		"description": "Push to Vector"
-	},
-	"Set Env": {
-		"prefix": "envs",
-		"body": [
-			"Env::set(\"${1:VAR_NAME}\", \"${2:value}\");"
-		],
-		"description": "Set environment variable"
-	},
-	"JSON Parse": {
-		"prefix": "jsonp",
-		"body": [
-			"Json::parse::<${1:Type}>(\"${2:json}\")"
-		],
-		"description": "Parse JSON string"
-	},
-	"Panic": {
-		"prefix": "panic",
-		"body": [
-			"panic(\"${1:message}\");"
-		],
-		"description": "Panic with message"
-	},
-	"Assert Eq": {
-		"prefix": "asserteq",
-		"body": [
-			"assert(${1:expected} == ${2:actual});"
-		],
-		"description": "Assert equals"
-	},
-	"Assert Ne": {
-		"prefix": "assertne",
-		"body": [
-			"assert(${1:expected} != ${2:actual});"
-		],
-		"description": "Assert not equals"
-	},
-	"Debug Print": {
-		"prefix": "dbg",
-		"body": [
-			"dbg(${1:expr});"
-		],
-		"description": "Debug print"
+		"description": "Doc comment (picked up by lex doc)"
 	},
 	"Todo Comment": {
 		"prefix": "todo",
 		"body": [
 			"// TODO: ${1:description}"
 		],
-		"description": "TODO comment"
+		"description": "TODO marker"
 	},
-	"Fixme Comment": {
-		"prefix": "fixme",
+	"Channel Send": {
+		"prefix": "chans",
 		"body": [
-			"// FIXME: ${1:description}"
+			"${1:ch}.send(${2:value});"
 		],
-		"description": "FIXME comment"
+		"description": "Send on a Channel (fails on closed/full)"
 	},
-	"Note Comment": {
-		"prefix": "note",
+	"Channel Receive": {
+		"prefix": "chanr",
 		"body": [
-			"// NOTE: ${1:description}"
+			"let ${1:value} = ${2:ch}.recv();"
 		],
-		"description": "NOTE comment"
+		"description": "Receive from a Channel (None when closed and drained)"
 	},
-	"Http Server": {
-		"prefix": "httpserv",
+	"List New": {
+		"prefix": "listnew",
 		"body": [
-			"Http::serve(\"${1:0.0.0.0:3000}\", ${2:app});"
+			"let ${1:items} = List::new();",
+			"${1:items}.push(${2:value});"
 		],
-		"description": "Start HTTP server"
+		"description": "Create a List and push an item"
 	},
-	"Context Get": {
-		"prefix": "ctxg",
+	"Map New": {
+		"prefix": "mapnew",
 		"body": [
-			"let ${1:value} = ctx.get::<${2:T}>(\"${3:key}\");"
+			"let ${1:m} = Map::new();",
+			"${1:m}.set(${2:key}, ${3:value});"
 		],
-		"description": "Get from context"
+		"description": "Create a Map and set a key/value pair"
 	},
-	"Context Set": {
-		"prefix": "ctxs",
+	"Option Unwrap Or": {
+		"prefix": "optunw",
 		"body": [
-			"ctx.set(\"${1:key}\", ${2:value});"
+			"${1:opt}.unwrapOr(${2:default})"
 		],
-		"description": "Set in context"
+		"description": "Unwrap Option or return the default"
 	},
-	"Middleware": {
-		"prefix": "middleware",
+	"Net Smoke Test": {
+		"prefix": "testnet",
 		"body": [
-			"@Middleware",
-			"pub fn ${1:name}(ctx: Context, next: Next) -> Response {",
-			"\t$0",
-			"\treturn next(ctx);",
-			"}"
+			"// lex test-net --host ${1:127.0.0.1} --port ${2:3000}",
+			"let ${3:res} = Http::get(\"http://${1:127.0.0.1}:${2:3000}/\");"
 		],
-		"description": "Middleware function"
+		"description": "Smoke-test TCP/HTTP/UDP/URL/WS (CLI + Http::get)"
 	},
-	"Guard": {
-		"prefix": "guard",
+	"DNS Check": {
+		"prefix": "dnscheck",
 		"body": [
-			"@Guard",
-			"pub fn ${1:name}(ctx: Context) -> bool {",
-			"\t$0",
-			"}"
+			"// lex dns-check --host ${1:example.com} --timeout ${2:5s}"
 		],
-		"description": "Guard function"
+		"description": "Resolve a host (Node dns.lookup parity)"
 	},
-	"Service": {
-		"prefix": "service",
+	"TLS Check": {
+		"prefix": "tlscheck",
 		"body": [
-			"service ${1:Name} {",
-			"\trpc ${2:getUser}(${3:id}: ${4:i32}) -> ${5:User};$0",
-			"}"
+			"// lex tls-check --host ${1:example.com} --port ${2:443}"
 		],
-		"description": "Service definition"
+		"description": "Validate TLS config for a host (Node tls parity)"
 	},
-	"Pub Async Fn": {
-		"prefix": "pafn",
+	"Block Comment": {
+		"prefix": "/*",
 		"body": [
-			"pub async fn ${1:name}($2) -> ${3:Result} {",
-			"\t$0",
-			"}"
+			"/*",
+			" * ${1:description}",
+			" */"
 		],
-		"description": "Public async function"
+		"description": "Block comment"
 	},
-	"Pub Fn Return": {
-		"prefix": "pfnr",
+	"Lex main": {
+		"prefix": [
+			"main",
+			"fn main"
+		],
 		"body": [
-			"pub fn ${1:name}($2) -> ${3:ReturnType} {",
+			"pub fn main() -> void {",
 			"\t$0",
 			"}"
 		],
-		"description": "Public function with return type"
+		"description": "Lex program entry point"
 	},
-	"Impl For": {
-		"prefix": "implfor",
+	"Lex function": {
+		"prefix": [
+			"fn"
+		],
 		"body": [
-			"impl ${1:Trait} for ${2:Type} {",
+			"pub fn ${1:name}() -> ${2:void} {",
 			"\t$0",
 			"}"
 		],
-		"description": "Impl trait for type"
+		"description": "Lex function declaration"
 	},
-	"Type Alias": {
-		"prefix": "typea",
-		"body": [
-			"type ${1:Alias} = ${2:Type};"
+	"Lex HTTP endpoint": {
+		"prefix": [
+			"@Get",
+			"endpoint",
+			"route"
 		],
-		"description": "Type alias"
-	},
-	"Static": {
-		"prefix": "static",
 		"body": [
-			"static ${1:NAME}: ${2:Type} = ${3:value};"
-		],
-		"description": "Static variable"
-	},
-	"Lazy Static": {
-		"prefix": "lazys",
-		"body": [
-			"lazy_static! {",
-			"\tstatic ref ${1:NAME}: ${2:Type} = ${3:value};",
+			"@${1|Get,Post,Put,Delete|}(\"${2:/}\")",
+			"pub fn ${3:handler}() -> String {",
+			"\treturn \"${4:ok}\";",
+			"}",
+			"",
+			"pub fn main() -> void {",
+			"\tHttp::serve(\"0.0.0.0:3000\");",
 			"}"
 		],
-		"description": "Lazy static"
+		"description": "Lex HTTP endpoint served by the real server"
 	},
-	"Generic Function": {
-		"prefix": "gfn",
+	"Lex serve": {
+		"prefix": [
+			"serve",
+			"Http::serve"
+		],
 		"body": [
-			"fn ${1:name}<${2:T}>(${3:arg}: ${2:T}) -> ${2:T} {",
+			"Http::serve(\"0.0.0.0:${1:3000}\");"
+		],
+		"description": "Start the real Lex HTTP server"
+	},
+	"Lex match": {
+		"prefix": [
+			"match"
+		],
+		"body": [
+			"match ${1:x} {",
 			"\t$0",
 			"}"
 		],
-		"description": "Generic function"
+		"description": "Exhaustive pattern match"
 	},
-	"Generic Function Multiple": {
-		"prefix": "gfnm",
+	"Lex struct": {
+		"prefix": [
+			"struct"
+		],
 		"body": [
-			"fn ${1:name}<${2:T}, ${3:U}>(${4:a}: ${2:T}, ${5:b}: ${3:U}) -> ${3:U} {",
+			"struct ${1:Name} {",
 			"\t$0",
 			"}"
 		],
-		"description": "Generic function with multiple types"
+		"description": "Lex struct declaration"
 	},
-	"Bounded Generic": {
-		"prefix": "bgfn",
+	"Lex test": {
+		"prefix": [
+			"@Test",
+			"test"
+		],
 		"body": [
-			"fn ${1:name}<${2:T}: ${3:Bound}>(${4:arg}: ${2:T}) -> ${2:T} {",
+			"@Test",
+			"pub fn ${1:test_}() -> bool {",
+			"\treturn $0;",
+			"}"
+		],
+		"description": "Test discovered by lex test"
+	},
+	"Lex Http get": {
+		"prefix": [
+			"Http::get",
+			"fetch"
+		],
+		"body": [
+			"Http::get(\"${1:https://…}\")"
+		],
+		"description": "Blocking HTTP GET at runtime"
+	},
+	"Lex Json parse": {
+		"prefix": [
+			"Json::parse"
+		],
+		"body": [
+			"Json::parse(\"${1:{…}}\")"
+		],
+		"description": "Parse JSON at runtime"
+	},
+	"Lex print": {
+		"prefix": [
+			"print",
+			"Console::writeLine"
+		],
+		"body": [
+			"Console::writeLine(\"${1:…}\");"
+		],
+		"description": "Print a line to stdout"
+	},
+	"Lex import std": {
+		"prefix": [
+			"import std",
+			"use std"
+		],
+		"body": [
+			"import std::${1:strings};"
+		],
+		"description": "Import a standard-library package (key = last segment)"
+	},
+	"Lex lambda": {
+		"prefix": [
+			"lambda",
+			"|x|"
+		],
+		"body": [
+			"|${1:x}| ${2:x}"
+		],
+		"description": "First-class lambda (captures environment)"
+	},
+	"Lex assert": {
+		"prefix": [
+			"assert"
+		],
+		"body": [
+			"assert(${1:cond}, \"${2:msg}\");"
+		],
+		"description": "Runtime assertion (fails the run)"
+	},
+	"Lex let": {
+		"prefix": [
+			"let"
+		],
+		"body": [
+			"let ${1:name} = ${2:value};"
+		],
+		"description": "Immutable binding (also var, const)"
+	},
+	"Lex for": {
+		"prefix": [
+			"for"
+		],
+		"body": [
+			"for ${1:x} in ${2:xs} {",
 			"\t$0",
 			"}"
 		],
-		"description": "Bounded generic function"
+		"description": "Iteration (also while, loop)"
 	},
-	"Where Clause": {
-		"prefix": "where",
-		"body": [
-			"fn ${1:name}<${2:T}>(${3:arg}: ${2:T}) -> ${4:ReturnType}",
-			"\twhere ${2:T}: ${5:Bound}",
-			"{",
-			"\t$0",
-			"}"
+	"Lex errors::New": {
+		"prefix": [
+			"errors::New",
+			"new error"
 		],
-		"description": "Function with where clause"
+		"body": [
+			"import std::errors;",
+			"",
+			"errors::New(\"${1:…}\")"
+		],
+		"description": "Go-parity error value"
 	},
-	"Boxed Type": {
-		"prefix": "box",
-		"body": [
-			"Box<${1:T}>::new(${2:value})"
+	"Lex strings import": {
+		"prefix": [
+			"import strings"
 		],
-		"description": "Boxed type"
+		"body": [
+			"import std::strings;"
+		],
+		"description": "Go-parity string helpers"
 	},
-	"Reference": {
-		"prefix": "ref",
-		"body": [
-			"&${1:value}"
+	"Lex math import": {
+		"prefix": [
+			"import math"
 		],
-		"description": "Reference"
+		"body": [
+			"import std::math;"
+		],
+		"description": "Native float64 math + Pi/E consts"
 	},
-	"Mutable Reference": {
-		"prefix": "mutref",
-		"body": [
-			"&mut ${1:value}"
+	"Lex json roundtrip": {
+		"prefix": [
+			"json::",
+			"Marshal"
 		],
-		"description": "Mutable reference"
+		"body": [
+			"import std::encoding::json;",
+			"",
+			"Json::serialize(${1:value})"
+		],
+		"description": "Native JSON serialize (Json::parse/valid)"
 	},
-	"Unsafe Block": {
-		"prefix": "unsafe",
-		"body": [
-			"unsafe {",
-			"\t$0",
-			"}"
+	"Lex time now": {
+		"prefix": [
+			"time::Now",
+			"Now()"
 		],
-		"description": "Unsafe block"
+		"body": [
+			"import std::time;",
+			"",
+			"time::Now()"
+		],
+		"description": "Current instant (Format/ParseDate/Sleep)"
 	},
-	"Unsafe Function": {
-		"prefix": "ufn",
-		"body": [
-			"unsafe fn ${1:name}($2) -> ${3:void} {",
-			"\t$0",
-			"}"
+	"Lex heap": {
+		"prefix": [
+			"heap::New"
 		],
-		"description": "Unsafe function"
+		"body": [
+			"import std::container::heap;",
+			"",
+			"let ${1:h} = heap::New(|a, b| a < b);"
+		],
+		"description": "Min-heap with lambda comparator"
 	},
-	"Extern Block": {
-		"prefix": "extern",
-		"body": [
-			"extern \"${1:C}\" {",
-			"\tfn ${2:name}($3) -> ${4:ReturnType};",
-			"}"
+	"Lex regexp match": {
+		"prefix": [
+			"regexp::Match"
 		],
-		"description": "Extern block"
+		"body": [
+			"import std::regexp;",
+			"",
+			"regexp::Match(\"${1:pattern}\", ${2:s})"
+		],
+		"description": "Documented-subset regex match"
 	},
-	"Module": {
-		"prefix": "mod",
-		"body": [
-			"mod ${1:name} {",
-			"\t$0",
-			"}"
+	"Lex sha256": {
+		"prefix": [
+			"sha256::Sum"
 		],
-		"description": "Module definition"
-	},
-	"Public Module": {
-		"prefix": "pmod",
 		"body": [
-			"pub mod ${1:name} {",
-			"\t$0",
-			"}"
+			"import std::crypto::sha256;",
+			"",
+			"sha256::Sum(${1:s})"
 		],
-		"description": "Public module definition"
-	},
-	"Use Statement": {
-		"prefix": "use",
-		"body": [
-			"use ${1:module}::${2:member};"
-		],
-		"description": "Use statement"
-	},
-	"Use with Alias": {
-		"prefix": "usea",
-		"body": [
-			"use ${1:module}::${2:member} as ${3:alias};"
-		],
-		"description": "Use with alias"
-	},
-	"Pub Use": {
-		"prefix": "puse",
-		"body": [
-			"pub use ${1:module}::${2:member};"
-		],
-		"description": "Public use statement"
-	},
-	"Range": {
-		"prefix": "range",
-		"body": [
-			"${1:start}..${2:end}"
-		],
-		"description": "Range"
-	},
-	"Inclusive Range": {
-		"prefix": "irange",
-		"body": [
-			"${1:start}..=${2:end}"
-		],
-		"description": "Inclusive range"
-	},
-	"Attribute": {
-		"prefix": "attr",
-		"body": [
-			"#[\"${1:attribute}\"]"
-		],
-		"description": "Attribute"
-	},
-	"Derive Attribute": {
-		"prefix": "derive",
-		"body": [
-			"#[\"derive(${1:Clone}, ${2:Debug})\""
-		],
-		"description": "Derive attribute"
+		"description": "SHA-256 hex digest (FIPS vectors)"
 	}
 }

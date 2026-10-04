@@ -104,16 +104,33 @@ pub fn parse_gui_code(source: &str) -> Vec<WindowState> {
     let mut windows = Vec::new();
     let mut current_window: Option<WindowState> = None;
     let mut element_id_counter = 0;
+    let mut menubar_counter = 0;
+    // Menu under construction + finished menus of the current window.
+    // `lex gui` is line-oriented: `Menu::new` starts a menu, `MenuItem::new`
+    // appends to it, and everything is flushed into the window on the next
+    // `Window::create` (or end of source). Wiring lines (`menu.add`,
+    // `bar.add`, `setMenuBar`) need no handling.
+    let mut current_menu: Option<Menu> = None;
+    let mut current_menubar: Vec<Menu> = Vec::new();
 
     for line in source.lines() {
         let line = line.trim();
 
         if line.contains("Window::create") || line.contains("let window = Window") {
-            if let Some(win) = current_window.take() {
+            if let Some(mut win) = current_window.take() {
+                flush_menu(&mut current_menu, &mut current_menubar);
+                if !current_menubar.is_empty() {
+                    menubar_counter += 1;
+                    win.elements.push(Element::MenuBar {
+                        id: format!("menubar_{}", menubar_counter),
+                        menus: std::mem::take(&mut current_menubar),
+                    });
+                }
                 if !win.elements.is_empty() {
                     windows.push(win);
                 }
             }
+            current_menu = None;
             let title = extract_title_from_line(line);
             current_window = Some(WindowState {
                 title,
@@ -125,17 +142,55 @@ pub fn parse_gui_code(source: &str) -> Vec<WindowState> {
         }
 
         if let Some(ref mut win) = current_window {
-            if line.contains("setTitle(") || line.contains("title:") {
-                win.title = extract_string_value(line);
-            }
-            if line.contains("setSize(") || line.contains("width:") || line.contains("height:") {
-                if let Some((w, h)) = extract_size(line) {
-                    win.width = w;
-                    win.height = h;
+            // Struct-literal config lines (`Cfg { title: ..., width: ... }`)
+            // belong to a *future* `Window::create`, not to the window being
+            // built — only the create line itself may carry `{...}` here.
+            let is_struct_config = line.contains('{') && !line.contains("Window::create");
+            if !is_struct_config {
+                if line.contains("setTitle(") || line.contains("title:") {
+                    win.title = extract_string_value(line);
+                }
+                if line.contains("setSize(") || line.contains("width:") || line.contains("height:") {
+                    if let Some((w, h)) = extract_size(line) {
+                        win.width = w;
+                        win.height = h;
+                    }
                 }
             }
             if line.contains(".show()") || line.contains("window.show()") {
                 win.visible = true;
+            }
+        }
+
+        // `MenuBar::new()` opens the window's menu bar (idempotent).
+        if line.contains("MenuBar::new") {
+            flush_menu(&mut current_menu, &mut current_menubar);
+        }
+
+        if line.contains("Menu::new(") && !line.contains("MenuItem") && !line.contains("MenuBar") {
+            flush_menu(&mut current_menu, &mut current_menubar);
+            current_menu = Some(Menu {
+                title: extract_nth_quoted(line, 0),
+                items: Vec::new(),
+            });
+        }
+
+        if line.contains("MenuItem::new") {
+            if current_menu.is_none() {
+                current_menu = Some(Menu {
+                    title: "Menu".to_string(),
+                    items: Vec::new(),
+                });
+            }
+            if let Some(ref mut menu) = current_menu {
+                menu.items.push(MenuItem {
+                    label: extract_nth_quoted(line, 0),
+                    shortcut: match extract_nth_quoted(line, 1) {
+                        s if s.is_empty() => None,
+                        s => Some(s),
+                    },
+                    action: None,
+                });
             }
         }
 
@@ -164,6 +219,22 @@ pub fn parse_gui_code(source: &str) -> Vec<WindowState> {
                     placeholder,
                     text: String::new(),
                 });
+            }
+
+            // `field.setPlaceholder("...")` attaches to the last TextField.
+            if line.contains("setPlaceholder(") {
+                let ph = extract_quoted_string(line);
+                if !ph.is_empty() {
+                    if let Some(el) = win
+                        .elements
+                        .iter_mut()
+                        .rfind(|e| matches!(e, Element::TextField { .. }))
+                    {
+                        if let Element::TextField { placeholder, .. } = el {
+                            *placeholder = ph;
+                        }
+                    }
+                }
             }
 
             if line.contains("TextArea::create") {
@@ -209,13 +280,47 @@ pub fn parse_gui_code(source: &str) -> Vec<WindowState> {
         }
     }
 
-    if let Some(win) = current_window {
+    if let Some(mut win) = current_window.take() {
+        flush_menu(&mut current_menu, &mut current_menubar);
+        if !current_menubar.is_empty() {
+            menubar_counter += 1;
+            win.elements.push(Element::MenuBar {
+                id: format!("menubar_{}", menubar_counter),
+                menus: std::mem::take(&mut current_menubar),
+            });
+        }
         if !win.elements.is_empty() {
             windows.push(win);
         }
     }
 
     windows
+}
+
+/// Move the menu under construction into the window's menu bar.
+fn flush_menu(current_menu: &mut Option<Menu>, current_menubar: &mut Vec<Menu>) {
+    if let Some(menu) = current_menu.take() {
+        current_menubar.push(menu);
+    }
+}
+
+/// n-th `"quoted"` string on the line (0-based), or `""`.
+fn extract_nth_quoted(line: &str, n: usize) -> String {
+    let mut rest = line;
+    let mut idx = 0;
+    while let Some(start) = rest.find('"') {
+        rest = &rest[start + 1..];
+        if let Some(end) = rest.find('"') {
+            if idx == n {
+                return rest[..end].to_string();
+            }
+            idx += 1;
+            rest = &rest[end + 1..];
+        } else {
+            break;
+        }
+    }
+    String::new()
 }
 
 fn extract_title_from_line(line: &str) -> String {
@@ -260,10 +365,13 @@ fn extract_size(line: &str) -> Option<(f32, f32)> {
 fn extract_placeholder(line: &str) -> String {
     if let Some(start) = line.find("Placeholder") {
         let rest = &line[start..];
-        extract_quoted_string(rest)
-    } else {
-        String::new()
+        let ph = extract_quoted_string(rest);
+        if !ph.is_empty() {
+            return ph;
+        }
     }
+    // Fallback: `TextField::create("Seu nome")` carries its own hint.
+    extract_quoted_string(line)
 }
 
 fn extract_rows(line: &str) -> usize {
@@ -434,7 +542,11 @@ impl eframe::App for LexiconGuiApp {
                                 for menu in menus {
                                     ui.menu_button(&menu.title, |ui| {
                                         for item in &menu.items {
-                                            if ui.button(&item.label).clicked() {
+                                            let caption = match &item.shortcut {
+                                                Some(s) => format!("{}  ({})", item.label, s),
+                                                None => item.label.clone(),
+                                            };
+                                            if ui.button(&caption).clicked() {
                                                 self.output
                                                     .push_str(&format!("Menu: {}\n", item.label));
                                                 ui.close_menu();
@@ -462,5 +574,125 @@ impl eframe::App for LexiconGuiApp {
                 ui.label(&self.output);
             });
         }
+    }
+}
+
+#[cfg(test)]
+mod gui_parse_tests {
+    use super::*;
+
+    const DEMO: &str = r#"
+pub fn main() -> void {
+    let cfg = WinConfig { title: "Minha Janela", width: 800, height: 600 };
+    let window = Window::create(cfg);
+    window.setSize(800, 600);
+    window.setTitle("Minha Janela");
+
+    let bar = MenuBar::new();
+    let mArquivo = Menu::new("Arquivo");
+    let iNovo = MenuItem::new("Novo", "Ctrl+N");
+    mArquivo.add(iNovo);
+    let iSair = MenuItem::new("Sair", "Ctrl+Q");
+    mArquivo.add(iSair);
+    bar.add(mArquivo);
+    let mAjuda = Menu::new("Ajuda");
+    let iSobre = MenuItem::new("Sobre");
+    mAjuda.add(iSobre);
+    bar.add(mAjuda);
+    window.setMenuBar(bar);
+
+    let titulo = Label::create("Bem-vindo!");
+    window.add(titulo);
+    let nome = TextField::create("Seu nome");
+    nome.setPlaceholder("Digite seu nome");
+    window.add(nome);
+    let lembrete = Checkbox::create("Lembrar de mim");
+    window.add(lembrete);
+    let botao = Button::create("Clique aqui");
+    window.add(botao);
+    window.show();
+
+    let cfg2 = WinConfig { title: "Sobre", width: 400, height: 300 };
+    let sobre = Window::create(cfg2);
+    sobre.setSize(400, 300);
+    sobre.setTitle("Sobre");
+    let info = Label::create("v1.0");
+    sobre.add(info);
+    sobre.show();
+    return;
+}
+"#;
+
+    #[test]
+    fn two_windows_menu_widgets_and_config_isolation() {
+        let wins = parse_gui_code(DEMO);
+        assert_eq!(wins.len(), 2, "expected 2 windows, got {}", wins.len());
+
+        // Window 1 keeps its own title/size (cfg2 must not leak into it).
+        assert_eq!(wins[0].title, "Minha Janela");
+        assert_eq!((wins[0].width, wins[0].height), (800.0, 600.0));
+
+        // Menu bar with two menus, labels and shortcuts.
+        let mb = wins[0]
+            .elements
+            .iter()
+            .find_map(|e| match e {
+                Element::MenuBar { menus, .. } => Some(menus),
+                _ => None,
+            })
+            .expect("window 1 must have a MenuBar");
+        assert_eq!(mb.len(), 2);
+        assert_eq!(mb[0].title, "Arquivo");
+        assert_eq!(mb[0].items.len(), 2);
+        assert_eq!(mb[0].items[0].label, "Novo");
+        assert_eq!(mb[0].items[0].shortcut.as_deref(), Some("Ctrl+N"));
+        assert_eq!(mb[0].items[1].label, "Sair");
+        assert_eq!(mb[1].title, "Ajuda");
+        assert_eq!(mb[1].items.len(), 1);
+        assert_eq!(mb[1].items[0].label, "Sobre");
+        assert!(mb[1].items[0].shortcut.is_none());
+
+        // Widgets.
+        let labels = wins[0]
+            .elements
+            .iter()
+            .filter(|e| matches!(e, Element::Label { .. }))
+            .count();
+        let buttons = wins[0]
+            .elements
+            .iter()
+            .filter(|e| matches!(e, Element::Button { .. }))
+            .count();
+        assert_eq!(labels, 1);
+        assert_eq!(buttons, 1);
+        let ph = wins[0]
+            .elements
+            .iter()
+            .find_map(|e| match e {
+                Element::TextField { placeholder, .. } => Some(placeholder.clone()),
+                _ => None,
+            })
+            .expect("textfield");
+        assert_eq!(ph, "Digite seu nome");
+        assert!(wins[0]
+            .elements
+            .iter()
+            .any(|e| matches!(e, Element::Checkbox { .. })));
+
+        // Window 2 intact.
+        assert_eq!(wins[1].title, "Sobre");
+        assert_eq!((wins[1].width, wins[1].height), (400.0, 300.0));
+        assert!(wins[1]
+            .elements
+            .iter()
+            .any(|e| matches!(e, Element::Label { .. })));
+    }
+
+    #[test]
+    fn empty_window_is_dropped() {
+        let wins = parse_gui_code(
+            "pub fn main() -> void { let w = Window::create(c); w.show(); return; }",
+        );
+        assert!(wins.is_empty());
     }
 }

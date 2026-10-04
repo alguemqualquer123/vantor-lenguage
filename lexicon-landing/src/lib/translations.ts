@@ -7,39 +7,45 @@ export const translations = {
       install: "Install"
     },
     hero: {
-      alpha: "v0.1.0-alpha",
-      new_era: "New Cloud-Native Era",
+      alpha: "v0.2.0",
+      new_era: "Hot Reload + Super Extension",
       title_part1: "CODE",
       title_part2: "WITHOUT LIMITS.",
-      description: "A modern programming language designed for native performance, WASM, and instant deployment. Extreme productivity for the next generation of the web.",
+      description: "Lexicon v0.2.0: a modern language with a hot-reload supervisor, a VS Code super extension, and pre-run diagnostics. Save → auto-restart, catch errors before running, and serve a real HTTP + SQLite demo API.",
       download: "DOWNLOAD SDK",
       repository: "REPOSITORY"
     },
     features: {
-      title: "Powerful Features",
-      subtitle: "Designed for modern engineering",
-      native: {
-        title: "Native Performance",
-        desc: "LLVM-based compilation for maximum speed on any platform."
+      title: "Built for Real Work",
+      subtitle: "v0.2.0 capabilities — verified against the actual toolchain",
+      hotreload: {
+        title: "Hot Reload Supervisor",
+        desc: "Save → auto-restart with lex run --watch. 300 ms debounce, .lex-only filter, and crash backoff instead of hot-spinning."
       },
-      wasm: {
-        title: "WASM First",
-        desc: "Compile once, run anywhere with native WebAssembly support."
+      extension: {
+        title: "Super Extension 1.1.x",
+        desc: "VS Code super extension: 85+ snippets, 4 themes, contextual autocomplete with auto-import, and vet diagnostics on save."
       },
-      cloud: {
-        title: "Cloud Native",
-        desc: "Built-in decorators for instant cloud and edge deployment."
+      diagnostics: {
+        title: "Pre-Run Diagnostics",
+        desc: "Syntax gate with file:line:col errors before anything runs. lex check and lex vet plus a stable E-code catalog (E0101–E0801)."
       },
-      pipes: {
-        title: "Fluent Pipes",
-        desc: "Clean data flow with functional pipes and closures."
+      installer: {
+        title: "Honest Installer",
+        desc: "Silent, idempotent setup — never duplicates PATH entries. Comment-accurate runner: commented-out code never executes."
       }
     },
     templates: {
       title: "Start in Seconds",
+      subtitle: "Scaffold instantly, then run the real thing.",
       api: "REST API",
+      api_desc: "Scaffold with lex new api --edge. Then run the real demo-api: axum HTTP + SQLite with dev/prod .env flows.",
       plugin: "WASM Plugin",
-      service: "gRPC Service"
+      plugin_desc: "Scaffold with lex new plugin --target wasm. Snippets and grammar included; check the docs for current target status.",
+      service: "gRPC Service",
+      service_desc: "Scaffold with lex new service --grpc. Validate every step with lex vet before you run.",
+      quickstart_title: "Real quickstart — try it now",
+      quickstart_desc: "These commands work against the v0.2.0 toolchain today."
     },
     docs: {
       title: "LEXICON DOCS",
@@ -68,39 +74,45 @@ export const translations = {
       install: "Instalar"
     },
     hero: {
-      alpha: "v0.1.0-alpha",
-      new_era: "Nova era Cloud-Native",
+      alpha: "v0.2.0",
+      new_era: "Hot Reload + Super Extensão",
       title_part1: "CÓDIGO",
       title_part2: "SEM LIMITES.",
-      description: "Uma linguagem de programação moderna projetada para performance nativa, WASM e deploy instantâneo. Produtividade extrema para a próxima geração da web.",
+      description: "Lexicon v0.2.0: linguagem moderna com supervisor de hot-reload, super extensão para VS Code e diagnósticos pré-execução. Salvou → reiniciou, erros capturados antes de rodar, e uma demo API real com HTTP + SQLite.",
       download: "BAIXAR SDK",
       repository: "REPOSITÓRIO"
     },
     features: {
-      title: "Recursos Poderosos",
-      subtitle: "Projetado para engenharia moderna",
-      native: {
-        title: "Performance Nativa",
-        desc: "Compilação baseada em LLVM para máxima velocidade."
+      title: "Feito para Trabalho Real",
+      subtitle: "Capacidades da v0.2.0 — verificadas contra o toolchain real",
+      hotreload: {
+        title: "Supervisor Hot Reload",
+        desc: "Salvou → reiniciou com lex run --watch. Debounce de 300 ms, filtro só-.lex e backoff contra crash em vez de loop infinito."
       },
-      wasm: {
-        title: "WASM First",
-        desc: "Compile uma vez, rode em qualquer lugar nativamente."
+      extension: {
+        title: "Super Extensão 1.1.x",
+        desc: "Super extensão VS Code: 85+ snippets, 4 temas, autocomplete contextual com auto-import e diagnósticos do vet ao salvar."
       },
-      cloud: {
-        title: "Cloud Native",
-        desc: "Decoradores integrados para deploy instantâneo."
+      diagnostics: {
+        title: "Diagnósticos Pré-Execução",
+        desc: "Barreira de sintaxe com erros arquivo:linha:col antes de qualquer execução. lex check e lex vet mais catálogo estável de códigos E (E0101–E0801)."
       },
-      pipes: {
-        title: "Pipes Fluentes",
-        desc: "Fluxo de dados limpo com pipes e closures."
+      installer: {
+        title: "Instalador Honesto",
+        desc: "Setup silencioso e idempotente — nunca duplica entradas do PATH. Runner fiel a comentários: código comentado nunca executa."
       }
     },
     templates: {
       title: "Comece em Segundos",
+      subtitle: "Crie o scaffold na hora e rode o que é real.",
       api: "REST API",
+      api_desc: "Crie com lex new api --edge. Depois rode a demo-api real: HTTP axum + SQLite com fluxos .env dev/prod.",
       plugin: "WASM Plugin",
-      service: "gRPC Service"
+      plugin_desc: "Crie com lex new plugin --target wasm. Snippets e gramática inclusos; veja nos docs o status atual do target.",
+      service: "gRPC Service",
+      service_desc: "Crie com lex new service --grpc. Valide cada passo com lex vet antes de rodar.",
+      quickstart_title: "Quickstart real — teste agora",
+      quickstart_desc: "Estes comandos funcionam no toolchain v0.2.0 hoje."
     },
     docs: {
       title: "LEXICON DOCS",

@@ -1,133 +1,698 @@
 {
-    "name": "lexicon-lang",
-    "displayName": "Lexicon Language Support",
-    "description": "Complete language support for Lexicon - Syntax highlighting, snippets, auto-completion, and more",
-    "version": "0.2.0",
-    "publisher": "lexicon-team",
-    "main": "./out/extension.js",
-    "activationEvents": [
-        "onLanguage:lexicon",
-        "onCommand:lexicon.run",
-        "onCommand:lexicon.debug",
-        "onCommand:lexicon.newProject"
-    ],
-    "engines": {
-        "vscode": "^1.60.0"
-    },
-    "categories": [
-        "Programming Languages",
-        "Snippets"
-    ],
-    "icon": "icons/lexicon-icon.png",
-    "contributes": {
-        "languages": [
-            {
-                "id": "lexicon",
-                "aliases": [
-                    "Lexicon",
-                    "lexicon"
-                ],
-                "extensions": [
-                    ".lex"
-                ],
-                "filenamePatterns": [
-                    "main.lex"
-                ],
-                "configuration": "./language-configuration.json",
-                "icon": {
-                    "light": "./icons/lexicon-icon.png",
-                    "dark": "./icons/lexicon-icon.png"
-                }
-            }
+  "name": "lexicon-super",
+  "displayName": "%extension.displayName%",
+  "description": "%extension.description%",
+  "version": "1.2.0",
+  "publisher": "lexicon-team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lexicon-lang/lexicon"
+  },
+  "homepage": "https://github.com/lexicon-lang/lexicon#readme",
+  "bugs": {
+    "url": "https://github.com/lexicon-lang/lexicon/issues"
+  },
+  "icon": "icons/lexicon-icon.png",
+  "galleryBanner": {
+    "color": "#0F1117",
+    "theme": "dark"
+  },
+  "main": "./out/extension.js",
+  "browser": "./out/extension.web.js",
+  "activationEvents": [
+    "onLanguage:lexicon",
+    "onCommand:lexicon.run",
+    "onCommand:lexicon.runWithArgs",
+    "onCommand:lexicon.check",
+    "onCommand:lexicon.vet",
+    "onCommand:lexicon.lint",
+    "onCommand:lexicon.fmt",
+    "onCommand:lexicon.doc",
+    "onCommand:lexicon.trace",
+    "onCommand:lexicon.test",
+    "onCommand:lexicon.build",
+    "onCommand:lexicon.debug",
+    "onCommand:lexicon.newProject",
+    "onCommand:lexicon.showSnippets",
+    "onCommand:lexicon.showProblems",
+    "onCommand:lexicon.telemetry.show",
+    "onCommand:lexicon.telemetry.reset",
+    "onCommand:lexicon.serve",
+    "onCommand:lexicon.testNet",
+    "onCommand:lexicon.dnsCheck",
+    "onCommand:lexicon.tlsCheck",
+    "onCommand:lexicon.env"
+  ],
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Themes",
+    "Linters",
+    "Formatters"
+  ],
+  "keywords": [
+    "lexicon",
+    "lex",
+    "language",
+    "snippets",
+    "theme",
+    "http",
+    "sqlite"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "lexicon",
+        "aliases": [
+          "Lexicon",
+          "lexicon",
+          "lex"
         ],
-        "grammars": [
-            {
-                "language": "lexicon",
-                "scopeName": "source.lexicon",
-                "path": "./syntaxes/lexicon.tmLanguage.json"
-            }
+        "extensions": [
+          ".lex",
+          ".lang"
         ],
-        "snippets": [
-            {
-                "language": "lexicon",
-                "path": "./snippets/lexicon.json"
-            }
+        "filenamePatterns": [
+          "main.lex",
+          "main.lang"
         ],
-        "themes": [
-            {
-                "label": "Lexicon Dark Pro",
-                "uiTheme": "vs-dark",
-                "path": "./themes/lexicon-dark-pro.json"
-            },
-            {
-                "label": "Lexicon Midnight",
-                "uiTheme": "vs-dark",
-                "path": "./themes/lexicon-midnight.json"
-            }
-        ],
-        "iconThemes": [
-            {
-                "id": "lexicon-icons",
-                "label": "Lexicon Icons",
-                "path": "./themes/lexicon-icon-theme.json"
-            }
-        ],
-        "commands": [
-            {
-                "command": "lexicon.run",
-                "title": "Lexicon: Run File",
-                "icon": "$(play)"
-            },
-            {
-                "command": "lexicon.runWithArgs",
-                "title": "Lexicon: Run with Arguments",
-                "icon": "$(terminal)"
-            },
-            {
-                "command": "lexicon.debug",
-                "title": "Lexicon: Debug File",
-                "icon": "$(debug-start)"
-            },
-            {
-                "command": "lexicon.newProject",
-                "title": "Lexicon: New Project"
-            },
-            {
-                "command": "lexicon.build",
-                "title": "Lexicon: Build Project",
-                "icon": "$(gear)"
-            }
-        ],
-        "keybindings": [
-            {
-                "command": "lexicon.run",
-                "key": "f5",
-                "when": "editorLangId == lexicon"
-            },
-            {
-                "command": "lexicon.run",
-                "mac": "cmd+shift+r",
-                "when": "editorLangId == lexicon"
-            }
-        ],
-        "configuration": {
-            "lexicon": {
-                "suggest": {
-                    "showKeywords": true,
-                    "showSnippets": true
-                },
-                "runtime": {
-                    "path": "lex",
-                    "args": [
-                        "run"
-                    ]
-                }
-            }
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/lexicon-icon.png",
+          "dark": "./icons/lexicon-icon.png"
         }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "lexicon",
+        "scopeName": "source.lexicon",
+        "path": "./syntaxes/lexicon.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "lexicon",
+        "path": "./snippets/lexicon.json"
+      }
+    ],
+    "themes": [
+      {
+        "label": "%theme.darkPro%",
+        "uiTheme": "vs-dark",
+        "path": "./themes/lexicon-dark-pro.json"
+      },
+      {
+        "label": "%theme.midnight%",
+        "uiTheme": "vs-dark",
+        "path": "./themes/lexicon-midnight.json"
+      },
+      {
+        "label": "%theme.light%",
+        "uiTheme": "vs",
+        "path": "./themes/lexicon-light.json"
+      },
+      {
+        "label": "%theme.highContrast%",
+        "uiTheme": "hc-black",
+        "path": "./themes/lexicon-high-contrast.json"
+      }
+    ],
+    "iconThemes": [
+      {
+        "id": "lexicon-icons",
+        "label": "%iconTheme.label%",
+        "path": "./themes/lexicon-icon-theme.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "lexicon.run",
+        "title": "%command.run%",
+        "icon": "$(play)"
+      },
+      {
+        "command": "lexicon.runWithArgs",
+        "title": "%command.runWithArgs%",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "lexicon.check",
+        "title": "%command.check%",
+        "icon": "$(check)"
+      },
+      {
+        "command": "lexicon.vet",
+        "title": "%command.vet%",
+        "icon": "$(shield)"
+      },
+      {
+        "command": "lexicon.lint",
+        "title": "%command.lint%",
+        "icon": "$(search)"
+      },
+      {
+        "command": "lexicon.fmt",
+        "title": "%command.fmt%",
+        "icon": "$(symbol-file)"
+      },
+      {
+        "command": "lexicon.doc",
+        "title": "%command.doc%",
+        "icon": "$(book)"
+      },
+      {
+        "command": "lexicon.trace",
+        "title": "%command.trace%",
+        "icon": "$(pulse)"
+      },
+      {
+        "command": "lexicon.test",
+        "title": "%command.test%",
+        "icon": "$(beaker)"
+      },
+      {
+        "command": "lexicon.build",
+        "title": "%command.build%",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "lexicon.debug",
+        "title": "%command.debug%",
+        "icon": "$(debug-start)"
+      },
+      {
+        "command": "lexicon.newProject",
+        "title": "%command.newProject%",
+        "icon": "$(new-folder)"
+      },
+      {
+        "command": "lexicon.showSnippets",
+        "title": "%command.showSnippets%",
+        "icon": "$(list-unordered)"
+      },
+      {
+        "command": "lexicon.env",
+        "title": "%command.env%",
+        "icon": "$(info)"
+      },
+      {
+        "command": "lexicon.showProblems",
+        "title": "%command.showProblems%",
+        "icon": "$(list-unordered)"
+      },
+      {
+        "command": "lexicon.telemetry.show",
+        "title": "%command.telemetry.show%",
+        "icon": "$(info)"
+      },
+      {
+        "command": "lexicon.telemetry.reset",
+        "title": "%command.telemetry.reset%",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "lexicon.serve",
+        "title": "%command.serve%",
+        "icon": "$(server)"
+      },
+      {
+        "command": "lexicon.testNet",
+        "title": "%command.testNet%",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "lexicon.dnsCheck",
+        "title": "%command.dnsCheck%",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "lexicon.tlsCheck",
+        "title": "%command.tlsCheck%",
+        "icon": "$(lock)"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "lexicon.run",
+          "when": "editorLangId == lexicon",
+          "group": "lexicon@1"
+        },
+        {
+          "command": "lexicon.check",
+          "when": "editorLangId == lexicon",
+          "group": "lexicon@2"
+        },
+        {
+          "command": "lexicon.vet",
+          "when": "editorLangId == lexicon",
+          "group": "lexicon@3"
+        },
+        {
+          "command": "lexicon.fmt",
+          "when": "editorLangId == lexicon",
+          "group": "lexicon@4"
+        },
+        {
+          "command": "lexicon.serve",
+          "when": "editorLangId == lexicon",
+          "group": "lexicon@5"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "lexicon.run",
+          "when": "editorLangId == lexicon"
+        },
+        {
+          "command": "lexicon.runWithArgs",
+          "when": "editorLangId == lexicon"
+        },
+        {
+          "command": "lexicon.check",
+          "when": "editorLangId == lexicon"
+        },
+        {
+          "command": "lexicon.vet",
+          "when": "editorLangId == lexicon"
+        },
+        {
+          "command": "lexicon.lint",
+          "when": "editorLangId == lexicon"
+        },
+        {
+          "command": "lexicon.fmt",
+          "when": "editorLangId == lexicon"
+        },
+        {
+          "command": "lexicon.doc",
+          "when": "editorLangId == lexicon"
+        },
+        {
+          "command": "lexicon.trace",
+          "when": "editorLangId == lexicon"
+        },
+        {
+          "command": "lexicon.test",
+          "when": "editorLangId == lexicon"
+        },
+        {
+          "command": "lexicon.build",
+          "when": "editorLangId == lexicon"
+        },
+        {
+          "command": "lexicon.debug",
+          "when": "editorLangId == lexicon"
+        },
+        {
+          "command": "lexicon.newProject",
+          "when": "true"
+        },
+        {
+          "command": "lexicon.showSnippets",
+          "when": "editorLangId == lexicon"
+        },
+        {
+          "command": "lexicon.showProblems",
+          "when": "editorLangId == lexicon"
+        },
+        {
+          "command": "lexicon.telemetry.show",
+          "when": "true"
+        },
+        {
+          "command": "lexicon.telemetry.reset",
+          "when": "true"
+        },
+        {
+          "command": "lexicon.serve",
+          "when": "editorLangId == lexicon"
+        },
+        {
+          "command": "lexicon.testNet",
+          "when": "editorLangId == lexicon"
+        },
+        {
+          "command": "lexicon.dnsCheck",
+          "when": "true"
+        },
+        {
+          "command": "lexicon.tlsCheck",
+          "when": "true"
+        }
+      ]
     },
-"devDependencies": {
-        "typescript": "^5.9.3",
-        "vscode": "^1.1.37"
+    "configurationDefaults": {
+      "[lexicon]": {
+        "editor.guides.bracketPairs": "active",
+        "editor.bracketPairColorization.enabled": true,
+        "editor.fontFamily": "Cascadia Code, Fira Code, JetBrains Mono, Consolas, Menlo, monospace",
+        "editor.fontLigatures": true
+      }
     },
-    "dependencies": {}
+    "keybindings": [
+      {
+        "command": "lexicon.run",
+        "key": "f5",
+        "when": "editorLangId == lexicon"
+      },
+      {
+        "command": "lexicon.run",
+        "mac": "cmd+shift+r",
+        "when": "editorLangId == lexicon"
+      },
+      {
+        "command": "lexicon.check",
+        "key": "ctrl+shift+c",
+        "mac": "cmd+shift+c",
+        "when": "editorLangId == lexicon"
+      },
+      {
+        "command": "lexicon.fmt",
+        "key": "ctrl+shift+i",
+        "mac": "cmd+shift+i",
+        "when": "editorLangId == lexicon"
+      },
+      {
+        "command": "lexicon.vet",
+        "key": "ctrl+shift+v",
+        "mac": "cmd+shift+v",
+        "when": "editorLangId == lexicon"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "lexicon",
+        "label": "%debugger.label%",
+        "languages": [
+          "lexicon"
+        ],
+        "configurationAttributes": {
+          "launch": {
+            "required": [
+              "program"
+            ],
+            "properties": {
+              "program": {
+                "type": "string"
+              },
+              "args": {
+                "type": "array"
+              },
+              "stopOnEntry": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "configurationSnippets": [
+          {
+            "label": "%debugger.snippet.label%",
+            "body": {
+              "type": "lexicon",
+              "request": "launch",
+              "name": "${1:Launch}",
+              "program": "^\\${file}"
+            }
+          }
+        ],
+        "variables": []
+      }
+    ],
+    "problemMatchers": [
+      {
+        "name": "lexicon-vet",
+        "owner": "lexicon",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": [
+          {
+            "regexp": "^(.*?):(\\d+):(\\d+):?\\s*(.*)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "message": 4
+          },
+          {
+            "regexp": "^(E\\d{4}):\\s*(.*)$",
+            "code": 1,
+            "message": 2
+          }
+        ]
+      },
+      {
+        "name": "lexicon-check",
+        "owner": "lexicon",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": [
+          {
+            "regexp": "^(.*?):(\\d+):(\\d+):?\\s*(.*)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "message": 4
+          },
+          {
+            "regexp": "^\\s*\\[(E\\d{4})\\]\\s*(.*)$",
+            "code": 1,
+            "message": 2
+          }
+        ]
+      },
+      {
+        "name": "lexicon-build",
+        "owner": "lexicon",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": [
+          {
+            "regexp": "^(.*?):(\\d+):(\\d+):?\\s*(?:(error|warning):?\\s*)?(.*)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "severity": 4,
+            "message": 5
+          },
+          {
+            "regexp": "^(error|warning)(\\[E\\d{4}\\])?:\\s*(.*)$",
+            "severity": 1,
+            "code": 2,
+            "message": 3
+          }
+        ]
+      },
+      {
+        "name": "lexicon-test",
+        "owner": "lexicon",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": [
+          {
+            "regexp": "^(.*?):(\\d+):?(\\d+)?:?\\s*(.*(?:FAIL|failed|error|panic).*)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "message": 4
+          },
+          {
+            "regexp": "^(FAIL|ok|PASS)\\s+(.*)$",
+            "message": 2
+          }
+        ]
+      }
+    ],
+    "walkthroughs": [
+      {
+        "id": "lexicon.getStarted",
+        "title": "%walkthrough.title%",
+        "description": "%walkthrough.description%",
+        "steps": [
+          {
+            "id": "lexicon.getStarted.install",
+            "title": "%walkthrough.step1.title%",
+            "description": "%walkthrough.step1.description%",
+            "media": {
+              "markdown": "WALKTHROUGH.md"
+            }
+          },
+          {
+            "id": "lexicon.getStarted.project",
+            "title": "%walkthrough.step2.title%",
+            "description": "%walkthrough.step2.description%",
+            "media": {
+              "markdown": "WALKTHROUGH.md"
+            }
+          },
+          {
+            "id": "lexicon.getStarted.run",
+            "title": "%walkthrough.step3.title%",
+            "description": "%walkthrough.step3.description%",
+            "media": {
+              "markdown": "WALKTHROUGH.md"
+            }
+          }
+        ]
+      }
+    ],
+    "taskDefinitions": [
+      {
+        "type": "lex",
+        "required": [
+          "command"
+        ],
+        "properties": {
+          "command": {
+            "type": "string",
+            "enum": [
+              "run",
+              "build",
+              "test",
+              "check",
+              "vet",
+              "lint",
+              "fmt",
+              "bench",
+              "doc",
+              "trace",
+              "debug",
+              "profile",
+              "serve",
+              "test-net",
+              "dns-check",
+              "tls-check"
+            ],
+            "description": "%task.command%"
+          },
+          "file": {
+            "type": "string",
+            "description": "%task.file%"
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "%task.args%",
+            "default": []
+          },
+          "release": {
+            "type": "boolean",
+            "description": "%task.release%",
+            "default": false
+          },
+          "host": {
+            "type": "string",
+            "description": "%task.host%",
+            "default": "127.0.0.1"
+          },
+          "port": {
+            "type": "number",
+            "description": "%task.port%",
+            "default": 3000
+          },
+          "timeout": {
+            "type": "string",
+            "description": "%task.timeout%",
+            "default": "5s"
+          },
+          "watch": {
+            "type": "boolean",
+            "description": "%task.watch%",
+            "default": false
+          },
+          "env": {
+            "type": "object",
+            "description": "%task.env%",
+            "default": {}
+          }
+        }
+      }
+    ],
+    "configuration": {
+      "title": "%config.title%",
+      "properties": {
+        "lexicon.path": {
+          "type": "string",
+          "default": "lex",
+          "description": "%config.lexicon.path%",
+          "markdownDescription": "%config.lexicon.path.md%"
+        },
+        "lexicon.sdkPath": {
+          "type": "string",
+          "default": "",
+          "description": "%config.lexicon.sdkPath%",
+          "markdownDescription": "%config.lexicon.sdkPath.md%"
+        },
+        "lexicon.features": {
+          "type": "string",
+          "default": "",
+          "description": "%config.lexicon.features%",
+          "markdownDescription": "%config.lexicon.features.md%"
+        },
+        "lexicon.target": {
+          "type": "string",
+          "default": "",
+          "description": "%config.lexicon.target%",
+          "markdownDescription": "%config.lexicon.target.md%"
+        },
+        "lexicon.vetOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.lexicon.vetOnSave%",
+          "markdownDescription": "%config.lexicon.vetOnSave.md%"
+        },
+        "lexicon.formatOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "%config.lexicon.formatOnSave%",
+          "markdownDescription": "%config.lexicon.formatOnSave.md%"
+        },
+        "lexicon.trace.server": {
+          "type": "string",
+          "default": "off",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "description": "%config.lexicon.trace.server%",
+          "markdownDescription": "%config.lexicon.trace.server.md%"
+        },
+        "lexicon.telemetry.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "%config.lexicon.telemetry.enabled%",
+          "markdownDescription": "%config.lexicon.telemetry.enabled.md%"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package",
+    "lint": "eslint src --ext ts",
+    "test:grammar": "node gramtest.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "@types/vscode": "^1.60.0",
+    "@types/node": "^20.0.0",
+    "vscode-textmate": "^9.3.2"
+  },
+  "dependencies": {}
 }

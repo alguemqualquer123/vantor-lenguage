@@ -1,0 +1,57 @@
+# EditorConfig — https://editorconfig.org
+# Lexicon language repository. Editors with the EditorConfig plugin apply
+# these automatically; the Lexicon VSCode extension also reads them for its
+# built-in formatter (lexicon.format.engine = auto|builtin).
+
+root = true
+
+# ---- defaults for every file ----
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+# ---- Lexicon source ----
+[*.lex]
+indent_style = space
+indent_size = 4
+tab_width = 4
+max_line_length = 100
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.{lang,lexicon}]
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+# ---- manifests / data (2-space, tabs are meaningful in Makefile only) ----
+[*.{json,jsonc,toml,yaml,yml}]
+indent_size = 2
+max_line_length = 120
+
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+[Makefile]
+indent_style = tab
+
+[*.rs]
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+# ---- extension TypeScript ----
+[themes/lexicon-vscode/**/*.ts]
+indent_size = 4
+max_line_length = 120
+
+# ---- CI / lockfiles: never touch ----
+[{package-lock.json,Cargo.lock}]
+insert_final_newline = unset
+trim_trailing_whitespace = unset

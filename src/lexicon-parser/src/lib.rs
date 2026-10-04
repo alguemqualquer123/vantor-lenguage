@@ -2,4 +2,4 @@ pub mod ast;
 pub mod parser;
 
 pub use ast::*;
-pub use parser::Parser;
+pub use parser::{ParseError, Parser};
